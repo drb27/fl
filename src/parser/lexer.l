@@ -1,3 +1,5 @@
+%option noyywrap
+
 %{
 
 #include "parser.tab.h"
@@ -11,5 +13,6 @@ WS    [ \t]+
 
 {DIGIT}+ { yylval.int_val = atoi(yytext); return INTEGER; }
 {WS}     
+\n       { return NEWLINE; }
 
 %%

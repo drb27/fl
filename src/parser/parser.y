@@ -1,9 +1,14 @@
 %{
-    int yylex(void);
-    void yyerror(const char*);
+
+#include "actions.h"
+
+int yylex(void);
+void yyerror(const char*);
+
 %}
 
 %token INTEGER
+%token NEWLINE
 
 %union
 {
@@ -20,8 +25,8 @@
 input: /* empty */
      | stmts;
 
-stmt : integer;
+stmt : integer NEWLINE { printf("Statement!\n"); };
 
 stmts: stmt | stmts stmt;
 
-integer: INTEGER '\n';
+integer: INTEGER { ac_integer($1); };
