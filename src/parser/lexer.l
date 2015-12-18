@@ -2,7 +2,7 @@
 
 %{
 
-#include "parser.tab.h"
+#include "parser.h"
 
 %}
 

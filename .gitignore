@@ -7,6 +7,8 @@ config.status
 config/
 configure
 libtool
+libparse.a
+src/inc/stamp-h1
 m4/
 shell
 *.o
