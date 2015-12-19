@@ -7,9 +7,14 @@ config.status
 config/
 configure
 libtool
-libparse.a
 src/inc/stamp-h1
 m4/
 shell
+interpreter_tests
+.deps
+.dirstamp
 *.o
+*.a
+*.log
+*.trs
 *~

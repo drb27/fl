@@ -2,9 +2,14 @@
 #include <iostream>
 #include <map>
 
+#include <interpreter/class.h>
+#include <interpreter/nametable.h>
+
 typedef std::map<std::string,int> varmap_t;
 
 static varmap_t varmap;
+
+static nametable<fclass> classes;
 
 #include <parser/actions.h>
 #include <common.h>
@@ -38,17 +43,26 @@ void ac_show_def(std::string* s)
 {
     if ( varmap.find(*s)!=varmap.end())
     {
-    std::cout << (*s) << ": " << varmap[(*s)] << std::endl;
+	std::cout << (*s) << ": " << varmap[(*s)] << std::endl;
     }
     else
     {
-    std::cout << "Undefined symbol" << std::endl;
+	std::cout << "Undefined symbol" << std::endl;
     }
     delete s;
 }
 
 int main(void)
 {
+    fclass root("object");
+    classes.set( &root );
+
+    fclass int_cls("integer",root);
+    classes.set(&int_cls);
+
+    if ( root.is_root() )
+	std::cout << "object is root" << std::endl;
+
     std::cout << PACKAGE_STRING << std::endl;
     std::cout << "Hello, world!" << std::endl;
     yyparse();

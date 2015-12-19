@@ -1,17 +1,22 @@
-CXX=g++
 ACLOCAL_AMFLAGS=-I m4
 SUBDIRS=.
 CLEANFILES=src/parser/parser.cpp src/parser/lexer.cpp src/parser/parser.h
 AM_YFLAGS=-d
+AM_CXXFLAGS=-std=c++11 -Isrc
 bin_PROGRAMS=shell
-noinst_LIBRARIES = libparse.a
+noinst_LIBRARIES = libparse.a libinterpret.a
 libparse_a_SOURCES=src/parser/lexer.cpp src/parser/parser.cpp
 libparse_a_DEPENDENCIES=src/parser/lexer.l src/parser/parser.y
+libinterpret_a_SOURCES=src/interpreter/class.cpp
 shell_SOURCES=src/shell/shell.cpp
-shell_LDADD=libparse.a
+shell_LDADD=libparse.a libinterpret.a
 shell_LDFLAGS=-lfl
-shell_CXXFLAGS = -Isrc
 
+TESTS=interpreter_tests
+check_PROGRAMS=interpreter_tests
+interpreter_tests_SOURCES=	src/interpreter/tests/tests.cpp \
+				src/interpreter/tests/test-fclass.cpp
+interpreter_tests_LDADD=libinterpret.a
 
 src/parser/parser.cpp : src/parser/parser.y
 	$(YACC) $(AM_YFLAGS) src/parser/parser.y -o src/parser/parser.cpp
@@ -19,4 +24,3 @@ src/parser/parser.cpp : src/parser/parser.y
 
 src/parser/lexer.cpp : src/parser/lexer.l src/parser/parser.cpp
 	$(LEX) $(AM_LFLAGS) -o src/parser/lexer.cpp src/parser/lexer.l
-
