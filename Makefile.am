@@ -15,7 +15,9 @@ shell_LDFLAGS=-lfl
 TESTS=interpreter_tests
 check_PROGRAMS=interpreter_tests
 interpreter_tests_SOURCES=	src/interpreter/tests/tests.cpp \
-				src/interpreter/tests/test-fclass.cpp
+				src/interpreter/tests/test-fclass.cpp \
+				src/interpreter/tests/test-nametable.cpp
+
 interpreter_tests_LDADD=libinterpret.a
 
 src/parser/parser.cpp : src/parser/parser.y

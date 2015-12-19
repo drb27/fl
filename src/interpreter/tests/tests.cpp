@@ -8,8 +8,10 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "test-fclass.h"
+#include "test-nametable.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(FclassTestFixture);
+CPPUNIT_TEST_SUITE_REGISTRATION(NametableTestFixture);
 
 int main(int argc, char* argv[] )
 {

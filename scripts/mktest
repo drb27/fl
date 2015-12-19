@@ -1,0 +1,4 @@
+#!/bin/bash
+UPPER=`echo $1 | awk '{print toupper($0)}'`
+sed "s/CLASS/$1/g" templates/test-class.cpp >> src/interpreter/tests/test-$1.cpp
+sed "s/UPPERCLASS/$UPPER/g" templates/test-class.h | sed "s/CLASS/$1/g" >> src/interpreter/tests/test-$1.h
