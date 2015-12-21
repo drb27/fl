@@ -9,9 +9,11 @@
 
 #include "test-fclass.h"
 #include "test-nametable.h"
+#include "test-object.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(FclassTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(NametableTestFixture);
+CPPUNIT_TEST_SUITE_REGISTRATION(ObjectTestFixture);
 
 int main(int argc, char* argv[] )
 {

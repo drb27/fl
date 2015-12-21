@@ -4,8 +4,9 @@
 
 #include <interpreter/class.h>
 #include <interpreter/nametable.h>
+#include <interpreter/object.h>
 
-typedef std::map<std::string,int> varmap_t;
+typedef std::map<std::string,object*> varmap_t;
 
 static varmap_t varmap;
 
@@ -23,7 +24,9 @@ extern "C" void yyerror(char const* c)
 
 void ac_integer(int i)
 {
-    std::cout << "You said " << i << std::endl; 
+    ftinteger fti(i);
+    fti.render( std::cout );
+    std::cout << std::endl;
 }
 
 void ac_fraction(int a,int b)
@@ -34,8 +37,12 @@ void ac_fraction(int a,int b)
 
 void ac_assign(std::string* s, int v)
 {
-    std::cout << (*s) << ": " << v << std::endl;
-    varmap[*s]=v;
+    ftinteger* i = new ftinteger(v);
+    varmap[*s]=i;
+
+    std::cout << (*s) << ": ";
+    (*i).render(std::cout);
+    std::cout << std::endl;
     delete s;
 }
 
@@ -43,7 +50,9 @@ void ac_show_def(std::string* s)
 {
     if ( varmap.find(*s)!=varmap.end())
     {
-	std::cout << (*s) << ": " << varmap[(*s)] << std::endl;
+	std::cout << (*s) << ": ";
+	varmap[*s]->render(std::cout);
+	std::cout << std::endl;
     }
     else
     {
@@ -54,14 +63,20 @@ void ac_show_def(std::string* s)
 
 int main(void)
 {
-    fclass root("object");
-    classes.set( &root );
 
-    fclass int_cls("integer",root);
-    classes.set(&int_cls);
+    typespec tint("integer");
+    typespec sublist("list");
+    sublist.push_param(tint);
+    typespec tl("list");
+    tl.push_param(sublist);
+    std::cout << tint.full_name() << std::endl;
+    std::cout << sublist.full_name() << std::endl;
+    std::cout << tl.full_name() << std::endl;
 
-    if ( root.is_root() )
-	std::cout << "object is root" << std::endl;
+    ftlist l( object::root_object_class() );
+    object o(object::root_object_class() );
+    l.append(&o);
+    l.render(std::cout);
 
     std::cout << PACKAGE_STRING << std::endl;
     std::cout << "Hello, world!" << std::endl;

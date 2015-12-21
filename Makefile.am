@@ -7,7 +7,11 @@ bin_PROGRAMS=shell
 noinst_LIBRARIES = libparse.a libinterpret.a
 libparse_a_SOURCES=src/parser/lexer.cpp src/parser/parser.cpp
 libparse_a_DEPENDENCIES=src/parser/lexer.l src/parser/parser.y
-libinterpret_a_SOURCES=src/interpreter/class.cpp
+libinterpret_a_SOURCES=	src/interpreter/class.cpp \
+			src/interpreter/package.cpp \
+			src/interpreter/object.cpp \
+			src/interpreter/typemgr.cpp
+
 shell_SOURCES=src/shell/shell.cpp
 shell_LDADD=libparse.a libinterpret.a
 shell_LDFLAGS=-lfl
@@ -16,7 +20,9 @@ TESTS=interpreter_tests
 check_PROGRAMS=interpreter_tests
 interpreter_tests_SOURCES=	src/interpreter/tests/tests.cpp \
 				src/interpreter/tests/test-fclass.cpp \
-				src/interpreter/tests/test-nametable.cpp
+				src/interpreter/tests/test-nametable.cpp \
+				src/interpreter/tests/test-package.cpp \
+				src/interpreter/tests/test-object.cpp
 
 interpreter_tests_LDADD=libinterpret.a
 
