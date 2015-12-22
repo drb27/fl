@@ -63,21 +63,6 @@ void ac_show_def(std::string* s)
 
 int main(void)
 {
-
-    typespec tint("integer");
-    typespec sublist("list");
-    sublist.push_param(tint);
-    typespec tl("list");
-    tl.push_param(sublist);
-    std::cout << tint.full_name() << std::endl;
-    std::cout << sublist.full_name() << std::endl;
-    std::cout << tl.full_name() << std::endl;
-
-    ftlist l( object::root_object_class() );
-    object o(object::root_object_class() );
-    l.append(&o);
-    l.render(std::cout);
-
     std::cout << PACKAGE_STRING << std::endl;
     std::cout << "Hello, world!" << std::endl;
     yyparse();
