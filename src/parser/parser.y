@@ -40,13 +40,13 @@ extern "C" void yyerror(const char*);
 input: /* empty */
      | stmts;
 
-list: OPEN_PAREN { $<obj_list>$=new std::list<object*>();} items_empty CLOSE_PAREN {$$=$<obj_list>2;};
+list: OPEN_PAREN items_empty CLOSE_PAREN {$$=$<obj_list>2;};
 
 items_empty: | items;
 
 items: literal | items literal;
 
-literal: integer | SYMBOL | list;
+literal: integer | SYMBOL | list | tuple;
 
 stmt : assign NEWLINE
      | literal NEWLINE
@@ -61,3 +61,9 @@ typespec: SYMBOL | SYMBOL OPEN_ANGLED typespeclist CLOSE_ANGLED;
 
 typespeclist: typespec 
             | typespeclist COMMA typespec;
+
+tuple: OPEN_PAREN tupleitems CLOSE_PAREN;
+
+tupleitems: literalz literal;
+
+literalz: literal COMMA | literalz literal COMMA;
