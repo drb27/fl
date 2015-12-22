@@ -31,17 +31,18 @@ class typespec
     std::list<typespec> _params;
 };
 
-class fclass : public named, public static_base<fclass>
+class fclass : public static_base<fclass>
 {
 
  public:
-    fclass(const std::string&, const fclass& base);
-    fclass(const std::string& );
- 
+    fclass(const typespec&, const fclass& base);
+    fclass(const typespec& );
+    std::string name() const;
  protected:
 
  private:
 
+    const typespec _ts;
     std::map<std::string,fclass*> _attributes;
 };
 

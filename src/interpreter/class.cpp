@@ -69,13 +69,18 @@ bool typespec::operator==( const typespec& other) const
     return full_name()==other.full_name();
 }
 
-fclass::fclass( const string& name, const fclass& base) 
-    : named(name),static_base<fclass>(base)
+fclass::fclass( const typespec& ts, const fclass& base) 
+    : _ts(ts),static_base<fclass>(base)
 {
 
 }
 
-fclass::fclass(const string& name)
-    : named(name),static_base<fclass>(*this)
+fclass::fclass(const typespec& ts)
+    : _ts(ts),static_base<fclass>(*this)
 {
+}
+
+string fclass::name() const
+{
+    return _ts.full_name();
 }

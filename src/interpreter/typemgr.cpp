@@ -29,7 +29,13 @@ const fclass& typemgr::check_builtin( const typespec& ts )
 
     if (ts.full_name()=="object")
     {
-	pTarget = new fclass("object");
+	typespec ts("object");
+	pTarget = new fclass(ts);
+    }
+
+    if (ts.full_name().substr(0,4)=="list")
+    {
+	pTarget = new fclass(ts.full_name());
     }
 
     if (pTarget!=nullptr)
