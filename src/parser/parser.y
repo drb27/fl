@@ -2,12 +2,9 @@
 
 #include <string>
 #include <list>
-#include "actions.h"
 
 int yylex(void);
 extern "C" void yyerror(const char*);
- class object;
- class ftlist;
 %}
 
 %token INTEGER
@@ -25,14 +22,10 @@ extern "C" void yyerror(const char*);
 {
     int int_val;
     std::string* string_val;
-    object* obj_ptr;
-    ftlist* lst_ptr;
-    std::list<object*>* obj_list;
 }
 
 %type <int_val> INTEGER
 %type <string_val> SYMBOL
-%type <obj_list> list;
 %start input
 
 %%
@@ -40,7 +33,7 @@ extern "C" void yyerror(const char*);
 input: /* empty */
      | stmts;
 
-list: OPEN_PAREN items_empty CLOSE_PAREN {$$=$<obj_list>2;};
+list: OPEN_PAREN items_empty CLOSE_PAREN;
 
 items_empty: | items;
 
@@ -56,8 +49,8 @@ stmt : assign NEWLINE
 
 stmts: stmt | stmts stmt;
 
-assign: typespec SYMBOL EQ INTEGER { ac_assign($2,$4); }
-integer: INTEGER { ac_integer($1); };
+assign: typespec SYMBOL EQ INTEGER;
+integer: INTEGER;
 
 typespec: SYMBOL | SYMBOL OPEN_ANGLED typespeclist CLOSE_ANGLED;
 
