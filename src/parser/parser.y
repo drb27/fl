@@ -48,8 +48,10 @@ items: literal | items literal;
 
 literal: integer | SYMBOL | list | tuple;
 
+expr: literal | funcall;
+
 stmt : assign NEWLINE
-     | literal NEWLINE
+     | expr NEWLINE
      ;
 
 stmts: stmt | stmts stmt;
@@ -58,6 +60,8 @@ assign: typespec SYMBOL EQ INTEGER { ac_assign($2,$4); }
 integer: INTEGER { ac_integer($1); };
 
 typespec: SYMBOL | SYMBOL OPEN_ANGLED typespeclist CLOSE_ANGLED;
+
+funcall: expr tuple;
 
 typespeclist: typespec 
             | typespeclist COMMA typespec;
