@@ -15,7 +15,7 @@ typemgr::~typemgr()
 const fclass& typemgr::lookup( const typespec& ts )
 {
     // If it is in the map, return it
-    auto idx = _typeMap.find(ts.full_name());
+    auto idx = _typeMap.find(ts);
     if (idx!=_typeMap.end())
 	return *((*idx).second);
 
@@ -40,7 +40,7 @@ const fclass& typemgr::check_builtin( const typespec& ts )
 
     if (pTarget!=nullptr)
     {
-	_typeMap[ts.full_name()] = pTarget;
+	_typeMap[ts] = pTarget;
 	return (*pTarget);
     }
     else

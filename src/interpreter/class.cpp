@@ -69,6 +69,16 @@ bool typespec::operator==( const typespec& other) const
     return full_name()==other.full_name();
 }
 
+int typespec::operator<( const typespec& other) const
+{
+    return full_name()<other.full_name();
+}
+
+int typespec::operator>( const typespec& other) const
+{
+    return full_name()>other.full_name();
+}
+
 fclass::fclass( const typespec& ts, const fclass& base) 
     : _ts(ts),static_base<fclass>(base)
 {

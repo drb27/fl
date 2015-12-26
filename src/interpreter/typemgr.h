@@ -19,7 +19,7 @@ class typemgr
     virtual const fclass& check_builtin(const typespec&); 
 
  private:
-    std::map<std::string,const fclass*> _typeMap;
+    std::map<typespec,const fclass*> _typeMap;
 };
 
 #endif

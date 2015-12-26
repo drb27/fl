@@ -22,6 +22,8 @@ class typespec
     void push_param( typespec& );
 
     bool operator==( const typespec& other) const;
+    int operator<( const typespec& other) const;
+    int operator>( const typespec& other) const;
 
   protected:
   
