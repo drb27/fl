@@ -9,9 +9,14 @@ using std::string;
 using std::list;
 using std::stringstream;
 
-typespec::typespec( const string& nm )
+typespec::typespec( const string& nm, const list<typespec>& prms )
     : _name(nm)
 {
+    for (auto p : prms )
+    {
+	_params.push_back(p);
+    }
+    validate();
 }
 
 typespec::~typespec()
@@ -21,6 +26,11 @@ typespec::~typespec()
 int typespec::param_count() const
 {
     return _params.size();
+}
+
+const typespec& fclass::get_spec() const
+{
+    return _ts;
 }
 
 const string& typespec::template_name() const
@@ -54,16 +64,6 @@ const list<typespec>& typespec::params() const
     return _params;
 }
 
-list<typespec>& typespec::params()
-{
-    return _params;
-}
-
-void typespec::push_param( typespec& t )
-{
-    _params.push_back(t);
-}
-
 bool typespec::operator==( const typespec& other) const
 {
     return full_name()==other.full_name();
@@ -77,6 +77,13 @@ int typespec::operator<( const typespec& other) const
 int typespec::operator>( const typespec& other) const
 {
     return full_name()>other.full_name();
+}
+
+void typespec::validate() const
+{
+    if ( (template_name()=="list") && param_count()!=1 )
+	throw std::logic_error("Invalid typespec");
+
 }
 
 fclass::fclass( const typespec& ts, const fclass& base) 

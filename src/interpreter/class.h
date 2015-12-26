@@ -11,15 +11,13 @@ class typespec
 {
   public:
   
-    typespec(const std::string&);
+    typespec(const std::string&, const std::list<typespec>&);
     virtual ~typespec();
 
     int param_count() const;
     const std::list<typespec>& params() const;
-    std::list<typespec>& params();
     const std::string& template_name() const;
     std::string full_name() const;
-    void push_param( typespec& );
 
     bool operator==( const typespec& other) const;
     int operator<( const typespec& other) const;
@@ -28,6 +26,8 @@ class typespec
   protected:
   
   private:
+
+    void validate() const;
 
     const std::string _name;
     std::list<typespec> _params;
@@ -40,6 +40,7 @@ class fclass : public static_base<fclass>
     fclass(const typespec&, const fclass& base);
     fclass(const typespec& );
     std::string name() const;
+    const typespec& get_spec() const;
  protected:
 
  private:

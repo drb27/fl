@@ -1,7 +1,9 @@
-#include <string.h>
+#include <string>
+#include <list>
 #include "typemgr.h"
 
 using std::string;
+using std::list;
 
 typemgr::typemgr()
 {
@@ -29,13 +31,14 @@ const fclass& typemgr::check_builtin( const typespec& ts )
 
     if (ts.full_name()=="object")
     {
-	typespec ts("object");
+	list<typespec> l;
+	typespec ts("object",l);
 	pTarget = new fclass(ts);
     }
 
-    if (ts.full_name().substr(0,4)=="list")
+    if (ts.template_name()=="list")
     {
-	pTarget = new fclass(ts.full_name());
+	pTarget = new fclass(ts);
     }
 
     if (pTarget!=nullptr)
