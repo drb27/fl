@@ -49,3 +49,17 @@ const fclass& typemgr::check_builtin( const typespec& ts )
     else
 	throw std::exception();
 }
+
+bool typemgr::add(const fclass& cls)
+{
+    try
+    {
+	const fclass& existing = lookup(cls.get_spec());
+	return false;
+    }
+    catch (...)
+    {
+	_typeMap[cls.get_spec()] = &cls;
+	return true;
+    }
+}

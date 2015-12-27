@@ -13,7 +13,7 @@ class typemgr
     virtual ~typemgr();
 
     const fclass& lookup( const typespec& fqn );
-
+    bool add(const fclass& cls);
  protected:
 
     virtual const fclass& check_builtin(const typespec&); 
