@@ -20,13 +20,9 @@ int main(void)
 {
     std::cout << PACKAGE_STRING << std::endl;
 
-    list<typespec> empty;
     typemgr mgr;
-    typespec int_spec = typespec("int",empty);
-
-    list<typespec> l;
-    l.push_back(int_spec);
-    typespec list_spec = typespec("list",l);
+    typespec int_spec = typespec("int",{});
+    typespec list_spec = typespec("list",{int_spec});
     
     const fclass& intlist_cls = mgr.lookup(list_spec);
 
