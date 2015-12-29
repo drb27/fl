@@ -5,7 +5,7 @@ AM_YFLAGS=-d
 AM_CXXFLAGS=-std=c++11 -Isrc
 bin_PROGRAMS=shell
 noinst_LIBRARIES = libparse.a libinterpret.a
-libparse_a_SOURCES=src/parser/lexer.cpp src/parser/parser.cpp
+libparse_a_SOURCES=src/parser/lexer.cpp src/parser/parser.cpp src/parser/ast.cpp
 libparse_a_DEPENDENCIES=src/parser/lexer.l src/parser/parser.y
 libinterpret_a_SOURCES=	src/interpreter/class.cpp \
 			src/interpreter/package.cpp \
