@@ -5,8 +5,11 @@
 
 #include <interpreter/class.h>
 #include <interpreter/typemgr.h>
+#include <parser/action_target.h>
 
 using std::list;
+
+action_target* target;
 
 int yyparse(void);
 

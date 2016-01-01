@@ -10,7 +10,9 @@ libparse_a_DEPENDENCIES=src/parser/lexer.l src/parser/parser.y
 libinterpret_a_SOURCES=	src/interpreter/class.cpp \
 			src/interpreter/package.cpp \
 			src/interpreter/object.cpp \
-			src/interpreter/typemgr.cpp
+			src/interpreter/typemgr.cpp \
+			src/interpreter/context.cpp \
+			src/interpreter/action_target.cpp
 
 shell_SOURCES=src/shell/shell.cpp
 shell_LDADD=libparse.a libinterpret.a

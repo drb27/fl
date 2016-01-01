@@ -1,12 +1,18 @@
 %{
 
 #include <string>
-#include <list>
+#include <parser/ast.h>
+#include <parser/action_target.h>
 
 int yylex(void);
 extern "C" void yyerror(const char*);
+
+extern action_target* target;
+
 %}
 
+%token ADD
+%token MAPSTO
 %token INTEGER
 %token NEWLINE
 %token DIV
@@ -22,9 +28,11 @@ extern "C" void yyerror(const char*);
 {
     int int_val;
     std::string* string_val;
+    ast* node_val;
 }
 
 %type <int_val> INTEGER
+%type <node_val> integer
 %type <string_val> SYMBOL
 %start input
 
@@ -41,23 +49,28 @@ items: literal | items literal;
 
 literal: integer | SYMBOL | list | tuple;
 
-expr: literal | funcall;
+expr: literal | funcall | expr ADD expr;
 
 stmt : assign NEWLINE
+     | fundef NEWLINE
      | expr NEWLINE
      ;
 
 stmts: stmt | stmts stmt;
 
-assign: typespec SYMBOL EQ INTEGER;
-integer: INTEGER;
+fundef: SYMBOL list MAPSTO expr;
+
+assign: typespec SYMBOL EQ integer { /*$$=target->assign($1,$2,$4);*/ };
+integer: INTEGER { /* $$=target->make_int($1); */ }
+
 
 typespec: SYMBOL | SYMBOL OPEN_ANGLED typespeclist CLOSE_ANGLED;
 
-funcall: expr tuple;
-
 typespeclist: typespec 
             | typespeclist COMMA typespec;
+
+
+funcall: expr tuple;
 
 tuple: OPEN_PAREN tupleitems CLOSE_PAREN;
 

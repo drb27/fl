@@ -7,7 +7,9 @@ class ftlist;
 #include <string>
 #include <list>
 #include <common.h>
+#include <parser/ast.h>
 #include "parser.h"
+
 
 #define STR(x) new std::string(x)
 
@@ -19,6 +21,8 @@ WS    [ \t]+
 LETTER [A-Za-z]
 %%
 
+\+       { return ADD; }
+-\>      { return MAPSTO; }
 ,        { return COMMA; }
 \(       { return OPEN_PAREN; }
 \)       { return CLOSE_PAREN; }
