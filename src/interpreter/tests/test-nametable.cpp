@@ -36,7 +36,8 @@ void NametableTestFixture::testConstruction()
 void NametableTestFixture::testSize()
 {
     nametable<fclass> classTable;
-    fclass root("object");
+    typespec root_spec("object",{});
+    fclass root(root_spec);
     classTable.set(&root);
     CPPUNIT_ASSERT( classTable.size() == 1 );
 }
@@ -47,7 +48,8 @@ void NametableTestFixture::testSize()
 void NametableTestFixture::testGetByName()
 {
     nametable<fclass> classTable;
-    fclass root("object");
+    typespec root_spec("object",{});
+    fclass root(root_spec);
     classTable.set(&root);
     CPPUNIT_ASSERT( &root == classTable.get("object") );
 }
@@ -58,7 +60,8 @@ void NametableTestFixture::testGetByName()
 void NametableTestFixture::testGetByNameAbsent()
 {
     nametable<fclass> classTable;
-    fclass root("object");
+    typespec root_spec("object",{});
+    fclass root(root_spec);
     classTable.set(&root);
     CPPUNIT_ASSERT( nullptr == classTable.get("blah") );
 }
@@ -70,7 +73,8 @@ void NametableTestFixture::testGetByNameAbsent()
 void NametableTestFixture::testContainsByName()
 {
     nametable<fclass> classTable;
-    fclass root("object");
+    typespec root_spec("object",{});
+    fclass root(root_spec);
     classTable.set(&root);
     CPPUNIT_ASSERT( classTable.contains("object") );
     CPPUNIT_ASSERT( !classTable.contains("banana") );
@@ -82,8 +86,10 @@ void NametableTestFixture::testContainsByName()
 void NametableTestFixture::testContainsByRef()
 {
     nametable<fclass> classTable;
-    fclass root("object");
-    fclass child("child",root);
+    typespec root_spec("object",{});
+    typespec child_spec("child",{});
+    fclass root(root_spec);
+    fclass child(child_spec,root);
     classTable.set(&root);
     CPPUNIT_ASSERT( classTable.contains(&root) );
     CPPUNIT_ASSERT( !classTable.contains(&child) );
@@ -91,9 +97,12 @@ void NametableTestFixture::testContainsByRef()
 
 void NametableTestFixture::testRejectDuplicate()
 {
-    fclass root("object");
-    fclass one("thing",root);
-    fclass two("thing",root);
+    typespec root_spec("object",{});
+    typespec thing_spec("thing",{});
+
+    fclass root(root_spec);
+    fclass one(thing_spec,root);
+    fclass two(thing_spec,root);
 
     nametable<fclass> classTable;
     classTable.set(&root);
@@ -106,9 +115,12 @@ void NametableTestFixture::testRejectDuplicate()
 
 void NametableTestFixture::testAcceptDuplicate()
 {
-    fclass root("object");
-    fclass one("thing",root);
-    fclass two("thing",root);
+    typespec root_spec("object",{});
+    typespec thing_spec("thing",{});
+
+    fclass root(root_spec);
+    fclass one(thing_spec,root);
+    fclass two(thing_spec,root);
 
     nametable<fclass> classTable;
     classTable.set(&root);
@@ -121,7 +133,8 @@ void NametableTestFixture::testAcceptDuplicate()
 
 void NametableTestFixture::testSetNew()
 {
-    fclass root("object");
+    typespec root_spec("object",{});
+    fclass root(root_spec);
     nametable<fclass> classTable;
     CPPUNIT_ASSERT( classTable.set(&root) == nullptr );
     CPPUNIT_ASSERT( classTable.contains("object") );

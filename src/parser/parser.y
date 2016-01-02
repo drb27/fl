@@ -1,6 +1,8 @@
 %{
 
 #include <string>
+#include <iostream>
+#include <ostream>
 #include <parser/ast.h>
 #include <parser/action_target.h>
 
@@ -15,7 +17,6 @@ extern action_target* target;
 %token MAPSTO
 %token INTEGER
 %token NEWLINE
-%token DIV
 %token SYMBOL
 %token EQ
 %token OPEN_PAREN
@@ -23,6 +24,7 @@ extern action_target* target;
 %token OPEN_ANGLED
 %token CLOSE_ANGLED
 %token COMMA
+%token TYPEDEF
 
 %union
 {
@@ -32,48 +34,81 @@ extern action_target* target;
 }
 
 %type <int_val> INTEGER
-%type <node_val> integer
 %type <string_val> SYMBOL
+%type <node_val> integer
+%type <node_val> symbol
+%type <node_val> fundef
+%type <node_val> expr
+%type <node_val> funcall
+%type <node_val> literal
+%type <node_val> list
+%type <node_val> items
+%type <node_val> items_empty
+%type <node_val> stmt
+%type <node_val> assign
+
 %start input
 
+%left ADD
+%precedence LOWEST
+%precedence OPEN_PAREN
 %%
+
+
+/* INPUTS *****************************************************************/
 
 input: /* empty */
      | stmts;
 
-list: OPEN_PAREN items_empty CLOSE_PAREN;
 
-items_empty: | items;
+/* CONSTRUCTORS ***********************************************************/
 
-items: literal | items literal;
-
-literal: integer | SYMBOL | list | tuple;
-
-expr: literal | funcall | expr ADD expr;
-
-stmt : assign NEWLINE
-     | fundef NEWLINE
-     | expr NEWLINE
-     ;
-
-stmts: stmt | stmts stmt;
-
-fundef: SYMBOL list MAPSTO expr;
-
-assign: typespec SYMBOL EQ integer { /*$$=target->assign($1,$2,$4);*/ };
-integer: INTEGER { /* $$=target->make_int($1); */ }
+integer: INTEGER { $$=target->make_int($1); }
+symbol:  SYMBOL  { /* $$=target->make_symbol($1); */ }
 
 
-typespec: SYMBOL | SYMBOL OPEN_ANGLED typespeclist CLOSE_ANGLED;
+/* DEFINITIONS ************************************************************/
+
+fundef: symbol list MAPSTO expr { /*$$ = target->make_fundef($1,$4);*/ };
+
+/*
+typealias: TYPEDEF symbol typespec;
+
+typespec: symbol | symbol OPEN_ANGLED typespeclist CLOSE_ANGLED;
 
 typespeclist: typespec 
             | typespeclist COMMA typespec;
+*/
+
+/* LISTS ******************************************************************/
+
+list:        OPEN_PAREN items_empty CLOSE_PAREN {$$=$2;};
+items_empty: {$$=nullptr;} | items;
+
+items:       expr 
+           | items expr
+           ;
+
+/* EXPRESSIONS ************************************************************/
+
+expr:   literal 
+      | funcall 
+      | symbol %prec LOWEST 
+      | expr ADD expr
+      ;
+
+literal: integer | list;
+funcall: symbol list %prec OPEN_PAREN;
 
 
-funcall: expr tuple;
+/* STATEMENTS *************************************************************/
 
-tuple: OPEN_PAREN tupleitems CLOSE_PAREN;
+stmt : assign NEWLINE {$$=$1; }
+     | fundef NEWLINE {$$=$1; }
+       /* | typealias NEWLINE */
+     | expr NEWLINE {$$=$1;}
+     ;
 
-tupleitems: literalz literal;
+stmts: stmt {target->respond($1); } | stmts stmt {target->respond($2); };
 
-literalz: literal COMMA | literalz literal COMMA;
+assign: SYMBOL EQ integer { $$=$3; /*$$=target->assign($1,$2,$4);*/ };

@@ -11,11 +11,11 @@ libinterpret_a_SOURCES=	src/interpreter/class.cpp \
 			src/interpreter/package.cpp \
 			src/interpreter/object.cpp \
 			src/interpreter/typemgr.cpp \
-			src/interpreter/context.cpp \
-			src/interpreter/action_target.cpp
+			src/interpreter/context.cpp
 
-shell_SOURCES=src/shell/shell.cpp
+shell_SOURCES=src/shell/shell.cpp src/interpreter/dat.cpp
 shell_LDADD=libparse.a libinterpret.a
+libinterpret_a_LIBADD=libparse.a
 shell_LDFLAGS=-lfl
 
 TESTS=interpreter_tests

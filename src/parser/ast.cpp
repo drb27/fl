@@ -19,11 +19,16 @@ ast::~ast()
 }
 
 literal_node::literal_node(object* pObj)
-    : _object(pObj)
+    : ast(),_object(pObj)
 {
 }
 
 object* literal_node::evaluate(context* pContext)
+{
+    return _object.get();
+}
+
+object* literal_node::evaluate(context* pContext) const
 {
     return _object.get();
 }

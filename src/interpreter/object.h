@@ -23,6 +23,16 @@ class object
  private:
     const fclass& _class;
     std::map<std::string,object*> _attributes;
+
+};
+
+class int_object : public object
+{
+public:
+    int_object(int value, const fclass&);
+    virtual void render( std::ostream& os ) const;
+protected:
+    const int _value;
 };
 
 #endif

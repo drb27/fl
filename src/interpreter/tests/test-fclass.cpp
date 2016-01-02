@@ -1,7 +1,6 @@
 #include <string.h>
 #include "test-fclass.h"
 #include <interpreter/class.h>
-//#include <stocklib/buffer.h>
 
 FclassTestFixture::FclassTestFixture()
 {
@@ -25,7 +24,8 @@ void FclassTestFixture::tearDown()
  */
 void FclassTestFixture::testConstruction()
 {
-    fclass root("object");
+    typespec obj_spec("object",{});
+    fclass root(obj_spec);
     CPPUNIT_ASSERT(root.name()=="object");
 }
 
@@ -34,8 +34,11 @@ void FclassTestFixture::testConstruction()
  */
 void FclassTestFixture::testNonRootConstruction()
 {
-    fclass root("object");
-    fclass child("child",root);
+    typespec obj_spec("object",{});
+    typespec child_spec("child",{});
+    
+    fclass root(obj_spec);
+    fclass child(child_spec,root);
 
     CPPUNIT_ASSERT( &(child.base())==&root );
 }

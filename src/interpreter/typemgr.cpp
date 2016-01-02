@@ -41,6 +41,12 @@ const fclass& typemgr::check_builtin( const typespec& ts )
 	pTarget = new fclass(ts);
     }
 
+    if (ts.full_name()=="int")
+    {
+	typespec ts("int",{});
+	pTarget = new fclass(ts);
+    }
+
     if (pTarget!=nullptr)
     {
 	_typeMap[ts] = pTarget;

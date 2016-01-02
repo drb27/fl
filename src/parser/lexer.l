@@ -21,6 +21,7 @@ WS    [ \t]+
 LETTER [A-Za-z]
 %%
 
+typedef  { return TYPEDEF; }
 \+       { return ADD; }
 -\>      { return MAPSTO; }
 ,        { return COMMA; }
@@ -32,7 +33,6 @@ LETTER [A-Za-z]
 {WS}     
 {LETTER}+ { yylval.string_val = STR(yytext); return SYMBOL; }
 =        { return EQ; }
-\/       { return DIV; }
 \n       { return NEWLINE; }
 
 %%

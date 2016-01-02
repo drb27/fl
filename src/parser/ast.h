@@ -31,6 +31,7 @@ class literal_node : public ast
 public:
     literal_node( object* );
     virtual object* evaluate(context*);
+    virtual object* evaluate(context*) const;
     virtual const fclass& type(context*) const;
 protected:
     const std::unique_ptr<object> _object;

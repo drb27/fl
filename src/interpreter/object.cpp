@@ -21,3 +21,13 @@ void object::render( std::ostream& os ) const
 {
     os << "[" << _class.name() << " object]"; 
 }
+
+int_object::int_object(int value, const fclass& cls) : object(cls), _value(value)
+{
+}
+
+void int_object::render( std::ostream& os) const
+{
+    os << _value << " ";
+    object::render(os);
+}
