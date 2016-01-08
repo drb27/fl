@@ -1,6 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
+#include <functional>
 #include <list>
 #include <memory>
 #include <inc/named.h>
@@ -25,6 +26,7 @@ class ast
  private:
 
 };
+
 
 class literal_node : public ast
 {
