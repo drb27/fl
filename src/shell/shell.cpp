@@ -2,6 +2,7 @@
 #include <iostream>
 #include <list>
 #include <common.h>
+#include <memory>
 
 #include <interpreter/class.h>
 #include <interpreter/typemgr.h>
@@ -12,16 +13,18 @@
 #include <parser/callable.h>
 
 using std::list;
-
+using std::shared_ptr;
 action_target* target;
 typemgr tm;
 
-object* bf_add2(int_object* a,int_object* b)
+typedef shared_ptr<int_object> intref;
+
+objref bf_add2(intref a,intref b)
 {
     const int result = a->internal_value() + b->internal_value();
-    typespec int_spec = typespec("int",{});
+    typespec int_spec = typespec("integer",{});
     const fclass& int_cls = tm.lookup(int_spec);
-    int_object* pObject = new int_object(result,int_cls);
+    objref pObject(new int_object(result,int_cls));
 
     return pObject;
 }
@@ -40,18 +43,18 @@ int main(void)
 
     target = new dat(tm);
     typespec root_spec("object",{});
-    typespec int_spec = typespec("int",{});
+    typespec int_spec = typespec("integer",{});
     const fclass& root_cls = tm.lookup(root_spec);
     const fclass& int_cls = tm.lookup(int_spec);
 
-    auto m = internal_typed_method<object*,int_object*,int_object*>(&bf_add2);
-    int_object obj1(4,int_cls);
-    int_object obj2(6,int_cls);
+    auto m = internal_typed_method<objref,intref,intref>(&bf_add2);
+    objref p1(new int_object(4,int_cls));
+    objref p2(new int_object(6,int_cls));
 
-    literal_node ln1(&obj1);
-    literal_node ln2(&obj2);
+    literal_node ln1(p1);
+    literal_node ln2(p2);
 
-    int aa = dynamic_cast<int_object*>(ln1.evaluate(nullptr))->internal_value();
+    int aa = std::dynamic_pointer_cast<int_object>(ln1.evaluate(nullptr))->internal_value();
     std::cout << "aa=" << aa << std::endl;
 
     std::array<ast*,2> p;
@@ -59,9 +62,8 @@ int main(void)
     std::get<1>(p) = &ln2;
 
     m.set_params(p);
-    int_object* oo = dynamic_cast<int_object*>(m());
+    intref oo = std::dynamic_pointer_cast<int_object>(m());
     std::cout << "The result of your calculation is " << oo->internal_value() << std::endl;
-    delete oo;
 
     typespec list_spec = typespec("list",{int_spec});
     const fclass& intlist_cls = tm.lookup(list_spec);

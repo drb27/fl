@@ -17,9 +17,9 @@ dat::~dat()
 
 ast* dat::make_int(int x) const
 {
-    typespec int_spec = typespec("int",{});
+    typespec int_spec = typespec("integer",{});
     const fclass& int_cls = _tm.lookup(int_spec);
-    object* pObject = new int_object(x,int_cls);
+    objref pObject(new int_object(x,int_cls));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }

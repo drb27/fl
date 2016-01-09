@@ -1,6 +1,7 @@
 #include <string>
 #include <list>
 #include "typemgr.h"
+#include "builtins.h"
 
 using std::string;
 using std::list;
@@ -31,9 +32,7 @@ const fclass& typemgr::check_builtin( const typespec& ts )
 
     if (ts.full_name()=="object")
     {
-	list<typespec> l;
-	typespec ts("object",l);
-	pTarget = new fclass(ts);
+	pTarget = builtins::object::build_class().release();
     }
 
     if (ts.template_name()=="list")
@@ -41,10 +40,10 @@ const fclass& typemgr::check_builtin( const typespec& ts )
 	pTarget = new fclass(ts);
     }
 
-    if (ts.full_name()=="int")
+    if (ts.full_name()=="integer")
     {
-	typespec ts("int",{});
-	pTarget = new fclass(ts);
+	typespec ts("integer",{});
+	pTarget = builtins::integer::build_class().release();
     }
 
     if (pTarget!=nullptr)

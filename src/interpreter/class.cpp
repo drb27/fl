@@ -101,3 +101,8 @@ string fclass::name() const
 {
     return _ts.full_name();
 }
+
+void fclass::add_attribute(const string& name, fclass* ftype, object* pDefault)
+{
+    _attributes[name] = ftype;
+}

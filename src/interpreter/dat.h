@@ -17,7 +17,7 @@ class dat : public action_target
     virtual void respond( ast* def, std::ostream& os = std::cout ) const;
 
  protected:
-    mutable typemgr _tm;
+    typemgr& _tm;
 
  private:
 

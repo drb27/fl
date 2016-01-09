@@ -42,3 +42,13 @@ void FclassTestFixture::testNonRootConstruction()
 
     CPPUNIT_ASSERT( &(child.base())==&root );
 }
+
+void FclassTestFixture::testTypeSpecEquality()
+{
+    typespec spec_a("integer",{});
+    typespec spec_b("integer",{});
+    typespec spec_c("object",{});
+
+    CPPUNIT_ASSERT( spec_a == spec_b );
+    CPPUNIT_ASSERT( !(spec_a == spec_c) );
+}

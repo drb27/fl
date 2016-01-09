@@ -18,19 +18,19 @@ ast::~ast()
 
 }
 
-literal_node::literal_node(object* pObj)
+literal_node::literal_node(objref pObj)
     : ast(),_object(pObj)
 {
 }
 
-object* literal_node::evaluate(context* pContext)
+objref literal_node::evaluate(context* pContext)
 {
-    return _object.get();
+    return _object;
 }
 
-object* literal_node::evaluate(context* pContext) const
+objref literal_node::evaluate(context* pContext) const
 {
-    return _object.get();
+    return _object;
 }
 
 const fclass& literal_node::type(context* pContext) const
@@ -43,7 +43,7 @@ void list_node::push_element(ast* pNode)
     _elements.push_back(pNode);
 }
 
-object* list_node::evaluate(context* pContext)
+objref list_node::evaluate(context* pContext)
 {
     return literal_node::evaluate(pContext);
 }

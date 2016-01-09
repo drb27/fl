@@ -28,13 +28,15 @@ namespace
 
     template<std::size_t I=0, typename... P>
     inline typename std::enable_if<I==sizeof...(P),void>::type
-    eval_each(std::array<ast*,sizeof...(P)>&, std::tuple<P...> &) {}
+    eval_each(std::array<ast*,sizeof...(P)>&, std::tuple<P...>&) {}
 
     template<std::size_t I=0, typename... P>
     inline typename std::enable_if<I < sizeof...(P), void>::type
     eval_each(std::array<ast*,sizeof...(P)>& p,std::tuple<P...>& t)
     {
-	std::get<I>(t) = dynamic_cast<typename std::tuple_element<I,std::tuple<P...>>::type>(std::get<I>(p)->evaluate(nullptr));
+	// OLD: std::get<I>(t) = dynamic_cast<typename std::tuple_element<I,std::tuple<P...>>::type>(std::get<I>(p)->evaluate(nullptr));
+	auto result = std::get<I>(p)->evaluate(nullptr);
+	std::get<I>(t) = std::dynamic_pointer_cast<typename std::tuple_element<I,std::tuple<P...>>::type::element_type>(result);
 	eval_each<I+1,P...>(p,t);
     }
 }
@@ -42,7 +44,7 @@ namespace
 class i_callable
 {
 public:
-    virtual object* operator()(void)=0;
+    virtual objref operator()(void)=0;
 };
 
 template<typename R,typename... P>
@@ -62,12 +64,12 @@ protected:
 template<typename R, typename... P>
 class internal_typed_method : public typed_method<R,P...>
 {
-
+    
 public:
     typedef R (fn_t)(P...);
     internal_typed_method(fn_t* pFn) : _function(pFn) {}
 
-    virtual object* operator()(void)
+    virtual objref operator()(void)
     {
 	// Evaluate all of the parameters
 	std::tuple<P...> evaled_params;
@@ -77,7 +79,6 @@ public:
 	typedef typename std::decay<std::tuple<P...> >::type ttype;
 	return call_impl<R,std::function<R(P...)>,std::tuple<P...>,0==std::tuple_size<ttype>::value,
 			 std::tuple_size<ttype>::value>::call(_function,std::forward<std::tuple<P...> >(evaled_params));
-	//return nullptr;
     }
 
 private:

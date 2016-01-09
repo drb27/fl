@@ -8,6 +8,7 @@
 
 class ast;
 class typemgr;
+class icallable;
 
 class object
 {
@@ -26,7 +27,7 @@ class object
  private:
     const fclass& _class;
     std::map<std::string,object*> _attributes;
-    std::map<std::string,ast*> _methods;
+    std::map<std::string,icallable*> _methods;
 
 };
 

@@ -1,5 +1,5 @@
-#ifndef TEST_FCLASS_H
-#define TEST_FCLASS_H
+#ifndef TEST_TYPEMGR_H
+#define TEST_TYPEMGR_H
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/TestAssert.h>
@@ -10,11 +10,11 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-class FclassTestFixture : public CppUnit::TestFixture
+class TypemgrTestFixture : public CppUnit::TestFixture
 {
 public:
-    FclassTestFixture();
-    virtual ~FclassTestFixture();
+    TypemgrTestFixture();
+    virtual ~TypemgrTestFixture();
 
     void setUp();
     void tearDown();
@@ -22,15 +22,13 @@ public:
     /** @name Test Cases */
     // @{
     void testConstruction();
-    void testNonRootConstruction();
-    void testTypeSpecEquality();
+    void testSameClassReturnedBuiltin();
     // @}
 
     /** \cond internal */
-    CPPUNIT_TEST_SUITE( FclassTestFixture );
+    CPPUNIT_TEST_SUITE( TypemgrTestFixture );
     CPPUNIT_TEST( testConstruction );
-    CPPUNIT_TEST( testNonRootConstruction );
-    CPPUNIT_TEST( testTypeSpecEquality );
+    CPPUNIT_TEST( testSameClassReturnedBuiltin );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

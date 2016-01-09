@@ -7,6 +7,9 @@
 #include "base.h"
 #include "named.h"
 
+class icallable;
+class object;
+
 class typespec
 {
   public:
@@ -41,12 +44,14 @@ class fclass : public static_base<fclass>
     fclass(const typespec& );
     std::string name() const;
     const typespec& get_spec() const;
+    virtual void add_attribute(const std::string&,fclass*,object* d=nullptr);
  protected:
 
  private:
 
     const typespec _ts;
     std::map<std::string,fclass*> _attributes;
+    std::map<std::string,icallable*> _methods;
 };
 
 #endif
