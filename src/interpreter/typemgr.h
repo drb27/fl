@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include "class.h"
+#include <memory>
 
 class typemgr
 {
@@ -13,13 +14,13 @@ class typemgr
     virtual ~typemgr();
 
     const fclass& lookup( const typespec& fqn );
-    bool add(const fclass& cls);
+    bool add(fclass& cls);
  protected:
 
     virtual const fclass& check_builtin(const typespec&); 
 
  private:
-    std::map<typespec,const fclass*> _typeMap;
+    std::map<typespec,std::shared_ptr<fclass>> _typeMap;
 };
 
 #endif

@@ -28,22 +28,22 @@ const fclass& typemgr::lookup( const typespec& ts )
 
 const fclass& typemgr::check_builtin( const typespec& ts )
 {
-    fclass* pTarget=nullptr;
+    std::shared_ptr<fclass> pTarget;
 
     if (ts.full_name()=="object")
     {
-	pTarget = builtins::object::build_class().release();
+	pTarget = builtins::object::build_class();
     }
 
     if (ts.template_name()=="list")
     {
-	pTarget = new fclass(ts);
+	pTarget = std::shared_ptr<fclass>(new fclass(ts));
     }
 
     if (ts.full_name()=="integer")
     {
 	typespec ts("integer",{});
-	pTarget = builtins::integer::build_class().release();
+	pTarget = builtins::integer::build_class();
     }
 
     if (pTarget!=nullptr)
@@ -55,7 +55,7 @@ const fclass& typemgr::check_builtin( const typespec& ts )
 	throw std::exception();
 }
 
-bool typemgr::add(const fclass& cls)
+bool typemgr::add(fclass& cls)
 {
     try
     {
@@ -64,7 +64,7 @@ bool typemgr::add(const fclass& cls)
     }
     catch (...)
     {
-	_typeMap[cls.get_spec()] = &cls;
+	_typeMap[cls.get_spec()] = std::shared_ptr<fclass>(&cls);
 	return true;
     }
 }

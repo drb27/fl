@@ -11,13 +11,13 @@ namespace builtins
 class object
 {
 public:
-    static std::unique_ptr<fclass> build_class();
+    static std::shared_ptr<fclass> build_class();
 };
 
 class integer
 {
 public:
-    static std::unique_ptr<fclass> build_class();
+    static std::shared_ptr<fclass> build_class();
 };
 
 class string
