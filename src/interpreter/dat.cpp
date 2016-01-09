@@ -6,7 +6,7 @@
 
 using std::string;
 
-dat::dat(typemgr& tm) : _tm(tm)
+dat::dat(typemgr& tm,context* pContext) : _tm(tm),_context(pContext)
 {
 }
 
@@ -33,6 +33,26 @@ ast* dat::make_fundef( string* name, ast* def) const
 
 void dat::respond( ast* def, std::ostream& os) const
 {
-    def->evaluate(nullptr)->render(os);
+    def->evaluate(_context)->render(os);
     os << "OK" << std::endl;
+}
+
+ast* dat::make_methodcall( std::string* target, std::string* method)
+{
+    auto r = new methodcall_node(*method);
+    delete method;
+    delete target;
+    return r;
+}
+
+ast* dat::make_symbol( std::string* name) const
+{
+    auto r = new symbol_node(*name);
+    delete name;
+    return r;
+}
+
+ast* dat::make_assign_node(ast* lvalue, ast* rvalue)
+{
+    return new assign_node(lvalue,rvalue);
 }

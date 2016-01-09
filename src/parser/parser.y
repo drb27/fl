@@ -13,6 +13,7 @@ extern action_target* target;
 
 %}
 
+%token DOT
 %token ADD
 %token MAPSTO
 %token INTEGER
@@ -40,6 +41,7 @@ extern action_target* target;
 %type <node_val> fundef
 %type <node_val> expr
 %type <node_val> funcall
+%type <node_val> methodcall
 %type <node_val> literal
 %type <node_val> list
 %type <node_val> items
@@ -64,7 +66,7 @@ input: /* empty */
 /* CONSTRUCTORS ***********************************************************/
 
 integer: INTEGER { $$=target->make_int($1); }
-symbol:  SYMBOL  { /* $$=target->make_symbol($1); */ }
+symbol:  SYMBOL  { $$=target->make_symbol($1);  }
 
 
 /* DEFINITIONS ************************************************************/
@@ -92,7 +94,8 @@ items:       expr
 /* EXPRESSIONS ************************************************************/
 
 expr:   literal 
-      | funcall 
+      | funcall
+      | methodcall
       | symbol %prec LOWEST 
       | expr ADD expr
       ;
@@ -100,6 +103,7 @@ expr:   literal
 literal: integer | list;
 funcall: symbol list %prec OPEN_PAREN;
 
+ methodcall: SYMBOL DOT SYMBOL list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3);}; 
 
 /* STATEMENTS *************************************************************/
 
@@ -111,4 +115,4 @@ stmt : assign NEWLINE {$$=$1; }
 
 stmts: stmt {target->respond($1); } | stmts stmt {target->respond($2); };
 
-assign: SYMBOL EQ integer { $$=$3; /*$$=target->assign($1,$2,$4);*/ };
+ assign: symbol EQ literal { $$=target->make_assign_node($1,$3); };

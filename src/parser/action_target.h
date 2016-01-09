@@ -13,6 +13,9 @@ class action_target
 
     virtual ast* make_int(int x) const=0;
     virtual ast* make_fundef( std::string* name, ast* def) const=0;
+    virtual ast* make_symbol( std::string* name) const=0;
+    virtual ast* make_assign_node(ast* lvalue, ast* rvalue)=0;
+    virtual ast* make_methodcall( std::string* target, std::string* method)=0;
     virtual void respond( ast* def, std::ostream& os = std::cout ) const=0;
 };
 

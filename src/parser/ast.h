@@ -8,9 +8,11 @@
 #include <interpreter/class.h>
 
 class object;
+class int_object;
 class context;
 
 typedef std::shared_ptr<object> objref; 
+typedef std::shared_ptr<int_object> intref;
 
 class ast
 {
@@ -29,6 +31,18 @@ class ast
 
 };
 
+class symbol_node : public ast
+{
+public:
+    symbol_node( const std::string& );
+    virtual objref evaluate(context*);
+    virtual objref evaluate(context*) const;
+    virtual const fclass& type(context*) const;
+    virtual const std::string& name() const;
+protected:
+    const std::string _name;
+
+};
 
 class literal_node : public ast
 {
@@ -80,6 +94,19 @@ public:
 
 protected:
     const ast* const  _definition;
+};
+
+class assign_node : public ast
+{
+public:
+    assign_node(ast*,ast*);
+    virtual objref evaluate(context*);
+    virtual objref evaluate(context*) const;
+    virtual const fclass& type(context*) const;
+
+private:
+    ast* _lvalue;
+    ast* _rvalue;
 };
 
 #endif

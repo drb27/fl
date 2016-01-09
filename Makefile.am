@@ -4,31 +4,34 @@ CLEANFILES=src/parser/parser.cpp src/parser/lexer.cpp src/parser/parser.h
 AM_YFLAGS=-d
 AM_CXXFLAGS=-std=c++11 -Isrc
 bin_PROGRAMS=shell
-noinst_LIBRARIES = libparse.a libinterpret.a
-libparse_a_SOURCES=src/parser/lexer.cpp src/parser/parser.cpp src/parser/ast.cpp
-libparse_a_DEPENDENCIES=src/parser/lexer.l src/parser/parser.y
-libinterpret_a_SOURCES=	src/interpreter/class.cpp \
+noinst_LIBRARIES=liblang.a
+liblang_a_SOURCES=src/parser/lexer.cpp \
+			src/parser/parser.cpp \
+			src/parser/ast.cpp \
+			src/interpreter/class.cpp \
 			src/interpreter/package.cpp \
 			src/interpreter/object.cpp \
 			src/interpreter/typemgr.cpp \
 			src/interpreter/context.cpp \
-			src/interpreter/builtins.cpp
+			src/interpreter/builtins.cpp \
+			src/interpreter/dat.cpp
 
-shell_SOURCES=src/shell/shell.cpp src/interpreter/dat.cpp
-shell_LDADD=libparse.a libinterpret.a
-libinterpret_a_LIBADD=libparse.a
+liblang_a_DEPENDENCIES=src/parser/lexer.l src/parser/parser.y
+
+shell_SOURCES=src/shell/shell.cpp
+shell_LDADD=liblang.a
 shell_LDFLAGS=-lfl
 
 TESTS=interpreter_tests
 check_PROGRAMS=interpreter_tests
-interpreter_tests_SOURCES=	src/interpreter/tests/tests.cpp \
+interpreter_tests_SOURCES=src/interpreter/tests/tests.cpp \
 				src/interpreter/tests/test-fclass.cpp \
 				src/interpreter/tests/test-nametable.cpp \
 				src/interpreter/tests/test-package.cpp \
 				src/interpreter/tests/test-object.cpp \
 				src/interpreter/tests/test-typemgr.cpp
 
-interpreter_tests_LDADD=libinterpret.a
+interpreter_tests_LDADD=liblang.a
 
 src/parser/parser.cpp : src/parser/parser.y
 	$(YACC) $(AM_YFLAGS) src/parser/parser.y -o src/parser/parser.cpp

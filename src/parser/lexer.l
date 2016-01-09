@@ -21,6 +21,7 @@ WS    [ \t]+
 LETTER [A-Za-z]
 %%
 
+\.       { return DOT; }
 typedef  { return TYPEDEF; }
 \+       { return ADD; }
 -\>      { return MAPSTO; }

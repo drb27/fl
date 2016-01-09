@@ -4,6 +4,7 @@
 #include <common.h>
 #include <memory>
 
+#include <interpreter/context.h>
 #include <interpreter/class.h>
 #include <interpreter/typemgr.h>
 #include <parser/action_target.h>
@@ -15,15 +16,13 @@
 using std::list;
 using std::shared_ptr;
 action_target* target;
-typemgr tm;
-
-typedef shared_ptr<int_object> intref;
+context shell_context;
 
 objref bf_add2(intref a,intref b)
 {
     const int result = a->internal_value() + b->internal_value();
     typespec int_spec = typespec("integer",{});
-    const fclass& int_cls = tm.lookup(int_spec);
+    const fclass& int_cls = shell_context.types().lookup(int_spec);
     objref pObject(new int_object(result,int_cls));
 
     return pObject;
@@ -41,11 +40,11 @@ int main(void)
 {
     std::cout << PACKAGE_STRING << std::endl;
 
-    target = new dat(tm);
+    target = new dat(shell_context.types(),&shell_context);
     typespec root_spec("object",{});
     typespec int_spec = typespec("integer",{});
-    const fclass& root_cls = tm.lookup(root_spec);
-    const fclass& int_cls = tm.lookup(int_spec);
+    const fclass& root_cls = shell_context.types().lookup(root_spec);
+    const fclass& int_cls = shell_context.types().lookup(int_spec);
 
     auto m = internal_typed_method<objref,intref,intref>(&bf_add2);
     objref p1(new int_object(4,int_cls));
@@ -66,7 +65,7 @@ int main(void)
     std::cout << "The result of your calculation is " << oo->internal_value() << std::endl;
 
     typespec list_spec = typespec("list",{int_spec});
-    const fclass& intlist_cls = tm.lookup(list_spec);
+    const fclass& intlist_cls = shell_context.types().lookup(list_spec);
 
     std::cout << "Typespec is " << intlist_cls.get_spec().full_name() << std::endl;
 

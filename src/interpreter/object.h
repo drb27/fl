@@ -41,4 +41,5 @@ protected:
     const int _value;
 };
 
+
 #endif

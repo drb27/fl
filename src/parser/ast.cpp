@@ -75,3 +75,115 @@ const fclass& list_node::type(context* pContext) const
     }
     
 }
+
+methodcall_node::methodcall_node(const std::string& name)
+    : _name(name)
+{
+
+}
+
+objref methodcall_node::evaluate(context* pContext)
+{
+    return objref(nullptr); 
+}
+
+objref methodcall_node::evaluate(context* pContext) const
+{
+    return objref(nullptr);
+}
+
+const fclass& methodcall_node::type(context*) const
+{
+    throw std::exception();
+}
+
+void methodcall_node::add_target(objref pObj)
+{
+    _target = pObj;
+}
+
+void methodcall_node::add_param(ast* pNode)
+{
+
+}
+
+void methodcall_node::finalize_params()
+{
+
+}
+
+symbol_node::symbol_node(const std::string& name)
+    : _name(name)
+{
+
+}
+
+const std::string& symbol_node::name() const
+{
+    return _name;
+}
+
+objref symbol_node::evaluate(context* pContext)
+{
+    return pContext->resolve_symbol(_name); 
+}
+
+objref symbol_node::evaluate(context* pContext) const
+{
+    return pContext->resolve_symbol(_name);
+}
+
+const fclass& symbol_node::type(context*) const
+{
+    throw std::exception();
+}
+
+assign_node::assign_node(ast* lvalue,ast* rvalue)
+    : _lvalue(lvalue),_rvalue(rvalue)
+{
+
+}
+
+objref assign_node::evaluate(context* pContext)
+{
+    auto pSymbolNode = dynamic_cast<symbol_node*>(_lvalue);
+    if (pSymbolNode)
+    {
+	// Evaluate RHS
+	auto result = _rvalue->evaluate(pContext);
+	
+	// Assign the LHS to the symbol
+	pContext->assign(pSymbolNode->name(),result);
+
+	// Return RHS
+	return result;
+       
+    }
+    else
+	throw std::exception();
+}
+
+objref assign_node::evaluate(context* pContext) const
+{
+    auto pSymbolNode = dynamic_cast<symbol_node*>(_lvalue);
+    if (pSymbolNode)
+    {
+	// Evaluate RHS
+	auto result = _rvalue->evaluate(pContext);
+	
+	// Assign the LHS to the symbol
+	pContext->assign(pSymbolNode->name(),result);
+
+	// Return RHS
+	return result;
+       
+    }
+    else
+	throw std::exception();
+
+}
+
+const fclass& assign_node::type(context* c) const
+{
+    return _lvalue->type(c);
+}
