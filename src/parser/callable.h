@@ -62,13 +62,13 @@ namespace
 	typedef std::tuple<Args...> type;
     };
 
-    typedef objref (marshall_fn_t)(std::vector<ast*>&);
+    typedef objref (marshall_fn_t)(context*,std::vector<ast*>&);
 
     template<typename F>
-    std::function<marshall_fn_t> make_marshall( F&& f, context* pContext)
+    std::function<marshall_fn_t> make_marshall( F&& f)
     {
 	auto fp = &f;
-	return [fp,pContext](std::vector<ast*>& p)
+	return [fp](context* pContext,std::vector<ast*>& p)
 	{
 	    typename ArgTuple<F>::type evaled_params;
 	    std::get<0>(evaled_params) = pContext;

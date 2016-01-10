@@ -42,11 +42,11 @@ int main(void)
     literal_node ln1(p1);
     literal_node ln2(p2);
     
-    auto m{make_marshall(builtins::add_integers,&shell_context)};
+    auto m{make_marshall(builtins::add_integers)};
     
     std::vector<ast*> ps{&ln1,&ln2};
 
-    intref oo = std::dynamic_pointer_cast<int_object>(m(ps));
+    intref oo = std::dynamic_pointer_cast<int_object>(m(&shell_context,ps));
     std::cout << "The result of your calculation is " << oo->internal_value() << std::endl;
 
     yyparse();
