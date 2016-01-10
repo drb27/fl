@@ -15,7 +15,7 @@ typemgr::~typemgr()
 
 }
 
-const fclass& typemgr::lookup( const typespec& ts )
+fclass& typemgr::lookup( const typespec& ts )
 {
     // If it is in the map, return it
     auto idx = _typeMap.find(ts);
@@ -26,7 +26,7 @@ const fclass& typemgr::lookup( const typespec& ts )
     return check_builtin(ts);
 }
 
-const fclass& typemgr::check_builtin( const typespec& ts )
+fclass& typemgr::check_builtin( const typespec& ts )
 {
     std::shared_ptr<fclass> pTarget;
 
@@ -59,7 +59,7 @@ bool typemgr::add(fclass& cls)
 {
     try
     {
-	const fclass& existing = lookup(cls.get_spec());
+	fclass& existing = lookup(cls.get_spec());
 	return false;
     }
     catch (...)

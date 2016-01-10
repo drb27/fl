@@ -2,6 +2,7 @@
 #include "builtins.h"
 #include <interpreter/class.h>
 #include <interpreter/context.h>
+#include <parser/callable.h>
 
 namespace builtins
 {
@@ -16,6 +17,7 @@ namespace builtins
     {
 	typespec spec("integer",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec));
+	pCls->add_method("add", make_marshall(&builtins::add_integers));
 	return pCls;
     }
 
@@ -23,7 +25,7 @@ namespace builtins
     {
 	const int result = a->internal_value() + b->internal_value();
 	typespec int_spec = typespec("integer",{});
-	const fclass& int_cls = pContext->types().lookup(int_spec);
+	fclass& int_cls = pContext->types().lookup(int_spec);
 	objref pObject(new int_object(result,int_cls));
     
 	return pObject;

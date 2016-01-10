@@ -44,7 +44,7 @@ void closure::destroy(const string& name)
 context::context()
 {
     typespec int_spec("integer",{});
-    const fclass& int_cls = _types.lookup(int_spec);
+    fclass& int_cls = _types.lookup(int_spec);
     intref x(new int_object(42,int_cls));
     _symbols["x"] = x;
 }

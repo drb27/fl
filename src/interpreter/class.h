@@ -1,13 +1,15 @@
 #ifndef CLASS_H
 #define CLASS_H
 
+#include <functional>
 #include <string>
 #include <map>
 #include <list>
 #include "base.h"
 #include "named.h"
+#include <parser/ast.h>
+#include <interpreter/marshall.h>
 
-class icallable;
 class object;
 
 class typespec
@@ -45,13 +47,17 @@ class fclass : public static_base<fclass>
     std::string name() const;
     const typespec& get_spec() const;
     virtual void add_attribute(const std::string&,fclass*,object* d=nullptr);
+    virtual void add_method(const std::string&,std::function<marshall_fn_t>);
+
+    virtual std::function<marshall_fn_t> lookup_method(const std::string& name);
+
  protected:
 
  private:
 
     const typespec _ts;
     std::map<std::string,fclass*> _attributes;
-    std::map<std::string,icallable*> _methods;
+    std::map<std::string,std::function<marshall_fn_t>> _methods;
 };
 
 #endif

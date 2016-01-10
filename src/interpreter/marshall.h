@@ -1,46 +1,18 @@
 #ifndef MARSHALL_H
 #define MARSHALL_H
 
-#include <string>
+#include <memory>
 #include <vector>
-#include <map>
 
+class ast;
+class context;
+class object;
+class int_object;
 
-class fclass;
+typedef std::shared_ptr<object> objref; 
+typedef std::shared_ptr<int_object> intref;
 
-typedef std::pair<std::string,fclass*> argument;
+typedef objref (marshall_fn_t)(context*,std::vector<ast*>&);
 
-struct sigbase
-{
-    std::string name;
-    fclass* returnType;
-};
-
-template<int A>
-struct signature : public sigbase
-{
-    std::array<argument,A> args;
-};
-
-template<int A>
-struct fndata : public signature<A>
-{
-    void* pFn;
-};
-
-
-
-class marshall
-{
-
- public:
-    marshall();
-    virtual ~marshall();
-
- protected:
-
- private:
-
-};
 
 #endif

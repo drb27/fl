@@ -13,11 +13,11 @@ class typemgr
     typemgr();
     virtual ~typemgr();
 
-    const fclass& lookup( const typespec& fqn );
+    fclass& lookup( const typespec& fqn );
     bool add(fclass& cls);
  protected:
 
-    virtual const fclass& check_builtin(const typespec&); 
+    virtual fclass& check_builtin(const typespec&); 
 
  private:
     std::map<typespec,std::shared_ptr<fclass>> _typeMap;

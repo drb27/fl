@@ -44,8 +44,6 @@ extern action_target* target;
 %type <node_val> methodcall
 %type <node_val> literal
 %type <node_val> list
-%type <node_val> items
-%type <node_val> items_empty
 %type <node_val> stmt
 %type <node_val> assign
 
@@ -84,11 +82,11 @@ typespeclist: typespec
 
 /* LISTS ******************************************************************/
 
-list:        OPEN_PAREN items_empty CLOSE_PAREN {$$=$2;};
-items_empty: {$$=nullptr;} | items;
+ list:        OPEN_PAREN { target->start_list(); } items_empty CLOSE_PAREN { $$=target->finish_list();};
+items_empty: | items;
 
-items:       expr 
-           | items expr
+ items:       expr { target->push_list_element($1); }
+     | items expr { target->push_list_element($2); }
            ;
 
 /* EXPRESSIONS ************************************************************/
@@ -103,7 +101,7 @@ expr:   literal
 literal: integer | list;
 funcall: symbol list %prec OPEN_PAREN;
 
- methodcall: SYMBOL DOT SYMBOL list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3);}; 
+ methodcall: expr DOT SYMBOL list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
 
 /* STATEMENTS *************************************************************/
 

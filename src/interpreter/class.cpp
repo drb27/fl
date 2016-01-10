@@ -1,6 +1,7 @@
 #include <string>
 #include <sstream>
 #include <list>
+#include <functional>
 #include "named.h"
 #include "base.h"
 #include "class.h"
@@ -8,6 +9,7 @@
 using std::string;
 using std::list;
 using std::stringstream;
+using std::function;
 
 typespec::typespec( const string& nm, const list<typespec>& prms )
     : _name(nm)
@@ -105,4 +107,14 @@ string fclass::name() const
 void fclass::add_attribute(const string& name, fclass* ftype, object* pDefault)
 {
     _attributes[name] = ftype;
+}
+
+void fclass::add_method(const string& name, function<marshall_fn_t> delegate)
+{
+    _methods[name] = delegate;
+}
+
+function<marshall_fn_t> fclass::lookup_method(const std::string& name)
+{
+    return _methods[name];
 }
