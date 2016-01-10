@@ -43,5 +43,14 @@ protected:
     const int _value;
 };
 
+class bool_object : public object
+{
+public:
+    bool_object(bool b, fclass&);
+    virtual void render( std::ostream& os) const;
+    bool internal_value() const { return _value; }
+protected:
+    const bool _value;
+};
 
 #endif

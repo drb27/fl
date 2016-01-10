@@ -42,8 +42,12 @@ fclass& typemgr::check_builtin( const typespec& ts )
 
     if (ts.full_name()=="integer")
     {
-	typespec ts("integer",{});
 	pTarget = builtins::integer::build_class();
+    }
+
+    if (ts.full_name()=="boolean")
+    {
+	pTarget = builtins::boolean::build_class();
     }
 
     if (pTarget!=nullptr)

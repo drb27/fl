@@ -118,3 +118,4 @@ function<marshall_fn_t> fclass::lookup_method(const std::string& name)
 {
     return _methods[name];
 }
+

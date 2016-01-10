@@ -21,6 +21,7 @@ class action_target
     virtual void push_list_element(ast*)=0;
     virtual ast* finish_list()=0;
     virtual void respond( ast* def, std::ostream& os = std::cout ) const=0;
+    virtual ast* make_bool(bool b)=0;
 };
 
 #endif

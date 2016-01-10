@@ -82,3 +82,12 @@ ast* dat::finish_list()
     _list_stack.pop_front();
     return n;
 }
+
+ast* dat::make_bool(bool b)
+{
+    typespec bool_spec = typespec("boolean",{});
+    fclass& bool_cls = _tm.lookup(bool_spec);
+    objref pObject(new bool_object(b,bool_cls));
+    literal_node* pNode = new literal_node(pObject);
+    return pNode;
+}

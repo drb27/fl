@@ -31,3 +31,14 @@ void int_object::render( std::ostream& os) const
     os << _value << " ";
     object::render(os);
 }
+
+bool_object::bool_object(bool b, fclass& cls)
+    : _value(b),object(cls)
+{
+}
+
+void bool_object::render( std::ostream& os) const
+{
+    os << ((_value)?"true":"false") << " ";
+    object::render(os);
+}

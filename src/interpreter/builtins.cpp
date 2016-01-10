@@ -4,6 +4,8 @@
 #include <interpreter/context.h>
 #include <parser/callable.h>
 
+#define N_INT(x) (x->internal_value())
+
 namespace builtins
 {
     std::shared_ptr<fclass> object::build_class()
@@ -18,6 +20,15 @@ namespace builtins
 	typespec spec("integer",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec));
 	pCls->add_method("add", make_marshall(&builtins::add_integers));
+	pCls->add_method("in_range", make_marshall(&builtins::in_range_integers));
+	return pCls;
+    }
+
+    std::shared_ptr<fclass> boolean::build_class()
+    {
+	typespec spec("boolean",{});
+	std::shared_ptr<fclass> pCls(new fclass(spec));
+	pCls->add_method("not", make_marshall(&builtins::logical_not));
 	return pCls;
     }
 
@@ -29,6 +40,24 @@ namespace builtins
 	objref pObject(new int_object(result,int_cls));
     
 	return pObject;
+    }
+
+    objref in_range_integers(context* pContext, intref pThis, intref min, intref max)
+    {
+	bool in_range = (N_INT(pThis) >= N_INT(min)) && ( N_INT(pThis) <= N_INT(max));
+	typespec bool_spec = typespec("boolean",{});
+	fclass& bool_cls = pContext->types().lookup(bool_spec);
+	objref pObject( new bool_object( (in_range)?true:false, bool_cls));
+	return pObject;
+    }
+
+    objref logical_not(context* pContext,boolref a)
+    {
+	typespec bool_spec = typespec("boolean",{});
+	fclass& bool_cls = pContext->types().lookup(bool_spec);
+	objref pObject( new bool_object( !a->internal_value(), bool_cls ));
+	return pObject;
+
     }
 
 }

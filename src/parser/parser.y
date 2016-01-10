@@ -26,6 +26,8 @@ extern action_target* target;
 %token CLOSE_ANGLED
 %token COMMA
 %token TYPEDEF
+%token TRUE
+%token FALSE
 
 %union
 {
@@ -46,6 +48,7 @@ extern action_target* target;
 %type <node_val> list
 %type <node_val> stmt
 %type <node_val> assign
+%type <node_val> bool
 
 %start input
 
@@ -98,11 +101,13 @@ expr:   literal
       | expr ADD expr
       ;
 
-literal: integer | list;
+literal: bool | integer | list;
 funcall: symbol list %prec OPEN_PAREN;
 
- methodcall: expr DOT SYMBOL list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
+methodcall: expr DOT SYMBOL list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
 
+ bool: TRUE {$$=target->make_bool(true); } | FALSE { $$=target->make_bool(false); };
+ 
 /* STATEMENTS *************************************************************/
 
 stmt : assign NEWLINE {$$=$1; }

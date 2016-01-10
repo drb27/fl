@@ -109,7 +109,7 @@ objref methodcall_node::evaluate(context* pContext)
     // Prepare the parameter vector
     auto params = vector<ast*>(_params.size()+1);
 
-    std::cout << "There are " << _params.size() << " params" << std::endl;
+    // std::cout << "There are " << _params.size() << " params" << std::endl;
 
     params[0] = _target;
 
@@ -119,12 +119,12 @@ objref methodcall_node::evaluate(context* pContext)
 	params[index++] = p;
     }
     
-    for ( auto p : params )
-    {
-	std::cout << "PARAM: ";
-	p->evaluate(pContext)->render(std::cout);
-	std::cout << std::endl;
-    }
+    // for ( auto p : params )
+    // {
+    // 	std::cout << "PARAM: ";
+    // 	p->evaluate(pContext)->render(std::cout);
+    // 	std::cout << std::endl;
+    // }
 
     // Dispatch the call
     return m(pContext,params);

@@ -18,9 +18,11 @@ class ftlist;
 
 DIGIT [0-9]
 WS    [ \t]+
-LETTER [A-Za-z]
+LETTER [A-Za-z_]
 %%
 
+true     { return TRUE; }
+false    { return FALSE; }
 \.       { return DOT; }
 typedef  { return TYPEDEF; }
 \+       { return ADD; }

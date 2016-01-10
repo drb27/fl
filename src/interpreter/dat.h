@@ -26,6 +26,7 @@ class dat : public action_target
     virtual ast* start_list();
     virtual void push_list_element(ast*);
     virtual ast* finish_list();
+    virtual ast* make_bool(bool b);
  protected:
     typemgr& _tm;
     context* _context;
