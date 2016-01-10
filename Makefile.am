@@ -2,7 +2,7 @@ ACLOCAL_AMFLAGS=-I m4
 SUBDIRS=.
 CLEANFILES=src/parser/parser.cpp src/parser/lexer.cpp src/parser/parser.h
 AM_YFLAGS=-d
-AM_CXXFLAGS=-std=c++11 -Isrc
+AM_CXXFLAGS=-std=c++14 -Isrc
 bin_PROGRAMS=shell
 noinst_LIBRARIES=liblang.a
 liblang_a_SOURCES=src/parser/lexer.cpp \
@@ -14,7 +14,9 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/interpreter/typemgr.cpp \
 			src/interpreter/context.cpp \
 			src/interpreter/builtins.cpp \
-			src/interpreter/dat.cpp
+			src/interpreter/dat.cpp \
+			src/interpreter/eval_exception.cpp \
+			src/interpreter/marshall.cpp
 
 liblang_a_DEPENDENCIES=src/parser/lexer.l src/parser/parser.y
 

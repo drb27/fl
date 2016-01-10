@@ -104,7 +104,7 @@ void methodcall_node::add_target(objref pObj)
 
 void methodcall_node::add_param(ast* pNode)
 {
-
+    _params.push_back(pNode);
 }
 
 void methodcall_node::finalize_params()

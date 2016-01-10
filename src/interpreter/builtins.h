@@ -2,6 +2,8 @@
 #define BUILTINS_H
 
 #include <memory>
+#include <interpreter/object.h>
+#include <parser/ast.h>
 
 class fclass;
 
@@ -24,6 +26,8 @@ class string
 {
 
 };
+
+    objref add_integers(context*,intref a, intref b);
 
 }
 

@@ -115,4 +115,4 @@ stmt : assign NEWLINE {$$=$1; }
 
 stmts: stmt {target->respond($1); } | stmts stmt {target->respond($2); };
 
- assign: symbol EQ literal { $$=target->make_assign_node($1,$3); };
+ assign: symbol EQ expr { $$=target->make_assign_node($1,$3); };
