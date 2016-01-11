@@ -1,10 +1,13 @@
 #include <string.h>
 #include "object.h"
+#include <interpreter/eval_exception.h>
 
 using std::string;
 
 object::object(fclass& c) : _class(c)
 {
+    if ( c.is_abstract() )
+	throw eval_exception(cerror::instantiate_abstract,"An attempt was made to instantiate an object of an abstract class");
 }
 
 object::~object()

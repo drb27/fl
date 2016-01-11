@@ -27,6 +27,7 @@ class typespec
     bool operator==( const typespec& other) const;
     int operator<( const typespec& other) const;
     int operator>( const typespec& other) const;
+    
 
   protected:
   
@@ -42,12 +43,13 @@ class fclass : public static_base<fclass>
 {
 
  public:
-    fclass(const typespec&, const fclass& base);
-    fclass(const typespec& );
+    fclass(const typespec&, const fclass& base, bool abstract=false);
+    fclass(const typespec&, bool abstract=false );
     std::string name() const;
     const typespec& get_spec() const;
     virtual void add_attribute(const std::string&,fclass*,object* d=nullptr);
     virtual void add_method(const std::string&,std::function<marshall_fn_t>);
+    virtual bool is_abstract() const { return _is_abstract; }
 
     virtual std::function<marshall_fn_t> lookup_method(const std::string& name);
 
@@ -55,6 +57,7 @@ class fclass : public static_base<fclass>
 
  private:
 
+    const bool _is_abstract;
     const typespec _ts;
     std::map<std::string,fclass*> _attributes;
     std::map<std::string,std::function<marshall_fn_t>> _methods;

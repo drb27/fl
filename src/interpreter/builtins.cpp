@@ -24,6 +24,13 @@ namespace builtins
 	return pCls;
     }
 
+    std::shared_ptr<fclass> flvoid::build_class()
+    {
+	typespec spec("void",{});
+	std::shared_ptr<fclass> pCls(new fclass(spec,true));
+	return pCls;
+    }
+
     std::shared_ptr<fclass> list::build_class(typespec spec)
     {
 	std::shared_ptr<fclass> pCls(new fclass(spec));

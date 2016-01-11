@@ -88,14 +88,14 @@ void typespec::validate() const
 
 }
 
-fclass::fclass( const typespec& ts, const fclass& base) 
-    : _ts(ts),static_base<fclass>(base)
+fclass::fclass( const typespec& ts, const fclass& base, bool abstract) 
+    : _ts(ts),_is_abstract(abstract),static_base<fclass>(base)
 {
 
 }
 
-fclass::fclass(const typespec& ts)
-    : _ts(ts),static_base<fclass>(*this)
+fclass::fclass(const typespec& ts, bool abstract)
+    : _ts(ts),_is_abstract(abstract),static_base<fclass>(*this)
 {
 }
 

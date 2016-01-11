@@ -28,6 +28,12 @@ public:
     static std::shared_ptr<fclass> build_class(typespec);
 };
 
+class flvoid
+{
+public:
+    static std::shared_ptr<fclass> build_class();
+};
+
 class boolean
 {
 public:

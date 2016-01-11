@@ -30,6 +30,11 @@ fclass& typemgr::check_builtin( const typespec& ts )
 {
     std::shared_ptr<fclass> pTarget;
 
+    if (ts.full_name()=="void")
+    {
+	pTarget = builtins::flvoid::build_class();
+    }
+
     if (ts.full_name()=="object")
     {
 	pTarget = builtins::object::build_class();
