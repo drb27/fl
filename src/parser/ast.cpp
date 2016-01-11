@@ -192,22 +192,29 @@ fclass* symbol_node::type(context*) const
     throw std::exception();
 }
 
-assign_node::assign_node(ast* lvalue,ast* rvalue)
-    : _lvalue(lvalue),_rvalue(rvalue)
+assign_node::assign_node(ast* lvalue,ast* rvalue, bool alias)
+    : _lvalue(lvalue),_rvalue(rvalue),_alias(alias)
 {
 
 }
 
 objref assign_node::evaluate(context* pContext)
 {
-    auto pSymbolNode = dynamic_cast<symbol_node*>(_lvalue);
-    if (pSymbolNode)
+    auto pSymbolNodeL = dynamic_cast<symbol_node*>(_lvalue);
+    if (pSymbolNodeL)
     {
 	// Evaluate RHS
 	auto result = _rvalue->evaluate(pContext);
-	
-	// Assign the LHS to the symbol
-	pContext->assign(pSymbolNode->name(),result);
+
+	if (_alias)
+	{
+	    // Set up an alias to point to the same object
+	    auto pSymbolNodeR = dynamic_cast<symbol_node*>(_rvalue);
+	    pContext->alias(pSymbolNodeL,pSymbolNodeR);
+	}
+	else
+	    // Assign the LHS to the symbol
+	    pContext->assign(pSymbolNodeL->name(),result);
 
 	// Return RHS
 	return result;
@@ -219,14 +226,21 @@ objref assign_node::evaluate(context* pContext)
 
 objref assign_node::evaluate(context* pContext) const
 {
-    auto pSymbolNode = dynamic_cast<symbol_node*>(_lvalue);
-    if (pSymbolNode)
+    auto pSymbolNodeL = dynamic_cast<symbol_node*>(_lvalue);
+    if (pSymbolNodeL)
     {
 	// Evaluate RHS
 	auto result = _rvalue->evaluate(pContext);
-	
-	// Assign the LHS to the symbol
-	pContext->assign(pSymbolNode->name(),result);
+
+	if (_alias)
+	{
+	    // Set up an alias to point to the same object
+	    auto pSymbolNodeR = dynamic_cast<symbol_node*>(_rvalue);
+	    pContext->alias(pSymbolNodeL,pSymbolNodeR);
+	}
+	else
+	    // Assign the LHS to the symbol
+	    pContext->assign(pSymbolNodeL->name(),result);
 
 	// Return RHS
 	return result;
@@ -241,3 +255,5 @@ fclass* assign_node::type(context* c) const
 {
     return _lvalue->type(c);
 }
+
+

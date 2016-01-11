@@ -74,7 +74,7 @@ protected:
 class assign_node : public ast
 {
 public:
-    assign_node(ast*,ast*);
+    assign_node(ast*,ast*,bool alias=false);
     virtual objref evaluate(context*);
     virtual objref evaluate(context*) const;
     virtual fclass* type(context*) const;
@@ -82,6 +82,7 @@ public:
 private:
     ast* _lvalue;
     ast* _rvalue;
+    const bool _alias;
 };
 
 #endif

@@ -44,6 +44,7 @@ extern action_target* target;
 %type <node_val> symbol
 %type <node_val> fundef
 %type <node_val> expr
+%type <node_val> alias
 %type <node_val> funcall
 %type <node_val> methodcall
 %type <node_val> literal
@@ -99,6 +100,8 @@ items_empty: | items;
 expr:   literal 
       | funcall
       | methodcall
+      | alias
+      | assign
       | symbol %prec LOWEST 
       | expr ADD expr
       ;
@@ -112,11 +115,12 @@ bool: TRUE {$$=target->make_bool(true); } | FALSE { $$=target->make_bool(false);
 
 null: NULLVAL { $$=target->make_null(); }
  
+alias: symbol MAPSTO symbol { $$ = target->make_alias($1,$3);};
+
 /* STATEMENTS *************************************************************/
 
-stmt : assign NEWLINE {$$=$1; }
-     | fundef NEWLINE {$$=$1; }
-       /* | typealias NEWLINE */
+stmt : 
+       fundef NEWLINE {$$=$1; }
      | expr NEWLINE {$$=$1;}
      ;
 

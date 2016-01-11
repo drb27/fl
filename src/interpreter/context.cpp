@@ -4,6 +4,8 @@
 #include "context.h"
 #include "typemgr.h"
 #include <interpreter/eval_exception.h>
+#include <parser/ast_nodes.h>
+
 using std::string;
 
 closure::closure()
@@ -64,6 +66,11 @@ objref context::resolve_symbol(const std::string& name)
 void context::assign(const std::string& name, objref value)
 {
     _symbols[name] = value;
+}
+
+void context::alias(symbol_node* lvalue, symbol_node* rvalue)
+{
+    _symbols[lvalue->name()] = _symbols[rvalue->name()];
 }
 
 typemgr& context::types()

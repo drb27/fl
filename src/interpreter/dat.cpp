@@ -68,6 +68,11 @@ ast* dat::make_symbol( std::string* name) const
     return r;
 }
 
+ast* dat::make_alias(ast* alias, ast* existing) const
+{
+    return new assign_node(alias,existing,true);
+}
+
 ast* dat::make_assign_node(ast* lvalue, ast* rvalue)
 {
     return new assign_node(lvalue,rvalue);

@@ -6,6 +6,8 @@
 #include "typemgr.h"
 #include <parser/ast.h>
 
+class symbol_node;
+
 class closure
 {
 public:
@@ -32,6 +34,7 @@ class context
 
     virtual objref resolve_symbol(const std::string&);
     virtual void assign(const std::string& name, objref value);
+    virtual void alias(symbol_node* lvalue, symbol_node* rvalue);
     typemgr& types();
 
  protected:
