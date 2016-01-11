@@ -59,16 +59,16 @@ protected:
     std::list<ast*> _params;
 };
 
-class fundef_node : public ast, public named
+class fundef_node : public ast
 {
 public:
-    fundef_node(std::string name, const ast* def) : named(name), _definition(def) {}
+    fundef_node(ast* arglist, ast* definition);
     virtual objref evaluate(context*) const;
     virtual fclass* type(context*);
-    virtual objref operator()(objref) const;
 
 protected:
-    const ast* const  _definition;
+    ast* _arglist;
+    ast* _definition;
 };
 
 class assign_node : public ast

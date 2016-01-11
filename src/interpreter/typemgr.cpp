@@ -45,6 +45,11 @@ fclass& typemgr::check_builtin( const typespec& ts )
 	pTarget = builtins::list::build_class(ts);
     }
 
+    if (ts.template_name()=="function")
+    {
+	pTarget = builtins::function::build_class(ts);
+    }
+
     if (ts.full_name()=="integer")
     {
 	pTarget = builtins::integer::build_class();

@@ -55,9 +55,12 @@ extern action_target* target;
 
 %start input
 
+%precedence MAPSTO
+%left EQ
 %left ADD
 %precedence LOWEST
 %precedence OPEN_PAREN
+%precedence DOT
 %%
 
 
@@ -75,7 +78,7 @@ symbol:  SYMBOL  { $$=target->make_symbol($1);  }
 
 /* DEFINITIONS ************************************************************/
 
-fundef: symbol list MAPSTO expr { /*$$ = target->make_fundef($1,$4);*/ };
+fundef: list MAPSTO expr { $$ = target->make_fundef($1,$3); };
 
 /*
 typealias: TYPEDEF symbol typespec;

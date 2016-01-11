@@ -28,6 +28,12 @@ public:
     static std::shared_ptr<fclass> build_class(typespec);
 };
 
+class function
+{
+public:
+    static std::shared_ptr<fclass> build_class(typespec);
+};
+
 class flvoid
 {
 public:

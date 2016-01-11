@@ -256,4 +256,11 @@ fclass* assign_node::type(context* c) const
     return _lvalue->type(c);
 }
 
+fundef_node::fundef_node(ast* arglist, ast* definition)
+    : _arglist(arglist), _definition(definition)
+{
+
+}
+
+
 

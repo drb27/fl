@@ -20,7 +20,7 @@ class dat : public action_target
     virtual ast* make_int(int x) const;
     virtual ast* make_null() const;
     virtual ast* make_alias(ast* alias, ast* existing) const;
-    virtual ast* make_fundef( std::string* name, ast* def) const;
+    virtual ast* make_fundef( ast* arglist,  ast* def) const;
     virtual ast* make_symbol( std::string* name) const;
     virtual void respond( ast* def, std::ostream& os = std::cout ) const;
     virtual ast* make_methodcall( ast* target, std::string* method, list_node* args);

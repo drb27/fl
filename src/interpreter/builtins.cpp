@@ -38,6 +38,12 @@ namespace builtins
 	return pCls;
     }
 
+    std::shared_ptr<fclass> function::build_class(typespec spec)
+    {
+	std::shared_ptr<fclass> pCls(new fclass(spec));
+	return pCls;
+    }
+
     std::shared_ptr<fclass> boolean::build_class()
     {
 	typespec spec("boolean",{});

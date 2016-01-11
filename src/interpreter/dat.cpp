@@ -36,11 +36,9 @@ ast* dat::make_null() const
     return pNode;
 }
 
-ast* dat::make_fundef( string* name, ast* def) const
+ast* dat::make_fundef( ast* arglist,  ast* def) const
 {
-    delete name;
-    delete def;
-    return nullptr;
+    
 }
 
 void dat::respond( ast* def, std::ostream& os) const
