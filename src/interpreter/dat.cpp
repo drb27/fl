@@ -27,6 +27,15 @@ ast* dat::make_int(int x) const
     return pNode;
 }
 
+ast* dat::make_null() const
+{
+    typespec obj_spec = typespec("object",{});
+    fclass& obj_cls = _tm.lookup(obj_spec);
+    objref pObject(new null_object(obj_cls));
+    literal_node* pNode = new literal_node(pObject);
+    return pNode;
+}
+
 ast* dat::make_fundef( string* name, ast* def) const
 {
     delete name;

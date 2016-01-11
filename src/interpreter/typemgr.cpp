@@ -37,7 +37,7 @@ fclass& typemgr::check_builtin( const typespec& ts )
 
     if (ts.template_name()=="list")
     {
-	pTarget = std::shared_ptr<fclass>(new fclass(ts));
+	pTarget = builtins::list::build_class(ts);
     }
 
     if (ts.full_name()=="integer")

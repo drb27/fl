@@ -21,6 +21,7 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+null     { return NULLVAL; }
 true     { return TRUE; }
 false    { return FALSE; }
 \.       { return DOT; }

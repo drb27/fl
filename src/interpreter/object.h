@@ -6,6 +6,7 @@
 #include <list>
 #include <ostream>
 #include <functional>
+#include <list>
 #include "class.h"
 #include <interpreter/marshall.h>
 
@@ -51,6 +52,23 @@ public:
     bool internal_value() const { return _value; }
 protected:
     const bool _value;
+};
+
+class list_object : public object
+{
+public:
+    list_object(fclass&);
+    virtual void render( std::ostream& os) const;
+    std::list<objref>& internal_value() { return _list; }
+protected:
+    std::list<objref> _list;
+};
+
+class null_object : public object
+{
+public:
+    null_object(fclass& cls) : object(cls) {}
+    virtual void render( std::ostream& os) const;
 };
 
 #endif

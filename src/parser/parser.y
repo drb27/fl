@@ -28,6 +28,7 @@ extern action_target* target;
 %token TYPEDEF
 %token TRUE
 %token FALSE
+%token NULLVAL
 
 %union
 {
@@ -39,6 +40,7 @@ extern action_target* target;
 %type <int_val> INTEGER
 %type <string_val> SYMBOL
 %type <node_val> integer
+%type <node_val> null
 %type <node_val> symbol
 %type <node_val> fundef
 %type <node_val> expr
@@ -101,12 +103,14 @@ expr:   literal
       | expr ADD expr
       ;
 
-literal: bool | integer | list;
+literal: null | bool | integer | list;
 funcall: symbol list %prec OPEN_PAREN;
 
 methodcall: expr DOT SYMBOL list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
 
- bool: TRUE {$$=target->make_bool(true); } | FALSE { $$=target->make_bool(false); };
+bool: TRUE {$$=target->make_bool(true); } | FALSE { $$=target->make_bool(false); };
+
+null: NULLVAL { $$=target->make_null(); }
  
 /* STATEMENTS *************************************************************/
 

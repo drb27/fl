@@ -11,7 +11,7 @@ public:
     symbol_node( const std::string& );
     virtual objref evaluate(context*);
     virtual objref evaluate(context*) const;
-    virtual const fclass* type(context*) const;
+    virtual fclass* type(context*) const;
     virtual const std::string& name() const;
 protected:
     const std::string _name;
@@ -24,7 +24,7 @@ public:
     literal_node( objref );
     virtual objref evaluate(context*);
     virtual objref evaluate(context*) const;
-    virtual const fclass* type(context*) const;
+    virtual fclass* type(context*) const;
 protected:
     const objref _object;
 };
@@ -35,7 +35,7 @@ public:
     virtual void push_element(ast*);
     virtual objref evaluate(context*);    
     virtual objref evaluate(context*) const;
-    virtual const fclass* type(context*) const;
+    virtual fclass* type(context*) const;
     virtual std::list<ast*>& raw_elements();
 private:
     std::list<ast*> _elements;
@@ -47,7 +47,7 @@ public:
     methodcall_node(const std::string&);
     virtual objref evaluate(context*);
     virtual objref evaluate(context*) const;
-    virtual const fclass* type(context*) const;
+    virtual fclass* type(context*) const;
 
     virtual void add_target(ast* pObj);
     virtual void add_param(ast*);
@@ -64,7 +64,7 @@ class fundef_node : public ast, public named
 public:
     fundef_node(std::string name, const ast* def) : named(name), _definition(def) {}
     virtual objref evaluate(context*) const;
-    virtual const fclass* type(context*);
+    virtual fclass* type(context*);
     virtual objref operator()(objref) const;
 
 protected:
@@ -77,7 +77,7 @@ public:
     assign_node(ast*,ast*);
     virtual objref evaluate(context*);
     virtual objref evaluate(context*) const;
-    virtual const fclass* type(context*) const;
+    virtual fclass* type(context*) const;
 
 private:
     ast* _lvalue;

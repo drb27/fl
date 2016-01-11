@@ -24,6 +24,13 @@ namespace builtins
 	return pCls;
     }
 
+    std::shared_ptr<fclass> list::build_class(typespec spec)
+    {
+	std::shared_ptr<fclass> pCls(new fclass(spec));
+	pCls->add_method("size", make_marshall(&builtins::list_size));
+	return pCls;
+    }
+
     std::shared_ptr<fclass> boolean::build_class()
     {
 	typespec spec("boolean",{});
@@ -59,5 +66,13 @@ namespace builtins
 	return pObject;
 
     }
-
+    
+    objref list_size(context* pContext, listref pThis)
+    {
+	typespec int_spec = typespec("integer",{});
+	fclass& int_cls = pContext->types().lookup(int_spec);
+	
+	objref pObject(new int_object(pThis->internal_value().size(),int_cls));
+	return pObject;
+    }
 }

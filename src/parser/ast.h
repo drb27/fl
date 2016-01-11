@@ -17,7 +17,7 @@ class ast
     virtual ~ast();
     virtual objref evaluate(context*)=0;
     virtual objref evaluate(context*) const=0;
-    virtual const fclass* type(context*) const=0;
+    virtual fclass* type(context*) const=0;
 
  protected:
     ast();

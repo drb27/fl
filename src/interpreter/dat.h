@@ -18,6 +18,7 @@ class dat : public action_target
     virtual ~dat();
 
     virtual ast* make_int(int x) const;
+    virtual ast* make_null() const;
     virtual ast* make_fundef( std::string* name, ast* def) const;
     virtual ast* make_symbol( std::string* name) const;
     virtual void respond( ast* def, std::ostream& os = std::cout ) const;

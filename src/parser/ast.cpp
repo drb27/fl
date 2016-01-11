@@ -39,7 +39,7 @@ objref literal_node::evaluate(context* pContext) const
     return _object;
 }
 
-const fclass* literal_node::type(context* pContext) const
+fclass* literal_node::type(context* pContext) const
 {
     return &(_object->get_class());
 }
@@ -51,12 +51,23 @@ void list_node::push_element(ast* pNode)
 
 objref list_node::evaluate(context* pContext)
 {
-    return objref(nullptr);
+    auto l = new list_object(*(type(pContext)));
+    for ( auto e : _elements )
+    {
+	l->internal_value().push_back(e->evaluate(pContext));
+    }
+    return objref(l);
 }
 
 objref list_node::evaluate(context* pContext) const
 {
-    return objref(nullptr);
+    auto l = new list_object(*(type(pContext)));
+    for ( auto e : _elements )
+    {
+	l->internal_value().push_back(e->evaluate(pContext));
+    }
+    return objref(l);
+
 }
 
 std::list<ast*>& list_node::raw_elements()
@@ -64,11 +75,11 @@ std::list<ast*>& list_node::raw_elements()
     return _elements;
 }
 
-const fclass* list_node::type(context* pContext) const
+fclass* list_node::type(context* pContext) const
 {
 
     // Get the types of all the child elements
-    set<const fclass*> subtypes;
+    set<fclass*> subtypes;
 
     for ( auto e : _elements )
     {
@@ -135,7 +146,7 @@ objref methodcall_node::evaluate(context* pContext) const
     return objref(nullptr);
 }
 
-const fclass* methodcall_node::type(context*) const
+fclass* methodcall_node::type(context*) const
 {
     throw std::exception();
 }
@@ -176,7 +187,7 @@ objref symbol_node::evaluate(context* pContext) const
     return pContext->resolve_symbol(_name);
 }
 
-const fclass* symbol_node::type(context*) const
+fclass* symbol_node::type(context*) const
 {
     throw std::exception();
 }
@@ -226,7 +237,7 @@ objref assign_node::evaluate(context* pContext) const
 
 }
 
-const fclass* assign_node::type(context* c) const
+fclass* assign_node::type(context* c) const
 {
     return _lvalue->type(c);
 }

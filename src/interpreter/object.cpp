@@ -42,3 +42,26 @@ void bool_object::render( std::ostream& os) const
     os << ((_value)?"true":"false") << " ";
     object::render(os);
 }
+
+list_object::list_object(fclass& cls)
+    : object(cls)
+{
+}
+
+void list_object::render( std::ostream& os) const
+{
+    os << "(";
+    for ( auto e : _list )
+    {
+	e->render(os); 
+	os << " ";
+    }
+    os << ") ";
+    object::render(os);
+}
+
+void null_object::render( std::ostream& os) const
+{
+    os << "null ";
+    object::render(os);
+}

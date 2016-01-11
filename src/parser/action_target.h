@@ -13,6 +13,7 @@ class action_target
  public:
 
     virtual ast* make_int(int x) const=0;
+    virtual ast* make_null() const=0;
     virtual ast* make_fundef( std::string* name, ast* def) const=0;
     virtual ast* make_symbol( std::string* name) const=0;
     virtual ast* make_assign_node(ast* lvalue, ast* rvalue)=0;
