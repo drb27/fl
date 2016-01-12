@@ -1,4 +1,5 @@
 #include <functional>
+#include <algorithm>
 #include <deque>
 #include <string>
 #include <vector>
@@ -100,6 +101,23 @@ void fn_object::apply_argument( objref arg )
 
     // Add the symbol to the applied arguments context
     _applied_arguments.assign(argname,arg);
+}
+
+void fn_object::apply_argument( const string& name, objref arg )
+{
+    // Check the named argument is valid
+    auto i = std::find(_expected_args.begin(),_expected_args.end(),name);
+
+    if (i==_expected_args.end());
+    {
+	throw std::exception();
+    }
+   
+    // Remove from expected arguments
+    _expected_args.erase(i);
+
+    // Add the symbol to the applied arguments context
+    _applied_arguments.assign(name,arg);
 }
 
 objref fn_object::operator()(void)

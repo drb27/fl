@@ -84,6 +84,7 @@ public:
     virtual void render( std::ostream& os) const;
     
     virtual void apply_argument( objref arg);
+    virtual void apply_argument( const std::string& name, objref arg);
     virtual fnref partial_application( std::vector<objref> args ) const;
     virtual objref operator()(void);
 protected:
