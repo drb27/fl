@@ -81,6 +81,17 @@ fn_object::fn_object(fclass& cls, function<marshall_fn_t> impl, deque<string> ar
 {
 }
 
+void fn_object::render(std::ostream& os) const
+{
+    object::render(os);
+}
+
+fnref fn_object::partial_application(vector<objref> args) const
+{
+    // Creates a NEW function object with args.size() fewer args
+    return fnref(nullptr);
+}
+
 void fn_object::apply_argument( objref arg )
 {
     // Pop the next expected argument name
@@ -89,11 +100,6 @@ void fn_object::apply_argument( objref arg )
 
     // Add the symbol to the applied arguments context
     _applied_arguments.assign(argname,arg);
-}
-
-bool fn_object::has_all_arguments() const
-{
-    return _expected_args.size()==0;
 }
 
 objref fn_object::operator()(void)
@@ -105,6 +111,10 @@ objref fn_object::operator()(void)
 	params.push_back( new symbol_node(p) );
     }
     
-    // Apply the accrued arguments to the marshall function, and return the result!
-    return _fn(&_applied_arguments,params);
+    // Apply the accrued arguments to the marshall function
+    auto result = _fn(&_applied_arguments,params);
+
+    // Reset arguments for another invocation
+    _expected_args = _full_args;
+    _applied_arguments.reset();
 }

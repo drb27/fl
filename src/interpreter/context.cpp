@@ -50,3 +50,8 @@ typemgr& context::types()
 {
     return _types;
 }
+
+void context::reset()
+{
+    _symbols.clear();
+}

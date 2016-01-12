@@ -84,7 +84,7 @@ public:
     virtual void render( std::ostream& os) const;
     
     virtual void apply_argument( objref arg);
-    virtual bool has_all_arguments() const;
+    virtual fnref partial_application( std::vector<objref> args ) const;
     virtual objref operator()(void);
 protected:
     std::function<marshall_fn_t> _fn;

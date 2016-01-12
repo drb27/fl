@@ -20,6 +20,7 @@ class context
     virtual objref resolve_symbol(const std::string&);
     virtual void assign(const std::string& name, objref value);
     virtual void alias(symbol_node* lvalue, symbol_node* rvalue);
+    virtual void reset();
     static typemgr& types();
 
  protected:
