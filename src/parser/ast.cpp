@@ -262,5 +262,15 @@ fundef_node::fundef_node(ast* arglist, ast* definition)
 
 }
 
+objref fundef_node::evaluate(context* pContext) const
+{
+
+}
+
+fclass* fundef_node::type(context* pContext)
+{
+    throw std::exception();
+}
+
 
 

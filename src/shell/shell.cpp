@@ -19,7 +19,8 @@
 using std::list;
 using std::shared_ptr;
 action_target* target;
-context shell_context;
+
+
 
 int yyparse(void);
 
@@ -32,8 +33,8 @@ extern "C" void yyerror(char const* c)
 int main(void)
 {
     std::cout << PACKAGE_STRING << std::endl;
-
-    target = new dat(shell_context.types(),&shell_context);
+    std::shared_ptr<context> shell_context(new context());
+    target = new dat(shell_context);
     yyparse();
 
     return 0;

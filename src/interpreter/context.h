@@ -8,39 +8,24 @@
 
 class symbol_node;
 
-class closure
-{
-public:
-    closure();
-    closure(const closure&);
-    virtual ~closure();
-
-    virtual closure& operator=(const closure& other);
-    virtual void define( const std::string& name, objref obj);
-    virtual void destroy( const std::string& name);
-
-private:
-
-    std::map<std::string,objref> _symbols;
-
-};
-
 class context
 {
 
  public:
     context();
+    context( const context&);
+
     virtual ~context();
 
     virtual objref resolve_symbol(const std::string&);
     virtual void assign(const std::string& name, objref value);
     virtual void alias(symbol_node* lvalue, symbol_node* rvalue);
-    typemgr& types();
+    static typemgr& types();
 
  protected:
 
  private:
-    typemgr _types;
+    static typemgr _types;
     std::map<std::string,objref> _symbols;
 };
 

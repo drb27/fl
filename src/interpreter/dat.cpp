@@ -1,3 +1,4 @@
+#include <memory>
 #include <string>
 #include <deque>
 #include <interpreter/object.h>
@@ -5,11 +6,13 @@
 #include <parser/ast_nodes.h>
 #include "dat.h"
 #include <interpreter/typemgr.h>
+#include <interpreter/context.h>
 
 using std::string;
 using std::deque;
+using std::shared_ptr;
 
-dat::dat(typemgr& tm,context* pContext) : _tm(tm),_context(pContext)
+dat::dat(shared_ptr<context> pContext) : _context(pContext)
 {
 }
 
@@ -21,7 +24,7 @@ dat::~dat()
 ast* dat::make_int(int x) const
 {
     typespec int_spec = typespec("integer",{});
-    fclass& int_cls = _tm.lookup(int_spec);
+    fclass& int_cls = _context->types().lookup(int_spec);
     objref pObject(new int_object(x,int_cls));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
@@ -30,7 +33,7 @@ ast* dat::make_int(int x) const
 ast* dat::make_null() const
 {
     typespec obj_spec = typespec("object",{});
-    fclass& obj_cls = _tm.lookup(obj_spec);
+    fclass& obj_cls = _context->types().lookup(obj_spec);
     objref pObject(new null_object(obj_cls));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
@@ -43,7 +46,7 @@ ast* dat::make_fundef( ast* arglist,  ast* def) const
 
 void dat::respond( ast* def, std::ostream& os) const
 {
-    def->evaluate(_context)->render(os);
+    def->evaluate(_context.get())->render(os);
     os << "OK" << std::endl;
 }
 
@@ -98,7 +101,7 @@ ast* dat::finish_list()
 ast* dat::make_bool(bool b)
 {
     typespec bool_spec = typespec("boolean",{});
-    fclass& bool_cls = _tm.lookup(bool_spec);
+    fclass& bool_cls = _context->types().lookup(bool_spec);
     objref pObject(new bool_object(b,bool_cls));
     literal_node* pNode = new literal_node(pObject);
     return pNode;

@@ -1,8 +1,15 @@
-#include <string.h>
+#include <functional>
+#include <deque>
+#include <string>
+#include <vector>
 #include "object.h"
 #include <interpreter/eval_exception.h>
+#include <parser/ast_nodes.h>
 
 using std::string;
+using std::function;
+using std::deque;
+using std::vector;
 
 object::object(fclass& c) : _class(c)
 {
@@ -67,4 +74,37 @@ void null_object::render( std::ostream& os) const
 {
     os << "null ";
     object::render(os);
+}
+
+fn_object::fn_object(fclass& cls, function<marshall_fn_t> impl, deque<string> args)
+    : _expected_args(args), _full_args(args), object(cls), _fn(impl)
+{
+}
+
+void fn_object::apply_argument( objref arg )
+{
+    // Pop the next expected argument name
+    string argname = _expected_args.front();
+    _expected_args.pop_front();
+
+    // Add the symbol to the applied arguments context
+    _applied_arguments.assign(argname,arg);
+}
+
+bool fn_object::has_all_arguments() const
+{
+    return _expected_args.size()==0;
+}
+
+objref fn_object::operator()(void)
+{
+    // Prepare a vector<ast*> of symbol_nodes, one for each expected argument
+    vector<ast*> params;
+    for ( auto p : _full_args )
+    {
+	params.push_back( new symbol_node(p) );
+    }
+    
+    // Apply the accrued arguments to the marshall function, and return the result!
+    return _fn(&_applied_arguments,params);
 }

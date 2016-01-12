@@ -11,11 +11,13 @@
 #include "test-nametable.h"
 #include "test-object.h"
 #include "test-typemgr.h"
+#include "test-context.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(FclassTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(NametableTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(ObjectTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(TypemgrTestFixture);
+CPPUNIT_TEST_SUITE_REGISTRATION(contextTestFixture);
 
 int main(int argc, char* argv[] )
 {

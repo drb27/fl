@@ -8,40 +8,7 @@
 
 using std::string;
 
-closure::closure()
-{
-}
-
-closure::closure(const closure& other)
-{
-}
-
-closure::~closure()
-{
-}
-
-closure& closure::operator=(const closure& other)
-{
-    return *this;
-}
-
-void closure::define(const string& name, objref obj)
-{
-    if (_symbols.find(name)!=_symbols.end())
-	throw eval_exception(cerror::symbol_redefinition,"Symbol already exists");
-
-    _symbols[name] = obj;
-}
-
-void closure::destroy(const string& name)
-{
-    if (_symbols.find(name)==_symbols.end())
-	throw eval_exception(cerror::undefined_symbol,"Can't destroy undefined symbol");
-
-    _symbols.erase(name);
-}
-
-
+typemgr context::_types;
 
 context::context()
 {
@@ -49,6 +16,12 @@ context::context()
     fclass& int_cls = _types.lookup(int_spec);
     intref x(new int_object(42,int_cls));
     _symbols["x"] = x;
+}
+
+context::context( const context& other )
+    : _symbols(other._symbols)
+{
+    
 }
 
 context::~context()

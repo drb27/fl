@@ -6,9 +6,12 @@
 #include <list>
 #include <ostream>
 #include <functional>
+#include <deque>
+#include <string>
 #include <list>
 #include "class.h"
 #include <interpreter/marshall.h>
+#include <interpreter/context.h>
 
 class ast;
 class typemgr;
@@ -69,6 +72,25 @@ class null_object : public object
 public:
     null_object(fclass& cls) : object(cls) {}
     virtual void render( std::ostream& os) const;
+};
+
+// A function which can only be evaluated when all of its arguments have been
+// supplied. Partial arguments can be supplied. If this happens, *another* function
+// object is returned which only needs the remaining arguments to be supplied. 
+class fn_object : public object
+{
+public:
+    fn_object(fclass&, std::function<marshall_fn_t> impl, std::deque<std::string> args);
+    virtual void render( std::ostream& os) const;
+    
+    virtual void apply_argument( objref arg);
+    virtual bool has_all_arguments() const;
+    virtual objref operator()(void);
+protected:
+    std::function<marshall_fn_t> _fn;
+    context _applied_arguments;
+    std::deque<std::string> _expected_args;
+    std::deque<std::string> _full_args;
 };
 
 #endif

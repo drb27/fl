@@ -59,8 +59,6 @@ namespace
 	typedef std::tuple<Args...> type;
     };
 
-
-
     template<typename F>
     std::function<marshall_fn_t> make_marshall( F* f)
     {

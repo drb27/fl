@@ -1,11 +1,10 @@
 #ifndef DAT_H
 #define DAT_H
 
+#include <memory>
 #include <deque>
 #include <parser/action_target.h>
 #include <interpreter/typemgr.h>
-
-using std::deque;
 
 class context;
 class list_node;
@@ -14,7 +13,7 @@ class dat : public action_target
 {
 
  public:
-    dat(typemgr&,context*);
+    dat(std::shared_ptr<context>);
     virtual ~dat();
 
     virtual ast* make_int(int x) const;
@@ -30,8 +29,7 @@ class dat : public action_target
     virtual ast* finish_list();
     virtual ast* make_bool(bool b);
  protected:
-    typemgr& _tm;
-    context* _context;
+    std::shared_ptr<context> _context;
     std::deque<list_node*> _list_stack;
  private:
 
