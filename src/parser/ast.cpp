@@ -297,6 +297,13 @@ objref fundef_node::evaluate(context* pContext)
     
     deque<string> argnames;
 
+    list_node* pArgList = dynamic_cast<list_node*>(_arglist);
+    for ( auto sn : pArgList->raw_elements() )
+    {
+	symbol_node* pSymNode = dynamic_cast<symbol_node*>(sn);
+	argnames.push_back(pSymNode->name());
+    }
+
     // Construct a marshall_fn_t compatible lambda expression
     function<marshall_fn_t> fn = [localDef](context* pContext, vector<ast*>& arglist)
 	{
