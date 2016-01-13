@@ -87,7 +87,7 @@ void fn_object::render(std::ostream& os) const
     object::render(os);
 }
 
-fnref fn_object::partial_application(vector<objref> args) const
+fnref fn_object::partial_application(const vector<argpair_t>& args) const
 {
     // Creates a NEW function object with args.size() fewer args
     return fnref(nullptr);
@@ -116,7 +116,7 @@ void fn_object::apply_argument( const string& name, objref arg )
     // Remove from expected arguments
     _expected_args.erase(i);
 
-    // Add the symbol to the applied arguments context
+    // Add th1e symbol to the applied arguments context
     _applied_arguments.assign(name,arg);
 }
 
@@ -127,6 +127,12 @@ const deque<string>& fn_object::arglist() const
 
 objref fn_object::operator()(vector<argpair_t>& args)
 {
+    // Apply each of the arguments
+    for ( auto p : args )
+    {
+	apply_argument(p.first,p.second);
+    }
+
     // Prepare a vector<ast*> of symbol_nodes, one for each expected argument
     vector<ast*> params;
     for ( auto p : _full_args )

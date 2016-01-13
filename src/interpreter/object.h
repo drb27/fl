@@ -86,13 +86,14 @@ public:
     fn_object(fclass&, std::function<marshall_fn_t> impl, std::deque<std::string> args);
     virtual void render( std::ostream& os) const;
     
-    virtual void apply_argument( objref arg);
-    virtual void apply_argument( const std::string& name, objref arg);
-    virtual fnref partial_application( std::vector<objref> args ) const;
+    virtual fnref partial_application( const std::vector<argpair_t>& args ) const;
     virtual objref operator()(std::vector<argpair_t>&);
     virtual const std::deque<std::string>& arglist() const;
 
 protected:
+    virtual void apply_argument( objref arg);
+    virtual void apply_argument( const std::string& name, objref arg);
+
     std::function<marshall_fn_t> _fn;
     context _applied_arguments;
     std::deque<std::string> _expected_args;

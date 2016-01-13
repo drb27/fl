@@ -1,6 +1,7 @@
 #include <memory>
 #include <string>
 #include <deque>
+#include <vector>
 #include <interpreter/object.h>
 #include <parser/ast.h>
 #include <parser/ast_nodes.h>
@@ -11,6 +12,7 @@
 using std::string;
 using std::deque;
 using std::shared_ptr;
+using std::vector;
 
 dat::dat(shared_ptr<context> pContext) : _context(pContext)
 {
@@ -41,7 +43,7 @@ ast* dat::make_null() const
 
 ast* dat::make_fundef( ast* arglist,  ast* def) const
 {
-    
+    return new fundef_node(arglist,def);
 }
 
 void dat::respond( ast* def, std::ostream& os) const

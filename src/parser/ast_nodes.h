@@ -59,12 +59,26 @@ protected:
     std::list<ast*> _params;
 };
 
+class funcall_node : public ast
+{
+public:
+    funcall_node(const std::string&,ast* args);
+    virtual objref evaluate(context*);
+    virtual objref evaluate(context*) const;
+    virtual fclass* type(context*) const;
+
+protected:
+    const std::string _name;
+    ast* _arg_list;
+};
+
 class fundef_node : public ast
 {
 public:
     fundef_node(ast* arglist, ast* definition);
     virtual objref evaluate(context*) const;
-    virtual fclass* type(context*);
+    virtual objref evaluate(context*);
+    virtual fclass* type(context*) const;
 
 protected:
     ast* _arglist;

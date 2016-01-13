@@ -3,6 +3,7 @@
 #include <string>
 #include <list>
 #include <set>
+#include <deque>
 #include <vector>
 #include "ast.h"
 #include "ast_nodes.h"
@@ -10,10 +11,12 @@
 #include <interpreter/context.h>
 #include <interpreter/marshall.h>
 
+using std::string;
 using std::list;
 using std::set;
 using std::function;
 using std::vector;
+using std::deque;
 
 ast::ast()
 {
@@ -264,13 +267,70 @@ fundef_node::fundef_node(ast* arglist, ast* definition)
 
 objref fundef_node::evaluate(context* pContext) const
 {
+    ast* localDef = _definition;
+    fclass* f;
+    
+    // TODO: NEED A CLASS!
 
+    deque<string> argnames;
+
+    // Construct a marshall_fn_t compatible lambda expression
+    function<marshall_fn_t> fn = [localDef](context* pContext, vector<ast*>& arglist)
+	{
+	    return localDef->evaluate(pContext);
+	};
+
+    return objref( new fn_object(*f,fn,argnames) );
 }
 
-fclass* fundef_node::type(context* pContext)
+objref fundef_node::evaluate(context* pContext)
+{
+    
+}
+
+fclass* fundef_node::type(context* pContext) const
 {
     throw std::exception();
 }
 
+funcall_node::funcall_node(const string& name, ast* args)
+    : _name(name), _arg_list(args)
+{
+}
 
+objref funcall_node::evaluate(context* pContext)
+{
+    // Look up the function object in the context
+    fnref fn = std::dynamic_pointer_cast<fn_object>(pContext->resolve_symbol(_name));
+
+    // Evaluate the argument list
+    listref args = std::dynamic_pointer_cast<list_object>(_arg_list->evaluate(pContext));
+
+    // Get a list of argument names expected by the function
+    auto argnames(fn->arglist());
+
+    // Construct the argpair vector (string,objref)
+    vector<fn_object::argpair_t> argpairs;
+
+    for ( auto argval : args->internal_value() )
+    {
+	string argname = argnames.front();
+	argnames.pop_front();
+	argpairs.push_back( fn_object::argpair_t(argname,argval)); 
+    }
+
+    // Call the function and return the result!
+    return (*fn)(argpairs);
+
+}
+
+objref funcall_node::evaluate(context* pContext) const
+{
+    return objref(nullptr);
+}
+
+fclass* funcall_node::type(context* pContext) const
+{
+    throw std::exception();
+}
 
