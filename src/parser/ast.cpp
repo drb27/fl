@@ -190,8 +190,14 @@ objref symbol_node::evaluate(context* pContext) const
     return pContext->resolve_symbol(_name);
 }
 
-fclass* symbol_node::type(context*) const
+fclass* symbol_node::type(context* pContext) const
 {
+    // Attempt to resolve the symbol
+    auto o = pContext->resolve_symbol(_name);
+
+    if (o)
+	return &(o->get_class());
+
     throw std::exception();
 }
 
@@ -316,7 +322,8 @@ objref fundef_node::evaluate(context* pContext)
 
 fclass* fundef_node::type(context* pContext) const
 {
-    throw std::exception();
+    typespec ts("function",{});
+    return &(pContext->types().lookup(ts));
 }
 
 funcall_node::funcall_node(const string& name, ast* args)
@@ -377,6 +384,9 @@ objref funcall_node::evaluate(context* pContext) const
 
 fclass* funcall_node::type(context* pContext) const
 {
-    throw std::exception();
+    // TODO
+    typespec obj_spec("object",{});
+    return &(pContext->types().lookup(obj_spec));
+    //throw std::exception();
 }
 
