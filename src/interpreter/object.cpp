@@ -120,7 +120,12 @@ void fn_object::apply_argument( const string& name, objref arg )
     _applied_arguments.assign(name,arg);
 }
 
-objref fn_object::operator()(void)
+const deque<string>& fn_object::arglist() const
+{
+    return _full_args;
+}
+
+objref fn_object::operator()(vector<argpair_t>& args)
 {
     // Prepare a vector<ast*> of symbol_nodes, one for each expected argument
     vector<ast*> params;

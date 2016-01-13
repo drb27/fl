@@ -80,13 +80,18 @@ public:
 class fn_object : public object
 {
 public:
+
+    typedef std::pair<std::string,objref> argpair_t;
+
     fn_object(fclass&, std::function<marshall_fn_t> impl, std::deque<std::string> args);
     virtual void render( std::ostream& os) const;
     
     virtual void apply_argument( objref arg);
     virtual void apply_argument( const std::string& name, objref arg);
     virtual fnref partial_application( std::vector<objref> args ) const;
-    virtual objref operator()(void);
+    virtual objref operator()(std::vector<argpair_t>&);
+    virtual const std::deque<std::string>& arglist() const;
+
 protected:
     std::function<marshall_fn_t> _fn;
     context _applied_arguments;
