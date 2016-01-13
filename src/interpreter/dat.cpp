@@ -108,3 +108,9 @@ ast* dat::make_bool(bool b)
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
+
+ast* dat::make_funcall( ast* fn,  ast* args) const
+{
+    symbol_node* snode = dynamic_cast<symbol_node*>(fn);
+    return new funcall_node(snode->name(),args);
+}

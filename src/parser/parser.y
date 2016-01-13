@@ -102,6 +102,7 @@ items_empty: | items;
 
 expr:   literal 
       | funcall
+      | fundef
       | methodcall
       | alias
       | assign
@@ -110,7 +111,7 @@ expr:   literal
       ;
 
 literal: null | bool | integer | list;
-funcall: symbol list %prec OPEN_PAREN;
+funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
 
 methodcall: expr DOT SYMBOL list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
 
@@ -122,9 +123,7 @@ alias: symbol MAPSTO symbol { $$ = target->make_alias($1,$3);};
 
 /* STATEMENTS *************************************************************/
 
-stmt : 
-       fundef NEWLINE {$$=$1; }
-     | expr NEWLINE {$$=$1;}
+stmt : expr NEWLINE {$$=$1;}
      ;
 
 stmts: stmt {target->respond($1); } | stmts stmt {target->respond($2); };

@@ -268,10 +268,33 @@ fundef_node::fundef_node(ast* arglist, ast* definition)
 objref fundef_node::evaluate(context* pContext) const
 {
     ast* localDef = _definition;
-    fclass* f;
+    typespec ts("function",{});
+    fclass& cls = pContext->types().lookup(ts);
     
-    // TODO: NEED A CLASS!
+    deque<string> argnames;
 
+    list_node* pArgList = dynamic_cast<list_node*>(_arglist);
+    for ( auto sn : pArgList->raw_elements() )
+    {
+	symbol_node* pSymNode = dynamic_cast<symbol_node*>(sn);
+	argnames.push_back(pSymNode->name());
+    }
+
+    // Construct a marshall_fn_t compatible lambda expression
+    function<marshall_fn_t> fn = [localDef](context* pContext, vector<ast*>& arglist)
+	{
+	    return localDef->evaluate(pContext);
+	};
+
+    return objref( new fn_object(cls,fn,argnames) );
+}
+
+objref fundef_node::evaluate(context* pContext)
+{
+    ast* localDef = _definition;
+    typespec ts("function",{});
+    fclass& cls = pContext->types().lookup(ts);
+    
     deque<string> argnames;
 
     // Construct a marshall_fn_t compatible lambda expression
@@ -280,11 +303,7 @@ objref fundef_node::evaluate(context* pContext) const
 	    return localDef->evaluate(pContext);
 	};
 
-    return objref( new fn_object(*f,fn,argnames) );
-}
-
-objref fundef_node::evaluate(context* pContext)
-{
+    return objref( new fn_object(cls,fn,argnames) );
     
 }
 
@@ -326,7 +345,27 @@ objref funcall_node::evaluate(context* pContext)
 
 objref funcall_node::evaluate(context* pContext) const
 {
-    return objref(nullptr);
+    // Look up the function object in the context
+    fnref fn = std::dynamic_pointer_cast<fn_object>(pContext->resolve_symbol(_name));
+
+    // Evaluate the argument list
+    listref args = std::dynamic_pointer_cast<list_object>(_arg_list->evaluate(pContext));
+
+    // Get a list of argument names expected by the function
+    auto argnames(fn->arglist());
+
+    // Construct the argpair vector (string,objref)
+    vector<fn_object::argpair_t> argpairs;
+
+    for ( auto argval : args->internal_value() )
+    {
+	string argname = argnames.front();
+	argnames.pop_front();
+	argpairs.push_back( fn_object::argpair_t(argname,argval)); 
+    }
+
+    // Call the function and return the result!
+    return (*fn)(argpairs);
 }
 
 fclass* funcall_node::type(context* pContext) const
