@@ -22,6 +22,7 @@ class object
  public:
 
     object(fclass&);
+    object( const object&) =delete;
     virtual ~object();
 
     fclass& get_class() const { return _class; }
@@ -84,6 +85,7 @@ public:
     typedef std::pair<std::string,objref> argpair_t;
 
     fn_object(fclass&, std::function<marshall_fn_t> impl, std::deque<std::string> args);
+    fn_object( const fn_object&) = delete;
     virtual void render( std::ostream& os) const;
     
     virtual fnref partial_application( const std::vector<argpair_t>& args ) const;

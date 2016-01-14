@@ -1,8 +1,11 @@
 #include <config.h>
+#include <algorithm>
 #include <iostream>
 #include <list>
+#include <string>
 #include <common.h>
 #include <memory>
+#include <deque>
 
 #include <interpreter/context.h>
 #include <interpreter/class.h>
@@ -18,6 +21,9 @@
 
 using std::list;
 using std::shared_ptr;
+using std::deque;
+using std::string;
+
 action_target* target;
 
 
@@ -35,6 +41,19 @@ int main(void)
     std::cout << PACKAGE_STRING << std::endl;
     std::shared_ptr<context> shell_context(new context());
     target = new dat(shell_context);
+
+    deque<string> d;
+    d.push_back("a");
+    d.push_back("b");
+    d.push_back("c");
+
+    auto i = std::find(d.begin(),d.end(),"b");
+
+    if (i==d.end())
+	std::cout << "NOT FOUND!!!" << std::endl;
+    else
+	std::cout << "FOUND!!!" << std::endl;
+
     yyparse();
 
     return 0;

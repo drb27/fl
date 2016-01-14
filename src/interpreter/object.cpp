@@ -81,11 +81,6 @@ void null_object::render( std::ostream& os) const
 fn_object::fn_object(fclass& cls, function<marshall_fn_t> impl, deque<string> args)
     : _expected_args(args), _full_args(args), object(cls), _fn(impl)
 {
-    std::cout << "fn_object::fn_object expected args: " << std::endl;
-    for ( auto s : args )
-    {
-	std::cout << s << std::endl;
-    }
 }
 
 void fn_object::render(std::ostream& os) const
@@ -111,21 +106,14 @@ void fn_object::apply_argument( objref arg )
 
 void fn_object::apply_argument( const string& name, objref arg )
 {
-    std::cout << "Looking for argument " << name << " (size=" << _expected_args.size() << ")" << std::endl;
- 
-    for ( auto s : _expected_args )
-    {
-	std::cout << s << std::endl;
-    }
-    
     // Check the named argument is valid
-    deque<string>::iterator i = std::find(std::begin(_expected_args),std::end(_expected_args),name);
+    deque<string>::iterator i = std::find(_expected_args.begin(),_expected_args.end(),name);
 
-    if (i==_expected_args.end());
+    if (i==_expected_args.end())
     {
 	throw std::exception();
     }
-   
+
     // Remove from expected arguments
     _expected_args.erase(i);
 
@@ -159,4 +147,6 @@ objref fn_object::operator()(vector<argpair_t>& args)
     // Reset arguments for another invocation
     _expected_args = _full_args;
     _applied_arguments.reset();
+
+    return result;
 }
