@@ -13,6 +13,7 @@ extern action_target* target;
 
 %}
 
+%token QUOTE
 %token DOT
 %token ADD
 %token MAPSTO
@@ -49,6 +50,8 @@ extern action_target* target;
 %type <node_val> methodcall
 %type <node_val> literal
 %type <node_val> list
+%type <node_val> list_literal
+%type <node_val> list_symbol
 %type <node_val> stmt
 %type <node_val> assign
 %type <node_val> bool
@@ -61,6 +64,7 @@ extern action_target* target;
 %precedence LOWEST
 %precedence OPEN_PAREN
 %precedence DOT
+%precedence QUOTE
 %%
 
 
@@ -91,7 +95,12 @@ typespeclist: typespec
 
 /* LISTS ******************************************************************/
 
- list:        OPEN_PAREN { target->start_list(); } items_empty CLOSE_PAREN { $$=target->finish_list();};
+list_literal:        OPEN_PAREN { target->start_list(); } items_empty CLOSE_PAREN { $$=target->finish_list();};
+
+list_symbol: QUOTE symbol { $$=$2; };
+
+list: list_literal | list_symbol;
+
 items_empty: | items;
 
  items:       expr { target->push_list_element($1); }
@@ -110,7 +119,7 @@ expr:   literal
       | expr ADD expr
       ;
 
-literal: null | bool | integer | list;
+literal: null | bool | integer | list_literal;
 funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
 
 methodcall: expr DOT SYMBOL list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 

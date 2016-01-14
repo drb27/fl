@@ -21,6 +21,7 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+\'       { return QUOTE; }
 null     { return NULLVAL; }
 true     { return TRUE; }
 false    { return FALSE; }
