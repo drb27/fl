@@ -55,6 +55,8 @@ class string
     objref in_range_integers(context* pContext, intref pThis, intref min, intref max);
     objref logical_not(context* pContext,boolref a);
     objref list_size(context* pContext, listref pThis);
+    objref list_head(context* pContext, listref pThis);
+    objref list_append(context* pContext, listref pThis, objref e);
 }
 
 #endif

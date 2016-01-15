@@ -35,6 +35,8 @@ namespace builtins
     {
 	std::shared_ptr<fclass> pCls(new fclass(spec));
 	pCls->add_method("size", make_marshall(&builtins::list_size));
+	pCls->add_method("head", make_marshall(&builtins::list_head));
+	pCls->add_method("append", make_marshall(&builtins::list_append));
 	return pCls;
     }
 
@@ -87,5 +89,16 @@ namespace builtins
 	
 	objref pObject(new int_object(pThis->internal_value().size(),int_cls));
 	return pObject;
+    }
+
+    objref list_head(context* pContext, listref pThis)
+    {
+	return pThis->first();
+    }
+
+    objref list_append(context* pContext, listref pThis, objref e)
+    {
+	pThis->append(e);
+	return pThis;
     }
 }

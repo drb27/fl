@@ -64,6 +64,8 @@ public:
     list_object(fclass&);
     virtual void render( std::ostream& os) const;
     std::list<objref>& internal_value() { return _list; }
+    objref first() const { return _list.front(); }
+    listref append(objref e) { _list.push_back(e); }
 protected:
     std::list<objref> _list;
 };
