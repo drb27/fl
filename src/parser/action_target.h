@@ -16,6 +16,7 @@ class action_target
     virtual ast* make_null() const=0;
     virtual ast* make_fundef( ast* arglist,  ast* def) const=0;
     virtual ast* make_funcall( ast* fn,  ast* args) const=0;
+    virtual ast* make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const=0;
     virtual ast* make_symbol( std::string* name) const=0;
     virtual ast* make_alias(ast* alias, ast* existing) const=0;
     virtual ast* make_assign_node(ast* lvalue, ast* rvalue)=0;

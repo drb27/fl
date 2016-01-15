@@ -21,6 +21,7 @@ class dat : public action_target
     virtual ast* make_alias(ast* alias, ast* existing) const;
     virtual ast* make_fundef( ast* arglist,  ast* def) const;
     virtual ast* make_funcall( ast* fn,  ast* args) const;
+    virtual ast* make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const;
     virtual ast* make_symbol( std::string* name) const;
     virtual void respond( ast* def, std::ostream& os = std::cout ) const;
     virtual ast* make_methodcall( ast* target, std::string* method, list_node* args);

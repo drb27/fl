@@ -21,6 +21,7 @@ namespace builtins
 	std::shared_ptr<fclass> pCls(new fclass(spec));
 	pCls->add_method("add", make_marshall(&builtins::add_integers));
 	pCls->add_method("in_range", make_marshall(&builtins::in_range_integers));
+	pCls->add_method("eq", make_marshall(&builtins::int_equate));
 	return pCls;
     }
 
@@ -37,6 +38,7 @@ namespace builtins
 	pCls->add_method("size", make_marshall(&builtins::list_size));
 	pCls->add_method("head", make_marshall(&builtins::list_head));
 	pCls->add_method("append", make_marshall(&builtins::list_append));
+	pCls->add_method("tail", make_marshall(&builtins::list_tail));
 	return pCls;
     }
 
@@ -100,5 +102,17 @@ namespace builtins
     {
 	pThis->append(e);
 	return pThis;
+    }
+
+    objref list_tail(context* pContext, listref pThis)
+    {
+	return pThis->tail();
+    }
+
+    objref int_equate(context* pContext, intref pThis, intref pOther)
+    {
+	bool result = pThis->equate(pOther);
+	typespec ts("boolean",{});
+	return boolref(new bool_object(result,pContext->types().lookup(ts)));
     }
 }

@@ -27,6 +27,12 @@ ast::~ast()
 
 }
 
+fclass* ast::type(context* pContext) const
+{
+    typespec os("object",{});
+    return &(pContext->types().lookup(os));
+}
+
 literal_node::literal_node(objref pObj)
     : ast(),_object(pObj)
 {
@@ -147,11 +153,6 @@ objref methodcall_node::evaluate(context* pContext)
 objref methodcall_node::evaluate(context* pContext) const
 {
     return objref(nullptr);
-}
-
-fclass* methodcall_node::type(context*) const
-{
-    throw std::exception();
 }
 
 void methodcall_node::add_target(ast* pObj)
@@ -353,7 +354,7 @@ objref funcall_node::evaluate(context* pContext)
     }
 
     // Call the function and return the result!
-    return (*fn)(argpairs);
+    return (*fn)(pContext,argpairs);
 
 }
 
@@ -366,6 +367,8 @@ objref funcall_node::evaluate(context* pContext) const
     listref args = std::dynamic_pointer_cast<list_object>(_arg_list->evaluate(pContext));
 
     // Get a list of argument names expected by the function
+    // THE REASON THIS CRASHES IS THAT FUNCTION SYMBOLS ARE NOT PASSED INTO
+    // OTHER FUNCTION'S CALL CONTEXT
     auto argnames(fn->arglist());
 
     // Construct the argpair vector (string,objref)
@@ -375,11 +378,11 @@ objref funcall_node::evaluate(context* pContext) const
     {
 	string argname = argnames.front();
 	argnames.pop_front();
-	argpairs.push_back( fn_object::argpair_t(argname,argval)); 
+	argpairs.push_back( fn_object::argpair_t(argname,argval) ); 
     }
 
     // Call the function and return the result!
-    return (*fn)(argpairs);
+    return (*fn)(pContext,argpairs);
 }
 
 fclass* funcall_node::type(context* pContext) const
@@ -390,3 +393,33 @@ fclass* funcall_node::type(context* pContext) const
     //throw std::exception();
 }
 
+if_node::if_node(ast* pCondition, ast* trueExpression, ast* falseExpression)
+    : _condition(pCondition), _trueExpr(trueExpression), _falseExpr(falseExpression)
+{
+}
+
+objref if_node::evaluate(context* pContext) const
+{
+    boolref cond = std::dynamic_pointer_cast<bool_object>(_condition->evaluate(pContext));
+    
+    if (cond->internal_value())
+	return objref(_trueExpr->evaluate(pContext));
+    else
+	return objref(_falseExpr->evaluate(pContext));
+}
+
+objref if_node::evaluate(context* pContext)
+{
+    boolref cond = std::dynamic_pointer_cast<bool_object>(_condition->evaluate(pContext));
+    
+    if (cond->internal_value())
+	return objref(_trueExpr->evaluate(pContext));
+    else
+	return objref(_falseExpr->evaluate(pContext));
+}
+
+fclass* if_node::type(context* pContext) const
+{
+    typespec ts("object",{});
+    return &(pContext->types().lookup(ts));
+}

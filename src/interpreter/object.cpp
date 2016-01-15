@@ -38,6 +38,16 @@ int_object::int_object(int value, fclass& cls) : object(cls), _value(value)
 {
 }
 
+bool int_object::equate( objref other ) const
+{
+    if (&other->get_class()!=&get_class())
+	return false;
+
+    intref other_int = std::dynamic_pointer_cast<int_object>(other);
+
+    return (internal_value()==other_int->internal_value());
+}
+
 void int_object::render( std::ostream& os) const
 {
     os << _value << " ";
@@ -58,6 +68,18 @@ void bool_object::render( std::ostream& os) const
 list_object::list_object(fclass& cls)
     : object(cls)
 {
+}
+
+list_object::list_object(fclass& cls, std::list<objref>& startList)
+    : object(cls), _list(startList)
+{
+}
+
+listref list_object::tail() const
+{
+    std::list<objref> startList(_list);
+    startList.pop_front();
+    return listref( new list_object(get_class(),startList ));
 }
 
 void list_object::render( std::ostream& os) const
@@ -108,7 +130,7 @@ void fn_object::apply_argument( const string& name, objref arg )
 {
     // Check the named argument is valid
     deque<string>::iterator i = std::find(_expected_args.begin(),_expected_args.end(),name);
-
+    std::cout << this << ": apply_argument name=" << name << std::endl;
     if (i==_expected_args.end())
     {
 	throw std::exception();
@@ -126,8 +148,9 @@ const deque<string>& fn_object::arglist() const
     return _full_args;
 }
 
-objref fn_object::operator()(vector<argpair_t>& args)
+objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 {
+
     // Apply each of the arguments
     for ( auto p : args )
     {
@@ -141,12 +164,24 @@ objref fn_object::operator()(vector<argpair_t>& args)
 	params.push_back( new symbol_node(p) );
     }
     
+    context tempContext(*pContext);
+    tempContext.merge_in(_applied_arguments);
+
     // Apply the accrued arguments to the marshall function
-    auto result = _fn(&_applied_arguments,params);
+    auto result = _fn(&tempContext,params);
 
     // Reset arguments for another invocation
     _expected_args = _full_args;
     _applied_arguments.reset();
 
+    std::cout << this << ": args reset" << std::endl;
+
     return result;
 }
+
+fn_object::fn_object(const fn_object& other)
+    : object(other.get_class()), _fn(other._fn), _applied_arguments(other._applied_arguments), 
+	     _expected_args(other._expected_args), _full_args(other._full_args)
+{
+}
+

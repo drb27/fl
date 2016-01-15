@@ -28,6 +28,7 @@ class object
     fclass& get_class() const { return _class; }
     bool has_attribute(const std::string&) const;
     virtual void render( std::ostream& os ) const;
+    virtual bool equate( objref other ) const { return false; }
 
  protected:
 
@@ -44,6 +45,7 @@ public:
     int_object(int value, fclass&);
     virtual void render( std::ostream& os ) const;
     int internal_value() const { return _value; }
+    virtual bool equate( objref other ) const;
 protected:
     const int _value;
 };
@@ -62,10 +64,12 @@ class list_object : public object
 {
 public:
     list_object(fclass&);
+    list_object(fclass&,std::list<objref>& startingList);
     virtual void render( std::ostream& os) const;
     std::list<objref>& internal_value() { return _list; }
     objref first() const { return _list.front(); }
     listref append(objref e) { _list.push_back(e); }
+    listref tail() const;
 protected:
     std::list<objref> _list;
 };
@@ -87,11 +91,11 @@ public:
     typedef std::pair<std::string,objref> argpair_t;
 
     fn_object(fclass&, std::function<marshall_fn_t> impl, std::deque<std::string> args);
-    fn_object( const fn_object&) = delete;
+    fn_object( const fn_object&);
     virtual void render( std::ostream& os) const;
     
     virtual fnref partial_application( const std::vector<argpair_t>& args ) const;
-    virtual objref operator()(std::vector<argpair_t>&);
+    virtual objref operator()(context*,std::vector<argpair_t>&);
     virtual const std::deque<std::string>& arglist() const;
 
 protected:

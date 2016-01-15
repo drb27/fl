@@ -21,6 +21,7 @@ class context
     virtual void assign(const std::string& name, objref value);
     virtual void alias(symbol_node* lvalue, symbol_node* rvalue);
     virtual void reset();
+    virtual void merge_in( const context& other);
     static typemgr& types();
 
  protected:

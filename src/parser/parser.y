@@ -13,6 +13,8 @@ extern action_target* target;
 
 %}
 
+%token QUESTION
+%token COLON
 %token QUOTE
 %token DOT
 %token ADD
@@ -41,6 +43,7 @@ extern action_target* target;
 %type <int_val> INTEGER
 %type <string_val> SYMBOL
 %type <node_val> integer
+%type <node_val> if
 %type <node_val> null
 %type <node_val> symbol
 %type <node_val> fundef
@@ -59,6 +62,8 @@ extern action_target* target;
 %start input
 
 %precedence MAPSTO
+%precedence QUESTION
+%precedence COLON
 %left EQ
 %left ADD
 %precedence LOWEST
@@ -109,7 +114,8 @@ items_empty: | items;
 
 /* EXPRESSIONS ************************************************************/
 
-expr:   literal 
+expr:   literal
+      | if 
       | funcall
       | fundef
       | methodcall
@@ -129,6 +135,8 @@ bool: TRUE {$$=target->make_bool(true); } | FALSE { $$=target->make_bool(false);
 null: NULLVAL { $$=target->make_null(); }
  
 alias: symbol MAPSTO symbol { $$ = target->make_alias($1,$3);};
+
+if: expr QUESTION expr COLON expr { $$ = target->make_ifnode($1,$3,$5); };
 
 /* STATEMENTS *************************************************************/
 

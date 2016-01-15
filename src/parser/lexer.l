@@ -21,6 +21,8 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+\?       { return QUESTION; }
+\:       { return COLON; }
 \'       { return QUOTE; }
 null     { return NULLVAL; }
 true     { return TRUE; }

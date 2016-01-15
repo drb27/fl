@@ -32,7 +32,8 @@ interpreter_tests_SOURCES=src/interpreter/tests/tests.cpp \
 				src/interpreter/tests/test-package.cpp \
 				src/interpreter/tests/test-object.cpp \
 				src/interpreter/tests/test-typemgr.cpp \
-				src/interpreter/tests/test-context.cpp
+				src/interpreter/tests/test-context.cpp \
+				src/interpreter/tests/test-parser.cpp
 
 interpreter_tests_LDADD=liblang.a
 

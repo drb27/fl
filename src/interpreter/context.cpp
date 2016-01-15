@@ -24,6 +24,23 @@ context::context( const context& other )
     
 }
 
+void context::merge_in( const context& other)
+{
+    typespec fspec("function",{});
+    auto fnclass = types().lookup(fspec);
+
+    for ( auto s : other._symbols )
+    {
+	if ( &(s.second->get_class()) == &fnclass )
+	{
+	    fnref cloned_fn( new fn_object(*std::dynamic_pointer_cast<fn_object>(s.second)));
+	    assign(s.first,cloned_fn);
+	}
+	else
+	    assign(s.first,s.second);
+    }
+}
+
 context::~context()
 {
 

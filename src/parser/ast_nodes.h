@@ -41,13 +41,25 @@ private:
     std::list<ast*> _elements;
 };
 
+class if_node : public ast
+{
+public:
+    if_node(ast* pCondition, ast* trueExpression, ast* falseExpression);
+    virtual objref evaluate(context*);    
+    virtual objref evaluate(context*) const;
+    virtual fclass* type(context*) const;
+protected:
+    ast* _condition;
+    ast* _trueExpr;
+    ast* _falseExpr;
+};
+
 class methodcall_node : public ast
 {
 public:
     methodcall_node(const std::string&);
     virtual objref evaluate(context*);
     virtual objref evaluate(context*) const;
-    virtual fclass* type(context*) const;
 
     virtual void add_target(ast* pObj);
     virtual void add_param(ast*);

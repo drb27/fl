@@ -114,3 +114,8 @@ ast* dat::make_funcall( ast* fn,  ast* args) const
     symbol_node* snode = dynamic_cast<symbol_node*>(fn);
     return new funcall_node(snode->name(),args);
 }
+
+ast* dat::make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const
+{
+    return new if_node(condExpr, trueExpr, falseExpr);
+}
