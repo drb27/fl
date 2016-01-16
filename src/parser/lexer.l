@@ -21,6 +21,8 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+render   { return RENDER; }
+quit     { return QUIT; }
 \-\-     { return DECREMENT; }
 \?       { return QUESTION; }
 \:       { return COLON; }

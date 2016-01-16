@@ -131,3 +131,12 @@ ast* dat::make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const
 {
     return new if_node(condExpr, trueExpr, falseExpr);
 }
+void dat::render(ast* node)
+{
+    auto& out = std::cout;
+    int uuid=0;
+
+    out << "digraph G {" << std::endl;
+    node->render_dot(uuid,"","",out);
+    out << "}" << std::endl;
+}

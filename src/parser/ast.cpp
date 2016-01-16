@@ -11,6 +11,8 @@
 #include <interpreter/context.h>
 #include <interpreter/marshall.h>
 
+using std::ostream;
+using std::endl;
 using std::string;
 using std::list;
 using std::set;
@@ -25,6 +27,22 @@ ast::ast()
 ast::~ast()
 {
 
+}
+
+void ast::render_dot(int& uuid, 
+		     const string& parent, 
+		     const string& label,
+		     ostream& os) const
+{
+    int myref = uuid++;
+
+    string labelString;
+    if (!parent.empty())
+    {
+	os << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+    os << "astnode_" << myref << "[shape=box" << labelString << "];" << std::endl;
 }
 
 fclass* ast::type(context* pContext) const
@@ -56,6 +74,30 @@ fclass* literal_node::type(context* pContext) const
 void list_node::push_element(ast* pNode)
 {
     _elements.push_back(pNode);
+}
+
+void list_node::render_dot(int& uuid, 
+			     const string& parent,
+			     const string& label,
+			     std::ostream& out) const
+{
+    int myref=uuid++;
+    string labelString;
+
+    string myid = "list_" + std::to_string(myref);
+    if (!parent.empty())
+    {
+	out << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+    out << myid << "[shape=box" << labelString << "];" << std::endl;
+
+    int paramCount=0;
+    for (auto arg : _elements)
+    {
+	auto pc = paramCount++;
+	arg->render_dot(uuid,myid," el" + std::to_string(pc),out);
+    }
 }
 
 objref list_node::evaluate(context* pContext)
@@ -118,6 +160,31 @@ methodcall_node::methodcall_node(const std::string& name)
 
 }
 
+void methodcall_node::render_dot(int& uuid, 
+				 const std::string& parent, 
+				 const std::string& label,
+				 std::ostream& out) const
+{
+    int myref=uuid++;
+    string labelString;
+
+    string myid = "methodcall_" + _name + "_" + std::to_string(myref);
+    if (!parent.empty())
+    {
+	out << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+    out << myid << "[shape=box" << labelString << "];" << std::endl;
+    _target->render_dot(uuid,myid," target",out);
+
+    int paramCount=0;
+    for (auto arg : _params)
+    {
+	auto pc = paramCount++;
+	arg->render_dot(uuid,myid," param" + std::to_string(pc),out);
+    }
+}
+
 objref methodcall_node::evaluate(context* pContext)
 {
     // Evaluate the target
@@ -176,6 +243,23 @@ symbol_node::symbol_node(const std::string& name)
 
 }
 
+void symbol_node::render_dot(int& uuid, 
+			     const std::string& parent, 
+			     const std::string& label,
+			     std::ostream& out) const
+{
+    int myref=uuid++;
+    string labelString;
+
+    string myid = "symbol_" + _name + "_" + std::to_string(myref);
+    if (!parent.empty())
+    {
+	out << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+    out << myid << "[shape=box" << labelString << "];" << std::endl;
+}
+
 const std::string& symbol_node::name() const
 {
     return _name;
@@ -206,6 +290,26 @@ assign_node::assign_node(ast* lvalue,ast* rvalue, bool alias)
     : _lvalue(lvalue),_rvalue(rvalue),_alias(alias)
 {
 
+}
+
+void assign_node::render_dot(int& uuid, 
+			     const string& parent,
+			     const string& label,
+			     std::ostream& out) const
+{
+    int myref=uuid++;
+    string labelString;
+
+    string myid = "assign_" + std::to_string(myref);
+    if (!parent.empty())
+    {
+	out << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+    out << myid << "[shape=box" << labelString << "];" << std::endl;
+
+    _lvalue->render_dot(uuid,myid," lvalue",out);
+    _rvalue->render_dot(uuid,myid," rvalue",out);
 }
 
 objref assign_node::evaluate(context* pContext)
@@ -271,6 +375,26 @@ fundef_node::fundef_node(ast* arglist, ast* definition)
 {
 
 }
+void fundef_node::render_dot(int& uuid, 
+			     const string& parent,
+			     const string& label,
+			     std::ostream& out) const
+{
+    int myref=uuid++;
+    string labelString;
+   
+    if (!parent.empty())
+    {
+	out << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+   
+    string myid = "fundef_" + std::to_string(myref);
+    out << myid << "[shape=box" << labelString <<  "];" << std::endl;
+    _arglist->render_dot(uuid,myid," args",out);
+    _definition->render_dot(uuid,myid," def",out);
+
+}
 
 objref fundef_node::evaluate(context* pContext) const
 {
@@ -330,6 +454,25 @@ fclass* fundef_node::type(context* pContext) const
 funcall_node::funcall_node(const string& name, ast* args)
     : _name(name), _arg_list(args)
 {
+}
+
+void funcall_node::render_dot(int& uuid, 
+			     const string& parent,
+			     const string& label,
+			     std::ostream& out) const
+{
+    int myref=uuid++;
+    string labelString;
+
+    string myid = "funcall_" + _name + "_" + std::to_string(myref);
+    if (!parent.empty())
+    {
+	out << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+    out << myid << "[shape=box" << labelString << "];" << std::endl;
+
+    _arg_list->render_dot(uuid,myid," lvalue",out);
 }
 
 objref funcall_node::evaluate(context* pContext)
@@ -396,6 +539,26 @@ fclass* funcall_node::type(context* pContext) const
 if_node::if_node(ast* pCondition, ast* trueExpression, ast* falseExpression)
     : _condition(pCondition), _trueExpr(trueExpression), _falseExpr(falseExpression)
 {
+}
+void if_node::render_dot(int& uuid, 
+			     const string& parent,
+			     const string& label,
+			     std::ostream& out) const
+{
+    int myref=uuid++;
+    string labelString;
+
+    string myid = "if_" + std::to_string(myref);
+    if (!parent.empty())
+    {
+	out << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+    out << myid << "[shape=box" << labelString << "];" << std::endl;
+
+    _condition->render_dot(uuid,myid," cond",out);
+    _trueExpr->render_dot(uuid,myid," true",out);
+    _falseExpr->render_dot(uuid,myid," false",out);
 }
 
 objref if_node::evaluate(context* pContext) const

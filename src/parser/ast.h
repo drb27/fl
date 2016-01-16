@@ -1,6 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
+#include <iostream>
 #include <functional>
 #include <list>
 #include <memory>
@@ -18,6 +19,10 @@ class ast
     virtual objref evaluate(context*)=0;
     virtual objref evaluate(context*) const=0;
     virtual fclass* type(context*) const;
+    virtual void render_dot(int& uuid, 
+			    const std::string& parent = "",
+			    const std::string& label = "",
+			    std::ostream& os = std::cout) const;
 
  protected:
     ast();

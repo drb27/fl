@@ -28,6 +28,7 @@ class action_target
     virtual ast* make_single_list(ast*)=0;
     virtual void respond( ast* def, std::ostream& os = std::cout ) const=0;
     virtual ast* make_bool(bool b)=0;
+    virtual void render(ast* node)=0;
 };
 
 #endif

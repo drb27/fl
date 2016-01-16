@@ -1,6 +1,7 @@
 #ifndef AST_NODES_H
 #define AST_NODES_H
 
+#include <string>
 #include <parser/callable.h>
 
 class context;
@@ -13,6 +14,10 @@ public:
     virtual objref evaluate(context*) const;
     virtual fclass* type(context*) const;
     virtual const std::string& name() const;
+    virtual void render_dot(int& uuid, 
+			    const std::string& parent="", 
+			    const std::string& label="",
+			    std::ostream& out=std::cout) const;
 protected:
     const std::string _name;
 
@@ -37,6 +42,11 @@ public:
     virtual objref evaluate(context*) const;
     virtual fclass* type(context*) const;
     virtual std::list<ast*>& raw_elements();
+    virtual void render_dot(int& uuid, 
+			    const std::string& parent="", 
+			    const std::string& label="",
+			    std::ostream& out=std::cout) const;
+
 private:
     std::list<ast*> _elements;
 };
@@ -48,6 +58,10 @@ public:
     virtual objref evaluate(context*);    
     virtual objref evaluate(context*) const;
     virtual fclass* type(context*) const;
+    virtual void render_dot(int& uuid, 
+			    const std::string& parent="",
+			    const std::string& label="",
+			    std::ostream& out=std::cout) const;
 protected:
     ast* _condition;
     ast* _trueExpr;
@@ -64,7 +78,10 @@ public:
     virtual void add_target(ast* pObj);
     virtual void add_param(ast*);
     virtual void finalize_params();
-
+    virtual void render_dot(int& uuid, 
+			    const std::string& parent="",
+			    const std::string& label="",
+			    std::ostream& out=std::cout) const;
 protected:
     const std::string _name;
     ast* _target;
@@ -78,6 +95,10 @@ public:
     virtual objref evaluate(context*);
     virtual objref evaluate(context*) const;
     virtual fclass* type(context*) const;
+    virtual void render_dot(int& uuid, 
+			    const std::string& parent="",
+			    const std::string& label="",
+			    std::ostream& out=std::cout) const;
 
 protected:
     const std::string _name;
@@ -91,7 +112,10 @@ public:
     virtual objref evaluate(context*) const;
     virtual objref evaluate(context*);
     virtual fclass* type(context*) const;
-
+    virtual void render_dot(int& uuid, 
+			    const std::string& parent="", 
+			    const std::string& label="",
+			    std::ostream& out=std::cout) const;
 protected:
     ast* _arglist;
     ast* _definition;
@@ -104,6 +128,10 @@ public:
     virtual objref evaluate(context*);
     virtual objref evaluate(context*) const;
     virtual fclass* type(context*) const;
+    virtual void render_dot(int& uuid, 
+			    const std::string& parent="",
+			    const std::string& label="",
+			    std::ostream& out=std::cout) const;
 
 private:
     ast* _lvalue;

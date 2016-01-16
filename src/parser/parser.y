@@ -13,6 +13,8 @@ extern action_target* target;
 
 %}
 
+%token RENDER
+%token QUIT
 %token DECREMENT
 %token QUESTION
 %token COLON
@@ -56,10 +58,8 @@ extern action_target* target;
 %type <node_val> list
 %type <node_val> list_literal
 %type <node_val> list_symbol
-%type <node_val> stmt
 %type <node_val> assign
 %type <node_val> bool
-
 %start input
 
 %precedence MAPSTO
@@ -143,11 +143,19 @@ alias: symbol MAPSTO symbol { $$ = target->make_alias($1,$3);};
 
 if: expr QUESTION expr COLON expr { $$ = target->make_ifnode($1,$3,$5); };
 
+/* COMMANDS ***************************************************************/
+
+command: render_cmd | quit_cmd;
+
+render_cmd: RENDER expr {target->render($2); };
+
+quit_cmd: QUIT { YYACCEPT; };
+
 /* STATEMENTS *************************************************************/
 
-stmt : expr NEWLINE {$$=$1;}
-     ;
+stmt : expr NEWLINE {target->respond($1);}
+     | command NEWLINE {};
 
-stmts: stmt {target->respond($1); } | stmts stmt {target->respond($2); };
+stmts: stmt | stmts stmt;
 
  assign: symbol EQ expr { $$=target->make_assign_node($1,$3); };
