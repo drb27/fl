@@ -29,6 +29,8 @@ class dat : public action_target
     virtual ast* start_list();
     virtual void push_list_element(ast*);
     virtual ast* finish_list();
+    virtual ast* make_empty_list();
+    virtual ast* make_single_list(ast*);
     virtual ast* make_bool(bool b);
  protected:
     std::shared_ptr<context> _context;

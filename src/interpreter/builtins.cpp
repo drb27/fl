@@ -22,6 +22,7 @@ namespace builtins
 	pCls->add_method("add", make_marshall(&builtins::add_integers));
 	pCls->add_method("in_range", make_marshall(&builtins::in_range_integers));
 	pCls->add_method("eq", make_marshall(&builtins::int_equate));
+	pCls->add_method("dec", make_marshall(&builtins::int_dec));
 	return pCls;
     }
 
@@ -114,5 +115,13 @@ namespace builtins
 	bool result = pThis->equate(pOther);
 	typespec ts("boolean",{});
 	return boolref(new bool_object(result,pContext->types().lookup(ts)));
+    }
+
+    objref int_dec(context* pContext,intref pThis)
+    {
+	typespec ts("integer",{});
+	return intref( new int_object(pThis->internal_value()-1,
+				      pContext->types().lookup(ts)));
+	
     }
 }

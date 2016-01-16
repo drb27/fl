@@ -42,18 +42,6 @@ int main(void)
     std::shared_ptr<context> shell_context(new context());
     target = new dat(shell_context);
 
-    deque<string> d;
-    d.push_back("a");
-    d.push_back("b");
-    d.push_back("c");
-
-    auto i = std::find(d.begin(),d.end(),"b");
-
-    if (i==d.end())
-	std::cout << "NOT FOUND!!!" << std::endl;
-    else
-	std::cout << "FOUND!!!" << std::endl;
-
     yyparse();
 
     return 0;

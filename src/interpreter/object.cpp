@@ -1,4 +1,3 @@
-#include <iostream>
 #include <functional>
 #include <algorithm>
 #include <deque>
@@ -112,8 +111,21 @@ void fn_object::render(std::ostream& os) const
 
 fnref fn_object::partial_application(const vector<argpair_t>& args) const
 {
-    // Creates a NEW function object with args.size() fewer args
-    return fnref(nullptr);
+    deque<string> remainingArgs(_full_args);
+    context newContext;
+
+    // For each partial application, add to the context and remove from
+    // the remaining args
+    for ( auto arg : args )
+    {
+	newContext.assign(arg.first,arg.second);
+	remainingArgs.erase(std::find(remainingArgs.begin(),remainingArgs.end(),arg.first));
+    }
+    
+    auto result = fnref( new fn_object(get_class(),_fn,remainingArgs));
+    result->_applied_arguments.merge_in(newContext);
+    return result;
+
 }
 
 void fn_object::apply_argument( objref arg )
@@ -130,7 +142,7 @@ void fn_object::apply_argument( const string& name, objref arg )
 {
     // Check the named argument is valid
     deque<string>::iterator i = std::find(_expected_args.begin(),_expected_args.end(),name);
-    std::cout << this << ": apply_argument name=" << name << std::endl;
+    
     if (i==_expected_args.end())
     {
 	throw std::exception();
@@ -150,33 +162,37 @@ const deque<string>& fn_object::arglist() const
 
 objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 {
-
-    // Apply each of the arguments
-    for ( auto p : args )
+    // Is this a full or partial application?
+    if (args.size()==_full_args.size() )
     {
-	apply_argument(p.first,p.second);
-    }
+	context tempContext(*pContext);
 
-    // Prepare a vector<ast*> of symbol_nodes, one for each expected argument
-    vector<ast*> params;
-    for ( auto p : _full_args )
-    {
-	params.push_back( new symbol_node(p) );
-    }
+	// Apply each of the arguments
+	for ( auto p : args )
+	{
+	    apply_argument(p.first,p.second);
+	}
+
+	// Prepare a vector<ast*> of symbol_nodes, one for each expected argument
+	vector<ast*> params;
+	for ( auto p : _full_args )
+	{
+	    params.push_back( new symbol_node(p) );
+	}
     
-    context tempContext(*pContext);
-    tempContext.merge_in(_applied_arguments);
+	tempContext.merge_in(_applied_arguments);
 
-    // Apply the accrued arguments to the marshall function
-    auto result = _fn(&tempContext,params);
+	// Apply the accrued arguments to the marshall function
+	auto result = _fn(&tempContext,params);
 
-    // Reset arguments for another invocation
-    _expected_args = _full_args;
-    _applied_arguments.reset();
+	// Reset arguments for another invocation
+	_expected_args = _full_args;
+	_applied_arguments.reset();
 
-    std::cout << this << ": args reset" << std::endl;
-
-    return result;
+	return result;
+    }
+    else
+	return partial_application(args);
 }
 
 fn_object::fn_object(const fn_object& other)

@@ -24,6 +24,8 @@ class action_target
     virtual ast* start_list()=0;
     virtual void push_list_element(ast*)=0;
     virtual ast* finish_list()=0;
+    virtual ast* make_empty_list()=0;
+    virtual ast* make_single_list(ast*)=0;
     virtual void respond( ast* def, std::ostream& os = std::cout ) const=0;
     virtual ast* make_bool(bool b)=0;
 };

@@ -100,6 +100,18 @@ ast* dat::finish_list()
     return n;
 }
 
+ast* dat::make_empty_list()
+{
+    return new list_node();
+}
+
+ast* dat::make_single_list(ast* item)
+{
+    auto nl = new list_node();
+    nl->push_element(item);
+    return nl;
+}
+
 ast* dat::make_bool(bool b)
 {
     typespec bool_spec = typespec("boolean",{});

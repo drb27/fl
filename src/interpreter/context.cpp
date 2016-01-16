@@ -19,17 +19,11 @@ context::context()
 }
 
 context::context( const context& other )
-    : _symbols(other._symbols)
 {
-    
-}
+    typespec ts("function",{});
+    auto& fnclass = types().lookup(ts);
 
-void context::merge_in( const context& other)
-{
-    typespec fspec("function",{});
-    auto fnclass = types().lookup(fspec);
-
-    for ( auto s : other._symbols )
+    for ( auto s : other._symbols)
     {
 	if ( &(s.second->get_class()) == &fnclass )
 	{
@@ -38,6 +32,15 @@ void context::merge_in( const context& other)
 	}
 	else
 	    assign(s.first,s.second);
+    }
+}
+
+void context::merge_in( const context& other)
+{
+
+    for ( auto s : other._symbols )
+    {
+	assign(s.first,s.second);
     }
 }
 

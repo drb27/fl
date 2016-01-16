@@ -13,6 +13,7 @@ extern action_target* target;
 
 %}
 
+%token DECREMENT
 %token QUESTION
 %token COLON
 %token QUOTE
@@ -66,6 +67,7 @@ extern action_target* target;
 %precedence COLON
 %left EQ
 %left ADD
+%left DECREMENT
 %precedence LOWEST
 %precedence OPEN_PAREN
 %precedence DOT
@@ -122,7 +124,10 @@ expr:   literal
       | alias
       | assign
       | symbol %prec LOWEST 
-      | expr ADD expr
+      | expr ADD expr { $$=target->make_methodcall($1, new std::string("add"),
+						   (list_node*)(target->make_single_list($3))); }
+      | expr DECREMENT { $$=target->make_methodcall($1,new std::string("dec"),
+						    (list_node*)(target->make_empty_list())); }
       ;
 
 literal: null | bool | integer | list_literal;
