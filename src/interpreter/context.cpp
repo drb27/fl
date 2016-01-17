@@ -12,10 +12,6 @@ typemgr context::_types;
 
 context::context()
 {
-    typespec int_spec("integer",{});
-    fclass& int_cls = _types.lookup(int_spec);
-    intref x(new int_object(42,int_cls));
-    _symbols["x"] = x;
 }
 
 context::context( const context& other )
@@ -74,4 +70,14 @@ typemgr& context::types()
 void context::reset()
 {
     _symbols.clear();
+}
+
+std::ostream& operator<<( std::ostream& os, const context& c)
+{
+    for ( auto symbol : c._symbols )
+    {
+	os << symbol.first << "(" << symbol.second << ") ";
+    }
+
+    return os;
 }

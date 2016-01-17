@@ -22,7 +22,7 @@ class typespec
     int param_count() const;
     const std::list<typespec>& params() const;
     const std::string& template_name() const;
-    std::string full_name() const;
+    const std::string& full_name() const;
 
     bool operator==( const typespec& other) const;
     int operator<( const typespec& other) const;
@@ -33,10 +33,13 @@ class typespec
   
   private:
 
+    std::string calc_full_name();
     void validate() const;
 
     const std::string _name;
+    std::string _full_name;
     std::list<typespec> _params;
+    
 };
 
 class fclass : public static_base<fclass>
@@ -48,10 +51,10 @@ class fclass : public static_base<fclass>
     std::string name() const;
     const typespec& get_spec() const;
     virtual void add_attribute(const std::string&,fclass*,object* d=nullptr);
-    virtual void add_method(const std::string&,std::function<marshall_fn_t>);
+    virtual void add_method(const std::string&,std::function<marshall_mthd_t>);
     virtual bool is_abstract() const { return _is_abstract; }
 
-    virtual std::function<marshall_fn_t> lookup_method(const std::string& name);
+    virtual std::function<marshall_mthd_t> lookup_method(const std::string& name) const;
 
  protected:
 
@@ -60,7 +63,7 @@ class fclass : public static_base<fclass>
     const bool _is_abstract;
     const typespec _ts;
     std::map<std::string,fclass*> _attributes;
-    std::map<std::string,std::function<marshall_fn_t>> _methods;
+    std::map<std::string,std::function<marshall_mthd_t>> _methods;
 };
 
 #endif

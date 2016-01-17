@@ -29,6 +29,7 @@ class object
     bool has_attribute(const std::string&) const;
     virtual void render( std::ostream& os ) const;
     virtual bool equate( objref other ) const { return false; }
+    virtual void dump( std::ostream& out = std::cout) const;
 
  protected:
 
@@ -64,7 +65,7 @@ class list_object : public object
 {
 public:
     list_object(fclass&);
-    list_object(fclass&,std::list<objref>& startingList);
+    list_object(fclass&,std::list<objref> startingList);
     virtual void render( std::ostream& os) const;
     std::list<objref>& internal_value() { return _list; }
     objref first() const { return _list.front(); }
@@ -97,6 +98,7 @@ public:
     virtual fnref partial_application( const std::vector<argpair_t>& args ) const;
     virtual objref operator()(context*,std::vector<argpair_t>&);
     virtual const std::deque<std::string>& arglist() const;
+    virtual void dump(std::ostream& out = std::cout ) const;
 
 protected:
     virtual void apply_argument( objref arg);

@@ -21,6 +21,7 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+::       { return BUILDER; }
 render   { return RENDER; }
 quit     { return QUIT; }
 \-\-     { return DECREMENT; }

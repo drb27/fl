@@ -13,6 +13,7 @@ extern action_target* target;
 
 %}
 
+%token BUILDER
 %token RENDER
 %token QUIT
 %token DECREMENT
@@ -58,6 +59,7 @@ extern action_target* target;
 %type <node_val> list
 %type <node_val> list_literal
 %type <node_val> list_symbol
+%type <node_val> listbuild
 %type <node_val> assign
 %type <node_val> bool
 %start input
@@ -66,6 +68,7 @@ extern action_target* target;
 %precedence QUESTION
 %precedence COLON
 %left EQ
+%left BUILDER
 %left ADD
 %left DECREMENT
 %precedence LOWEST
@@ -120,6 +123,7 @@ expr:   literal
       | if 
       | funcall
       | fundef
+      | listbuild
       | methodcall
       | alias
       | assign
@@ -142,6 +146,8 @@ null: NULLVAL { $$=target->make_null(); }
 alias: symbol MAPSTO symbol { $$ = target->make_alias($1,$3);};
 
 if: expr QUESTION expr COLON expr { $$ = target->make_ifnode($1,$3,$5); };
+
+listbuild: expr BUILDER expr { $$ = target->build_list($1,$3); };
 
 /* COMMANDS ***************************************************************/
 

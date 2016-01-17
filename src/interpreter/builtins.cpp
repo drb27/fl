@@ -12,17 +12,21 @@ namespace builtins
     {
 	typespec spec("object",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec));
+	pCls->add_method("dump", make_marshall_mthd(&builtins::obj_dump));
 	return pCls;
     }
 
-    std::shared_ptr<fclass> integer::build_class()
+    std::shared_ptr<fclass> integer::build_class(typemgr* pTm)
     {
+	typespec base_spec("object",{});
+	const fclass& base_cls = pTm->lookup(base_spec);
+
 	typespec spec("integer",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec));
-	pCls->add_method("add", make_marshall(&builtins::add_integers));
-	pCls->add_method("in_range", make_marshall(&builtins::in_range_integers));
-	pCls->add_method("eq", make_marshall(&builtins::int_equate));
-	pCls->add_method("dec", make_marshall(&builtins::int_dec));
+	std::shared_ptr<fclass> pCls(new fclass(spec,base_cls));
+	pCls->add_method("add", make_marshall_mthd(&builtins::add_integers));
+	pCls->add_method("in_range", make_marshall_mthd(&builtins::in_range_integers));
+	pCls->add_method("eq", make_marshall_mthd(&builtins::int_equate));
+	pCls->add_method("dec", make_marshall_mthd(&builtins::int_dec));
 	return pCls;
     }
 
@@ -33,27 +37,37 @@ namespace builtins
 	return pCls;
     }
 
-    std::shared_ptr<fclass> list::build_class(typespec spec)
+    std::shared_ptr<fclass> list::build_class(typespec spec, typemgr* pTm)
     {
-	std::shared_ptr<fclass> pCls(new fclass(spec));
-	pCls->add_method("size", make_marshall(&builtins::list_size));
-	pCls->add_method("head", make_marshall(&builtins::list_head));
-	pCls->add_method("append", make_marshall(&builtins::list_append));
-	pCls->add_method("tail", make_marshall(&builtins::list_tail));
+	typespec base_spec("object",{});
+	const fclass& base_cls = pTm->lookup(base_spec);
+
+	std::shared_ptr<fclass> pCls(new fclass(spec,base_cls));
+	pCls->add_method("size", make_marshall_mthd(&builtins::list_size));
+	pCls->add_method("head", make_marshall_mthd(&builtins::list_head));
+	pCls->add_method("append", make_marshall_mthd(&builtins::list_append));
+	pCls->add_method("tail", make_marshall_mthd(&builtins::list_tail));
+	pCls->add_method("duplicate_and_append", make_marshall_mthd(&builtins::list_dup_and_append));
 	return pCls;
     }
 
-    std::shared_ptr<fclass> function::build_class(typespec spec)
+    std::shared_ptr<fclass> function::build_class(typespec spec, typemgr* pTm)
     {
-	std::shared_ptr<fclass> pCls(new fclass(spec));
+	typespec base_spec("object",{});
+	const fclass& base_cls = pTm->lookup(base_spec);
+
+	std::shared_ptr<fclass> pCls(new fclass(spec,base_cls));
 	return pCls;
     }
 
-    std::shared_ptr<fclass> boolean::build_class()
+    std::shared_ptr<fclass> boolean::build_class(typemgr* pTm)
     {
+	typespec base_spec("object",{});
+	const fclass& base_cls = pTm->lookup(base_spec);
+
 	typespec spec("boolean",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec));
-	pCls->add_method("not", make_marshall(&builtins::logical_not));
+	std::shared_ptr<fclass> pCls(new fclass(spec,base_cls));
+	pCls->add_method("not", make_marshall_mthd(&builtins::logical_not));
 	return pCls;
     }
 
@@ -123,5 +137,20 @@ namespace builtins
 	return intref( new int_object(pThis->internal_value()-1,
 				      pContext->types().lookup(ts)));
 	
+    }
+
+    objref obj_dump(context*, objref pThis)
+    {
+	pThis->dump(std::cout);
+	return pThis;
+    }
+
+    objref list_dup_and_append(context* pContext, listref pThis, objref pElement)
+    {
+	list_object* pNewList = new list_object(pThis->get_class(),
+						pThis->internal_value() );
+
+	pNewList->append(pElement);
+	return objref(pNewList);
     }
 }

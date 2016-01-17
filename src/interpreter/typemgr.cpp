@@ -8,6 +8,7 @@ using std::list;
 
 typemgr::typemgr()
 {
+    init_builtins();
 }
 
 typemgr::~typemgr()
@@ -26,38 +27,33 @@ fclass& typemgr::lookup( const typespec& ts )
     return check_builtin(ts);
 }
 
+void typemgr::init_builtins()
+{
+    typespec ts("object",{});
+    auto c = builtins::object::build_class();
+    _typeMap[c->get_spec()] = c;
+
+    c = builtins::integer::build_class(this);
+    _typeMap[c->get_spec()] = c;
+
+    c = builtins::flvoid::build_class();
+    _typeMap[c->get_spec()] = c;
+
+    typespec ts2=typespec("function",{});
+    c = builtins::function::build_class(ts2,this);
+    _typeMap[c->get_spec()] = c;
+
+    c = builtins::boolean::build_class(this);
+    _typeMap[c->get_spec()] = c;
+}
+
 fclass& typemgr::check_builtin( const typespec& ts )
 {
     std::shared_ptr<fclass> pTarget;
 
-    if (ts.full_name()=="void")
-    {
-	pTarget = builtins::flvoid::build_class();
-    }
-
-    if (ts.full_name()=="object")
-    {
-	pTarget = builtins::object::build_class();
-    }
-
     if (ts.template_name()=="list")
     {
-	pTarget = builtins::list::build_class(ts);
-    }
-
-    if (ts.template_name()=="function")
-    {
-	pTarget = builtins::function::build_class(ts);
-    }
-
-    if (ts.full_name()=="integer")
-    {
-	pTarget = builtins::integer::build_class();
-    }
-
-    if (ts.full_name()=="boolean")
-    {
-	pTarget = builtins::boolean::build_class();
+	pTarget = builtins::list::build_class(ts,this);
     }
 
     if (pTarget!=nullptr)

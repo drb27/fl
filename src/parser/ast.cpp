@@ -29,6 +29,10 @@ ast::~ast()
 
 }
 
+void ast::invalidate() const
+{
+}
+
 void ast::render_dot(int& uuid, 
 		     const string& parent, 
 		     const string& label,
@@ -191,35 +195,53 @@ objref methodcall_node::evaluate(context* pContext)
     objref target = _target->evaluate(pContext);
 
     // Look up the method on the class
-    function<marshall_fn_t> m = target->get_class().lookup_method(_name);
+    function<marshall_mthd_t> m = target->get_class().lookup_method(_name);
     
     // Prepare the parameter vector
-    auto params = vector<ast*>(_params.size()+1);
+    auto params = vector<ast*>(_params.size()+2);
 
-    // std::cout << "There are " << _params.size() << " params" << std::endl;
-
-    params[0] = _target;
-
-    int index=1;
+    int index=2;
     for ( auto p : _params )
     {
 	params[index++] = p;
     }
     
-    // for ( auto p : params )
-    // {
-    // 	std::cout << "PARAM: ";
-    // 	p->evaluate(pContext)->render(std::cout);
-    // 	std::cout << std::endl;
-    // }
-
     // Dispatch the call
-    return m(pContext,params);
+    auto retVal =  m(pContext,target,params);
+
+    // Invalidate cache
+    _target->invalidate();
+
+    // Return result
+    return retVal;
+
 }
 
 objref methodcall_node::evaluate(context* pContext) const
 {
-    return objref(nullptr);
+    // Evaluate the target
+    objref target = _target->evaluate(pContext);
+
+    // Look up the method on the class
+    function<marshall_mthd_t> m = target->get_class().lookup_method(_name);
+    
+    // Prepare the parameter vector
+    auto params = vector<ast*>(_params.size()+2);
+
+    int index=2;
+    for ( auto p : _params )
+    {
+	params[index++] = p;
+    }
+    
+    // Dispatch the call
+    auto retVal =  m(pContext,target,params);
+
+    // Invalidate cache
+    _target->invalidate();
+
+    // Return result
+    return retVal;
 }
 
 void methodcall_node::add_target(ast* pObj)
@@ -411,13 +433,18 @@ objref fundef_node::evaluate(context* pContext) const
 	argnames.push_back(pSymNode->name());
     }
 
+    std::shared_ptr<context> pClosure( new context(*pContext) );
+
     // Construct a marshall_fn_t compatible lambda expression
-    function<marshall_fn_t> fn = [localDef](context* pContext, vector<ast*>& arglist)
+    function<marshall_fn_t> fn = [localDef,pClosure](context* pContext, vector<ast*>& arglist)
 	{
-	    return localDef->evaluate(pContext);
+	    std::shared_ptr<context> c( new context(*pContext) );
+	    c->merge_in(*pClosure);
+	    return localDef->evaluate(c.get());
 	};
 
     return objref( new fn_object(cls,fn,argnames) );
+
 }
 
 objref fundef_node::evaluate(context* pContext)
@@ -435,10 +462,14 @@ objref fundef_node::evaluate(context* pContext)
 	argnames.push_back(pSymNode->name());
     }
 
+    std::shared_ptr<context> pClosure( new context(*pContext) );
+
     // Construct a marshall_fn_t compatible lambda expression
-    function<marshall_fn_t> fn = [localDef](context* pContext, vector<ast*>& arglist)
+    function<marshall_fn_t> fn = [localDef,pClosure](context* pContext, vector<ast*>& arglist)
 	{
-	    return localDef->evaluate(pContext);
+	    std::shared_ptr<context> c( new context(*pContext) );
+	    c->merge_in(*pClosure);
+	    return localDef->evaluate(c.get());
 	};
 
     return objref( new fn_object(cls,fn,argnames) );
@@ -454,6 +485,11 @@ fclass* fundef_node::type(context* pContext) const
 funcall_node::funcall_node(const string& name, ast* args)
     : _name(name), _arg_list(args)
 {
+}
+
+void funcall_node::invalidate() const
+{
+    _result = nullptr;
 }
 
 void funcall_node::render_dot(int& uuid, 
@@ -477,6 +513,9 @@ void funcall_node::render_dot(int& uuid,
 
 objref funcall_node::evaluate(context* pContext)
 {
+    // if (_result)
+    // 	return _result;
+
     // Look up the function object in the context
     fnref fn = std::dynamic_pointer_cast<fn_object>(pContext->resolve_symbol(_name));
 
@@ -497,12 +536,17 @@ objref funcall_node::evaluate(context* pContext)
     }
 
     // Call the function and return the result!
-    return (*fn)(pContext,argpairs);
+    auto retVal =  (*fn)(pContext,argpairs);
+    // _result = retVal;
+    return retVal;
 
 }
 
 objref funcall_node::evaluate(context* pContext) const
 {
+    if (_result)
+	return _result;
+
     // Look up the function object in the context
     fnref fn = std::dynamic_pointer_cast<fn_object>(pContext->resolve_symbol(_name));
 
@@ -510,8 +554,6 @@ objref funcall_node::evaluate(context* pContext) const
     listref args = std::dynamic_pointer_cast<list_object>(_arg_list->evaluate(pContext));
 
     // Get a list of argument names expected by the function
-    // THE REASON THIS CRASHES IS THAT FUNCTION SYMBOLS ARE NOT PASSED INTO
-    // OTHER FUNCTION'S CALL CONTEXT
     auto argnames(fn->arglist());
 
     // Construct the argpair vector (string,objref)
@@ -521,11 +563,14 @@ objref funcall_node::evaluate(context* pContext) const
     {
 	string argname = argnames.front();
 	argnames.pop_front();
-	argpairs.push_back( fn_object::argpair_t(argname,argval) ); 
+	argpairs.push_back( fn_object::argpair_t(argname,argval)); 
     }
 
     // Call the function and return the result!
-    return (*fn)(pContext,argpairs);
+    auto retVal =  (*fn)(pContext,argpairs);
+    _result = retVal;
+    return retVal;
+
 }
 
 fclass* funcall_node::type(context* pContext) const
@@ -566,9 +611,9 @@ objref if_node::evaluate(context* pContext) const
     boolref cond = std::dynamic_pointer_cast<bool_object>(_condition->evaluate(pContext));
     
     if (cond->internal_value())
-	return objref(_trueExpr->evaluate(pContext));
+	return _trueExpr->evaluate(pContext);
     else
-	return objref(_falseExpr->evaluate(pContext));
+	return _falseExpr->evaluate(pContext);
 }
 
 objref if_node::evaluate(context* pContext)
@@ -576,9 +621,9 @@ objref if_node::evaluate(context* pContext)
     boolref cond = std::dynamic_pointer_cast<bool_object>(_condition->evaluate(pContext));
     
     if (cond->internal_value())
-	return objref(_trueExpr->evaluate(pContext));
+	return _trueExpr->evaluate(pContext);
     else
-	return objref(_falseExpr->evaluate(pContext));
+	return _falseExpr->evaluate(pContext);
 }
 
 fclass* if_node::type(context* pContext) const

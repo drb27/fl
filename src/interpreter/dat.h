@@ -32,6 +32,7 @@ class dat : public action_target
     virtual ast* make_empty_list();
     virtual ast* make_single_list(ast*);
     virtual ast* make_bool(bool b);
+    virtual ast* build_list( ast* list, ast* element);
     virtual void render(ast* node);
  protected:
     std::shared_ptr<context> _context;

@@ -1,6 +1,7 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include <iostream>
 #include <string>
 #include <map>
 #include "typemgr.h"
@@ -24,6 +25,8 @@ class context
     virtual void merge_in( const context& other);
     static typemgr& types();
 
+    friend std::ostream& operator<<( std::ostream& os, const context& c);
+    virtual void debug() const { std::cout << (*this) << std::endl; }
  protected:
 
  private:

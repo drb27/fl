@@ -99,10 +99,12 @@ public:
 			    const std::string& parent="",
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
+    virtual void invalidate() const;
 
 protected:
     const std::string _name;
     ast* _arg_list;
+    mutable objref _result;
 };
 
 class fundef_node : public ast

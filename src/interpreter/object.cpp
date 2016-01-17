@@ -11,6 +11,7 @@ using std::string;
 using std::function;
 using std::deque;
 using std::vector;
+using std::endl;
 
 object::object(fclass& c) : _class(c)
 {
@@ -31,6 +32,13 @@ bool object::has_attribute(const std::string& name) const
 void object::render( std::ostream& os ) const
 {
     os << "[" << _class.name() << " object]"; 
+}
+
+void object::dump( std::ostream& out) const
+{
+    out << this << " ";
+    render(out);
+    out << std::endl;
 }
 
 int_object::int_object(int value, fclass& cls) : object(cls), _value(value)
@@ -69,7 +77,7 @@ list_object::list_object(fclass& cls)
 {
 }
 
-list_object::list_object(fclass& cls, std::list<objref>& startList)
+list_object::list_object(fclass& cls, std::list<objref> startList)
     : object(cls), _list(startList)
 {
 }
@@ -107,6 +115,28 @@ fn_object::fn_object(fclass& cls, function<marshall_fn_t> impl, deque<string> ar
 void fn_object::render(std::ostream& os) const
 {
     object::render(os);
+}
+
+void fn_object::dump( std::ostream& out) const
+{
+    object::dump(out);
+
+    out << "Expected Args: ";
+    for ( auto arg : _expected_args )
+    {
+	out << arg << " ";
+    }
+    out << endl;
+
+    out << "Full Args: ";
+    for ( auto arg : _full_args )
+    {
+	out << arg << " ";
+    }
+    out << endl;
+
+    out << "Applied Args: " << _applied_arguments << endl;
+
 }
 
 fnref fn_object::partial_application(const vector<argpair_t>& args) const
@@ -166,6 +196,7 @@ objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
     if (args.size()==_full_args.size() )
     {
 	context tempContext(*pContext);
+	context savedAppliedArgs(_applied_arguments);
 
 	// Apply each of the arguments
 	for ( auto p : args )
@@ -187,7 +218,7 @@ objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 
 	// Reset arguments for another invocation
 	_expected_args = _full_args;
-	_applied_arguments.reset();
+	_applied_arguments = savedAppliedArgs;
 
 	return result;
     }

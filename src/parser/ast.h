@@ -24,6 +24,8 @@ class ast
 			    const std::string& label = "",
 			    std::ostream& os = std::cout) const;
 
+    virtual void invalidate() const;
+
  protected:
     ast();
 

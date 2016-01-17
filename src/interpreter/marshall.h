@@ -19,6 +19,6 @@ typedef std::shared_ptr<list_object> listref;
 typedef std::shared_ptr<fn_object> fnref;
 
 typedef objref (marshall_fn_t)(context*,std::vector<ast*>&);
-
+typedef objref (marshall_mthd_t)(context*,objref pThis,std::vector<ast*>&);
 
 #endif

@@ -100,6 +100,14 @@ ast* dat::finish_list()
     return n;
 }
 
+ast* dat::build_list( ast* list, ast* element)
+{
+    auto r = new methodcall_node("duplicate_and_append");
+    r->add_target(list);
+    r->add_param(element);
+    return r;
+}
+
 ast* dat::make_empty_list()
 {
     return new list_node();
