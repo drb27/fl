@@ -5,6 +5,7 @@
 #include "typemgr.h"
 #include <interpreter/eval_exception.h>
 #include <parser/ast_nodes.h>
+#include <logger/logger.h>
 
 using std::string;
 
@@ -16,6 +17,7 @@ context::context()
 
 context::context( const context& other )
 {
+    wlog_entry();
     typespec ts("function",{});
     auto& fnclass = types().lookup(ts);
 
@@ -33,7 +35,7 @@ context::context( const context& other )
 
 void context::merge_in( const context& other)
 {
-
+    wlog_entry();
     for ( auto s : other._symbols )
     {
 	assign(s.first,s.second);

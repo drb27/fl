@@ -6,6 +6,7 @@
 #include "object.h"
 #include <interpreter/eval_exception.h>
 #include <parser/ast_nodes.h>
+#include <logger/logger.h>
 
 using std::string;
 using std::function;
@@ -110,6 +111,7 @@ void null_object::render( std::ostream& os) const
 fn_object::fn_object(fclass& cls, function<marshall_fn_t> impl, deque<string> args)
     : _expected_args(args), _full_args(args), object(cls), _fn(impl)
 {
+    wlog_entry();
 }
 
 void fn_object::render(std::ostream& os) const
@@ -141,6 +143,7 @@ void fn_object::dump( std::ostream& out) const
 
 fnref fn_object::partial_application(const vector<argpair_t>& args) const
 {
+    wlog_entry();
     deque<string> remainingArgs(_full_args);
     context newContext;
 
@@ -160,6 +163,7 @@ fnref fn_object::partial_application(const vector<argpair_t>& args) const
 
 void fn_object::apply_argument( objref arg )
 {
+    wlog_entry();
     // Pop the next expected argument name
     string argname = _expected_args.front();
     _expected_args.pop_front();
@@ -170,6 +174,7 @@ void fn_object::apply_argument( objref arg )
 
 void fn_object::apply_argument( const string& name, objref arg )
 {
+    wlog_entry();
     // Check the named argument is valid
     deque<string>::iterator i = std::find(_expected_args.begin(),_expected_args.end(),name);
     
@@ -192,6 +197,7 @@ const deque<string>& fn_object::arglist() const
 
 objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 {
+    wlog_entry();
     // Is this a full or partial application?
     if (args.size()==_full_args.size() )
     {
@@ -230,5 +236,6 @@ fn_object::fn_object(const fn_object& other)
     : object(other.get_class()), _fn(other._fn), _applied_arguments(other._applied_arguments), 
 	     _expected_args(other._expected_args), _full_args(other._full_args)
 {
+    wlog_entry();
 }
 

@@ -5,6 +5,7 @@
 #include <set>
 #include <deque>
 #include <vector>
+#include <logger/logger.h>
 #include "ast.h"
 #include "ast_nodes.h"
 #include <interpreter/object.h>
@@ -395,7 +396,7 @@ fclass* assign_node::type(context* c) const
 fundef_node::fundef_node(ast* arglist, ast* definition)
     : _arglist(arglist), _definition(definition)
 {
-
+    wlog_entry();
 }
 void fundef_node::render_dot(int& uuid, 
 			     const string& parent,
@@ -420,6 +421,7 @@ void fundef_node::render_dot(int& uuid,
 
 objref fundef_node::evaluate(context* pContext) const
 {
+    wlog_entry();
     ast* localDef = _definition;
     typespec ts("function",{});
     fclass& cls = pContext->types().lookup(ts);
@@ -438,6 +440,7 @@ objref fundef_node::evaluate(context* pContext) const
     // Construct a marshall_fn_t compatible lambda expression
     function<marshall_fn_t> fn = [localDef,pClosure](context* pContext, vector<ast*>& arglist)
 	{
+	    wlog_entry();
 	    std::shared_ptr<context> c( new context(*pContext) );
 	    c->merge_in(*pClosure);
 	    return localDef->evaluate(c.get());
@@ -449,6 +452,7 @@ objref fundef_node::evaluate(context* pContext) const
 
 objref fundef_node::evaluate(context* pContext)
 {
+    wlog_entry();
     ast* localDef = _definition;
     typespec ts("function",{});
     fclass& cls = pContext->types().lookup(ts);
@@ -467,6 +471,7 @@ objref fundef_node::evaluate(context* pContext)
     // Construct a marshall_fn_t compatible lambda expression
     function<marshall_fn_t> fn = [localDef,pClosure](context* pContext, vector<ast*>& arglist)
 	{
+	    wlog_entry();
 	    std::shared_ptr<context> c( new context(*pContext) );
 	    c->merge_in(*pClosure);
 	    return localDef->evaluate(c.get());
@@ -485,6 +490,7 @@ fclass* fundef_node::type(context* pContext) const
 funcall_node::funcall_node(const string& name, ast* args)
     : _name(name), _arg_list(args)
 {
+    wlog_entry();
 }
 
 void funcall_node::invalidate() const
@@ -513,6 +519,7 @@ void funcall_node::render_dot(int& uuid,
 
 objref funcall_node::evaluate(context* pContext)
 {
+    wlog_entry();
     // if (_result)
     // 	return _result;
 
@@ -544,6 +551,7 @@ objref funcall_node::evaluate(context* pContext)
 
 objref funcall_node::evaluate(context* pContext) const
 {
+    wlog_entry();
     if (_result)
 	return _result;
 
