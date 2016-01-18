@@ -1,4 +1,6 @@
 #include <string>
+#include <map>
+#include <sstream>
 #include "context.h"
 #include "object.h"
 #include "context.h"
@@ -8,6 +10,8 @@
 #include <logger/logger.h>
 
 using std::string;
+using std::map;
+using std::stringstream;
 
 typemgr context::_types;
 
@@ -35,7 +39,15 @@ context::context( const context& other )
 
 void context::merge_in( const context& other)
 {
-    wlog_entry();
+    stringstream s;
+    s << other;
+    map<string,string> params;
+    params["other"] = s.str();
+    s.clear();
+    s << (*this);
+    params["this"] = s.str();
+    wlog_entry_params(params);
+
     for ( auto s : other._symbols )
     {
 	assign(s.first,s.second);
@@ -49,6 +61,10 @@ context::~context()
 
 objref context::resolve_symbol(const std::string& name)
 {
+    map<string,string> params;
+    params["name"] = name;
+    wlog_entry_params(params);
+
     if (_symbols.find(name)!=_symbols.end())
 	return _symbols[name];
     else

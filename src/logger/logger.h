@@ -9,6 +9,7 @@
 
 #define wlog(lev,msg) g_logger.log( logmsg(lev,msg,__FILE__,__LINE__,__PRETTY_FUNCTION__) )
 #define wlog_entry()  g_logger.log( logmsg(level::debug,__PRETTY_FUNCTION__,__FILE__,__LINE__,__PRETTY_FUNCTION__) )
+#define wlog_entry_params(p)  g_logger.log( logmsg(level::debug,__PRETTY_FUNCTION__,__FILE__,__LINE__,__PRETTY_FUNCTION__),p )
 
 enum class level
 {
@@ -44,6 +45,7 @@ class logger
 
 
     virtual bool log(const logmsg&);
+    virtual bool log(const logmsg&, const std::map<std::string,std::string>& params);
 
  protected:
     virtual bool bootstrap();

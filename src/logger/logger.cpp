@@ -3,8 +3,10 @@
 #include <iomanip>
 #include <ctime>
 #include <sstream>
+#include <map>
 #include "logger.h"
 
+using std::map;
 using std::ostream;
 using std::endl;
 using std::function;
@@ -59,6 +61,19 @@ string logger::default_formatter(const logmsg& m)
 bool logger::log(const logmsg& m)
 {
     _out << _formatter(m);
+    return true;
+}
+bool logger::log(const logmsg& m, const map<string,string>& params)
+{
+    logmsg m_params(m);
+    stringstream s;
+    s << m.msg << " - params: ";
+    for ( auto param : params)
+    {
+	s << param.first << "=" << param.second << " ";
+    }
+    m_params.msg = s.str();
+    log(m_params);
     return true;
 }
 
