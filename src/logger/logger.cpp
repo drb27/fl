@@ -32,8 +32,8 @@ logger::logger(ostream& os)
     _levels[level::info] = "I";
     _levels[level::debug] = "D";
 
-    _formatter = [this](const logmsg& m){
-	return default_formatter(m);
+    _formatter = [this](const logmsg& m,bool divider){
+	return default_formatter(m,divider);
     };
 
     bootstrap();
@@ -44,7 +44,7 @@ logger::~logger()
     endsession();
 }
 
-string logger::default_formatter(const logmsg& m)
+string logger::default_formatter(const logmsg& m, bool divider)
 {
     char buffer[128];
     stringstream s;
@@ -53,17 +53,29 @@ string logger::default_formatter(const logmsg& m)
     timeinfo=localtime(&tm);
     strftime(buffer,128,"%D %R:%S",timeinfo);
     s << std::setw(17) << std::left << buffer << ":" 
-      << std::setw(2) << _levels[m.severity] << ": "
-      << m.msg << std::endl;
+      << std::setw(2) << _levels[m.severity] << ": ";
+
+    if (divider)
+	s << std::setw(65) << std::setfill('-');
+
+    s  << m.msg << std::endl;
     return s.str();
 }
 
-bool logger::log(const logmsg& m)
+bool logger::log(const logmsg& m, bool divider)
 {
-    _out << _formatter(m);
+    _out << _formatter(m,divider);
     return true;
 }
-bool logger::log(const logmsg& m, const map<string,string>& params)
+
+bool logger::log_leave(const logmsg& m, bool divider)
+{
+    logmsg mm(m);
+    mm.msg = "Leaving " + m.func;
+    return log(mm,divider);
+}
+
+bool logger::log(const logmsg& m, const map<string,string>& params, bool divider)
 {
     logmsg m_params(m);
     stringstream s;
@@ -73,7 +85,7 @@ bool logger::log(const logmsg& m, const map<string,string>& params)
 	s << param.first << "=" << param.second << " ";
     }
     m_params.msg = s.str();
-    log(m_params);
+    log(m_params,divider);
     return true;
 }
 

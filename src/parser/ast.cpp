@@ -66,9 +66,8 @@ objref literal_node::evaluate(context* pContext)
     return _object;
 }
 
-objref literal_node::evaluate(context* pContext) const
+void literal_node::required_symbols(std::set<std::string>&) const
 {
-    return _object;
 }
 
 fclass* literal_node::type(context* pContext) const
@@ -115,15 +114,12 @@ objref list_node::evaluate(context* pContext)
     return objref(l);
 }
 
-objref list_node::evaluate(context* pContext) const
+void list_node::required_symbols(std::set<std::string>& s) const
 {
-    auto l = new list_object(*(type(pContext)));
-    for ( auto e : _elements )
+    for ( auto e : _elements)
     {
-	l->internal_value().push_back(e->evaluate(pContext));
+	e->required_symbols(s);
     }
-    return objref(l);
-
 }
 
 std::list<ast*>& list_node::raw_elements()
@@ -218,31 +214,13 @@ objref methodcall_node::evaluate(context* pContext)
 
 }
 
-objref methodcall_node::evaluate(context* pContext) const
+void methodcall_node::required_symbols(std::set<std::string>& s) const
 {
-    // Evaluate the target
-    objref target = _target->evaluate(pContext);
-
-    // Look up the method on the class
-    function<marshall_mthd_t> m = target->get_class().lookup_method(_name);
-    
-    // Prepare the parameter vector
-    auto params = vector<ast*>(_params.size()+2);
-
-    int index=2;
-    for ( auto p : _params )
+    _target->required_symbols(s);
+    for (auto p : _params)
     {
-	params[index++] = p;
+	p->required_symbols(s);
     }
-    
-    // Dispatch the call
-    auto retVal =  m(pContext,target,params);
-
-    // Invalidate cache
-    _target->invalidate();
-
-    // Return result
-    return retVal;
 }
 
 void methodcall_node::add_target(ast* pObj)
@@ -288,15 +266,16 @@ const std::string& symbol_node::name() const
     return _name;
 }
 
+void symbol_node::required_symbols(std::set<std::string>& s) const
+{
+    s.insert(_name);
+}
+
 objref symbol_node::evaluate(context* pContext)
 {
     return pContext->resolve_symbol(_name); 
 }
 
-objref symbol_node::evaluate(context* pContext) const
-{
-    return pContext->resolve_symbol(_name);
-}
 
 fclass* symbol_node::type(context* pContext) const
 {
@@ -335,6 +314,12 @@ void assign_node::render_dot(int& uuid,
     _rvalue->render_dot(uuid,myid," rvalue",out);
 }
 
+void assign_node::required_symbols(std::set<std::string>& s) const
+{
+    _lvalue->required_symbols(s);
+    _rvalue->required_symbols(s);
+}
+
 objref assign_node::evaluate(context* pContext)
 {
     auto pSymbolNodeL = dynamic_cast<symbol_node*>(_lvalue);
@@ -361,33 +346,6 @@ objref assign_node::evaluate(context* pContext)
 	throw std::exception();
 }
 
-objref assign_node::evaluate(context* pContext) const
-{
-    auto pSymbolNodeL = dynamic_cast<symbol_node*>(_lvalue);
-    if (pSymbolNodeL)
-    {
-	// Evaluate RHS
-	auto result = _rvalue->evaluate(pContext);
-
-	if (_alias)
-	{
-	    // Set up an alias to point to the same object
-	    auto pSymbolNodeR = dynamic_cast<symbol_node*>(_rvalue);
-	    pContext->alias(pSymbolNodeL,pSymbolNodeR);
-	}
-	else
-	    // Assign the LHS to the symbol
-	    pContext->assign(pSymbolNodeL->name(),result);
-
-	// Return RHS
-	return result;
-       
-    }
-    else
-	throw std::exception();
-
-}
-
 fclass* assign_node::type(context* c) const
 {
     return _lvalue->type(c);
@@ -397,6 +355,7 @@ fundef_node::fundef_node(ast* arglist, ast* definition)
     : _arglist(arglist), _definition(definition)
 {
     wlog_entry();
+    wlog_exit();
 }
 void fundef_node::render_dot(int& uuid, 
 			     const string& parent,
@@ -419,40 +378,45 @@ void fundef_node::render_dot(int& uuid,
 
 }
 
-objref fundef_node::evaluate(context* pContext) const
+void fundef_node::required_symbols(std::set<std::string>& s) const
 {
-    wlog_entry();
-    ast* localDef = _definition;
-    typespec ts("function",{});
-    fclass& cls = pContext->types().lookup(ts);
-    
-    deque<string> argnames;
+    // Definitions which are not arguments
+    set<string> tempSet;
+    set<string> args;
 
-    list_node* pArgList = dynamic_cast<list_node*>(_arglist);
-    for ( auto sn : pArgList->raw_elements() )
+    // Get all used symbols
+    _definition->required_symbols(tempSet);
+
+    // Get argument symbols
+    _arglist->required_symbols(args);
+
+    // Subtract arguments from the definition set
+    for ( auto arg : args)
     {
-	symbol_node* pSymNode = dynamic_cast<symbol_node*>(sn);
-	argnames.push_back(pSymNode->name());
+	tempSet.erase(arg);
     }
 
-    std::shared_ptr<context> pClosure( new context(*pContext) );
-
-    // Construct a marshall_fn_t compatible lambda expression
-    function<marshall_fn_t> fn = [localDef,pClosure](context* pContext, vector<ast*>& arglist)
-	{
-	    wlog_entry();
-	    std::shared_ptr<context> c( new context(*pContext) );
-	    c->merge_in(*pClosure);
-	    return localDef->evaluate(c.get());
-	};
-
-    return objref( new fn_object(cls,fn,argnames) );
-
+    // Add the remaining non-argument symbols to the result
+    for ( auto sym : tempSet )
+    {
+	s.insert(sym);
+    }
+    
 }
+
 
 objref fundef_node::evaluate(context* pContext)
 {
     wlog_entry();
+
+    set<string> requiredSymbols;
+    required_symbols(requiredSymbols);
+
+    for ( auto s : requiredSymbols )
+    {
+	wlog(level::debug, "Required symbol: " + s );
+    }
+
     ast* localDef = _definition;
     typespec ts("function",{});
     fclass& cls = pContext->types().lookup(ts);
@@ -466,17 +430,23 @@ objref fundef_node::evaluate(context* pContext)
 	argnames.push_back(pSymNode->name());
     }
 
+    wlog(level::debug,"Cloning global context to obtain closure for function definition ...");
     std::shared_ptr<context> pClosure( new context(*pContext) );
 
+    wlog(level::debug,"Contructing lambda for function execution and embedding closure...");
     // Construct a marshall_fn_t compatible lambda expression
     function<marshall_fn_t> fn = [localDef,pClosure](context* pContext, vector<ast*>& arglist)
 	{
 	    wlog_entry();
+	    wlog(level::debug,"Executing lambda for fl function call...");
 	    std::shared_ptr<context> c( new context(*pContext) );
 	    c->merge_in(*pClosure);
-	    return localDef->evaluate(c.get());
+	    auto retVal = localDef->evaluate(c.get());
+	    wlog(level::debug,"About to return result from fl function call lambda...");
+	    return retVal;
 	};
 
+    wlog(level::debug,"Creating new fn_object instance with embedded closure (leaving fundef_node::evaluate)");
     return objref( new fn_object(cls,fn,argnames) );
     
 }
@@ -491,6 +461,7 @@ funcall_node::funcall_node(const string& name, ast* args)
     : _name(name), _arg_list(args)
 {
     wlog_entry();
+    wlog_exit();
 }
 
 void funcall_node::invalidate() const
@@ -515,6 +486,15 @@ void funcall_node::render_dot(int& uuid,
     out << myid << "[shape=box" << labelString << "];" << std::endl;
 
     _arg_list->render_dot(uuid,myid," lvalue",out);
+}
+
+void funcall_node::required_symbols(std::set<std::string>& s) const
+{
+    // Add all the arguments
+    _arg_list->required_symbols(s);
+
+    // ... and the name of the added function
+    s.insert(_name);
 }
 
 objref funcall_node::evaluate(context* pContext)
@@ -545,38 +525,7 @@ objref funcall_node::evaluate(context* pContext)
     // Call the function and return the result!
     auto retVal =  (*fn)(pContext,argpairs);
     // _result = retVal;
-    return retVal;
-
-}
-
-objref funcall_node::evaluate(context* pContext) const
-{
-    wlog_entry();
-    if (_result)
-	return _result;
-
-    // Look up the function object in the context
-    fnref fn = std::dynamic_pointer_cast<fn_object>(pContext->resolve_symbol(_name));
-
-    // Evaluate the argument list
-    listref args = std::dynamic_pointer_cast<list_object>(_arg_list->evaluate(pContext));
-
-    // Get a list of argument names expected by the function
-    auto argnames(fn->arglist());
-
-    // Construct the argpair vector (string,objref)
-    vector<fn_object::argpair_t> argpairs;
-
-    for ( auto argval : args->internal_value() )
-    {
-	string argname = argnames.front();
-	argnames.pop_front();
-	argpairs.push_back( fn_object::argpair_t(argname,argval)); 
-    }
-
-    // Call the function and return the result!
-    auto retVal =  (*fn)(pContext,argpairs);
-    _result = retVal;
+    wlog_exit();
     return retVal;
 
 }
@@ -614,14 +563,11 @@ void if_node::render_dot(int& uuid,
     _falseExpr->render_dot(uuid,myid," false",out);
 }
 
-objref if_node::evaluate(context* pContext) const
+void if_node::required_symbols(std::set<std::string>& s) const
 {
-    boolref cond = std::dynamic_pointer_cast<bool_object>(_condition->evaluate(pContext));
-    
-    if (cond->internal_value())
-	return _trueExpr->evaluate(pContext);
-    else
-	return _falseExpr->evaluate(pContext);
+    _condition->required_symbols(s);
+    _trueExpr->required_symbols(s);
+    _falseExpr->required_symbols(s);
 }
 
 objref if_node::evaluate(context* pContext)
