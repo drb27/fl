@@ -13,6 +13,7 @@ extern action_target* target;
 
 %}
 
+%token DEBUG
 %token BUILDER
 %token RENDER
 %token QUIT
@@ -151,9 +152,11 @@ listbuild: expr BUILDER expr { $$ = target->build_list($1,$3); };
 
 /* COMMANDS ***************************************************************/
 
-command: render_cmd | quit_cmd;
+command: debug_cmd | render_cmd | quit_cmd;
 
 render_cmd: RENDER expr {target->render($2); };
+
+debug_cmd: DEBUG expr { target->enable_debug(); target->respond($2); target->enable_debug(false); };
 
 quit_cmd: QUIT { YYACCEPT; };
 

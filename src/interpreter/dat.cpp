@@ -157,3 +157,8 @@ void dat::render(ast* node)
     node->render_dot(uuid,"","",out);
     out << "}" << std::endl;
 }
+
+void dat::enable_debug(bool enable)
+{
+    (enable)? g_logger.enable(level::debug) : g_logger.disable(level::debug);
+}

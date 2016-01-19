@@ -30,6 +30,7 @@ class action_target
     virtual ast* make_bool(bool b)=0;
     virtual ast* build_list( ast* list, ast* element)=0;
     virtual void render(ast* node)=0;
+    virtual void enable_debug(bool enable=true)=0;
 };
 
 #endif

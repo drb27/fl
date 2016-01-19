@@ -21,6 +21,7 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+debug    { return DEBUG; }
 ::       { return BUILDER; }
 render   { return RENDER; }
 quit     { return QUIT; }
