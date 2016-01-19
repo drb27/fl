@@ -5,6 +5,8 @@
 #include <set>
 #include <deque>
 #include <vector>
+#include <map>
+#include <sstream>
 #include <logger/logger.h>
 #include "ast.h"
 #include "ast_nodes.h"
@@ -20,6 +22,8 @@ using std::set;
 using std::function;
 using std::vector;
 using std::deque;
+using std::map;
+using std::stringstream;
 
 ast::ast()
 {
@@ -508,8 +512,6 @@ void funcall_node::required_symbols(std::set<std::string>& s) const
 objref funcall_node::evaluate(context* pContext)
 {
     wlog_entry();
-    // if (_result)
-    // 	return _result;
 
     // Look up the function object in the context
     fnref fn = std::dynamic_pointer_cast<fn_object>(pContext->resolve_symbol(_name));
@@ -522,17 +524,23 @@ objref funcall_node::evaluate(context* pContext)
 
     // Construct the argpair vector (string,objref)
     vector<fn_object::argpair_t> argpairs;
+    map<string,string> trace_params;
+    stringstream argstring;
 
     for ( auto argval : args->internal_value() )
     {
+	argstring.clear();
+	argstring.str("");
 	string argname = argnames.front();
 	argnames.pop_front();
-	argpairs.push_back( fn_object::argpair_t(argname,argval)); 
+	argpairs.push_back( fn_object::argpair_t(argname,argval));
+	argval->render(argstring);
+        trace_params[argname] = argstring.str();
     }
 
     // Call the function and return the result!
+    wlog_trace("CALL: " + _name,trace_params);
     auto retVal =  (*fn)(pContext,argpairs);
-    // _result = retVal;
     wlog_exit();
     return retVal;
 

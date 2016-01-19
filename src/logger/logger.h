@@ -15,6 +15,7 @@
 #define wlog_entry()  g_logger.log( logmsg(level::debug,__PRETTY_FUNCTION__,__FILE__,__LINE__,__PRETTY_FUNCTION__),true )
 #define wlog_entry_params(p)  g_logger.log( logmsg(level::debug,__PRETTY_FUNCTION__,__FILE__,__LINE__,__PRETTY_FUNCTION__),p )
 #define wlog_exit()  g_logger.log_leave( logmsg(level::debug,"",__FILE__,__LINE__,__PRETTY_FUNCTION__),true )
+#define wlog_trace(msg,p) g_logger.log( logmsg(level::trace,msg,__FILE__,__LINE__,__PRETTY_FUNCTION__),p )
 
 enum class level
 {
