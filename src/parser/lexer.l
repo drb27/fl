@@ -21,6 +21,7 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+trace    { return TRACE; }
 debug    { return DEBUG; }
 ::       { return BUILDER; }
 render   { return RENDER; }

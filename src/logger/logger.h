@@ -22,6 +22,7 @@ enum class level
 	error,
 	warning,
 	info,
+	trace,
 	debug
 	};
 

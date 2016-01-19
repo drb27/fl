@@ -31,6 +31,7 @@ logger::logger(ostream& os)
     _levels[level::warning] = "W";
     _levels[level::info] = "I";
     _levels[level::debug] = "D";
+    _levels[level::trace] = "T";
 
     _formatter = [this](const logmsg& m,bool divider){
 	return default_formatter(m,divider);

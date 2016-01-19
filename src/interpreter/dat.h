@@ -35,6 +35,7 @@ class dat : public action_target
     virtual ast* build_list( ast* list, ast* element);
     virtual void render(ast* node);
     virtual void enable_debug(bool enable=true);
+    virtual void enable_trace(bool enable=true);
  protected:
     std::shared_ptr<context> _context;
     std::deque<list_node*> _list_stack;
