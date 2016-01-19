@@ -26,6 +26,7 @@ namespace builtins
 	pCls->add_method("add", make_marshall_mthd(&builtins::add_integers));
 	pCls->add_method("in_range", make_marshall_mthd(&builtins::in_range_integers));
 	pCls->add_method("eq", make_marshall_mthd(&builtins::int_equate));
+	pCls->add_method("gt", make_marshall_mthd(&builtins::int_gt));
 	pCls->add_method("dec", make_marshall_mthd(&builtins::int_dec));
 	return pCls;
     }
@@ -129,6 +130,14 @@ namespace builtins
 	bool result = pThis->equate(pOther);
 	typespec ts("boolean",{});
 	return boolref(new bool_object(result,pContext->types().lookup(ts)));
+    }
+
+    objref int_gt(context* pContext, intref pThis, intref pOther )
+    {
+	bool result = pThis->internal_value() > pOther->internal_value();
+	typespec ts("boolean",{});
+	return boolref(new bool_object(result,pContext->types().lookup(ts)));
+
     }
 
     objref int_dec(context* pContext,intref pThis)

@@ -1,0 +1,11 @@
+x=1
+empty=(x)->x.size().eq(0)
+build=(b e)-> b.eq(e)? (e) : build(b e.dec())::e
+reverse=(l) -> empty(l)? () : reverse(l.tail())::l.head()
+filter=(p l)-> reverse( empty(l)? () : p(l.head())? filter(p l.tail())::l.head() : filter(p l.tail()) )
+pred=(x)->x.gt(10)
+q=(1 5 11 7 12 4 13 10)
+filter(pred q)
+myfilter=filter(pred)
+q=reverse(build(1 50))
+myfilter(q)

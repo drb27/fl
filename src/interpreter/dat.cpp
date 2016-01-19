@@ -8,6 +8,8 @@
 #include "dat.h"
 #include <interpreter/typemgr.h>
 #include <interpreter/context.h>
+#include <interpreter/eval_exception.h>
+#include <logger/logger.h>
 
 using std::string;
 using std::deque;
@@ -48,8 +50,15 @@ ast* dat::make_fundef( ast* arglist,  ast* def) const
 
 void dat::respond( ast* def, std::ostream& os) const
 {
-    def->evaluate(_context.get())->render(os);
-    os << "OK" << std::endl;
+    try
+    {
+	def->evaluate(_context.get())->render(os);
+	os << "OK" << std::endl;
+    }
+    catch( eval_exception& e )
+    {
+	wlog(level::error,e.what());
+    }
 }
 
 ast* dat::make_methodcall( ast* target, std::string* method,list_node* args)

@@ -71,8 +71,9 @@ objref context::resolve_symbol(const std::string& name)
 	return _symbols[name];
     else
     {
-	wlog(level::error,"Unresolved symbol [" + name + "]");
-	return objref(nullptr);
+	string msg = "Unresolved symbol [" + name + "]";
+	wlog(level::error, msg);
+	throw eval_exception(cerror::undefined_symbol,msg);
     }
 }
 void context::assign(const std::string& name, objref value)

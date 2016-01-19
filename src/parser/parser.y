@@ -65,8 +65,8 @@ extern action_target* target;
 %start input
 
 %precedence MAPSTO
-%precedence QUESTION
-%precedence COLON
+%left COLON
+%left QUESTION
 %left EQ
 %left BUILDER
 %left ADD
