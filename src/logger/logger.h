@@ -6,6 +6,7 @@
 #include <string>
 #include <chrono>
 #include <map>
+#include <set>
 
 #define FB(arg) arg
 #define FB1(arg) FB(arg)
@@ -52,6 +53,10 @@ class logger
     virtual bool log(const logmsg&, const std::map<std::string,std::string>& params, bool divider=false);
     virtual bool log_leave(const logmsg&, bool divider=false);
 
+    virtual void enable(level);
+    virtual void disable(level);
+    virtual bool enabled(level);
+
  protected:
     virtual bool bootstrap();
     virtual bool endsession();
@@ -63,6 +68,7 @@ class logger
  private:
     std::ostream& _out;
     std::map<level,std::string> _levels;
+    std::set<level> _enabled_levels;
 };
 
 #endif

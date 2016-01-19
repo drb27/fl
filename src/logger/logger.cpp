@@ -64,7 +64,8 @@ string logger::default_formatter(const logmsg& m, bool divider)
 
 bool logger::log(const logmsg& m, bool divider)
 {
-    _out << _formatter(m,divider);
+    if ( enabled(m.severity))
+	_out << _formatter(m,divider);
     return true;
 }
 
@@ -85,8 +86,7 @@ bool logger::log(const logmsg& m, const map<string,string>& params, bool divider
 	s << param.first << "=" << param.second << " ";
     }
     m_params.msg = s.str();
-    log(m_params,divider);
-    return true;
+    return log(m_params,divider);
 }
 
 void logger::set_formatter( function<log_format_t> f)
@@ -102,4 +102,19 @@ bool logger::bootstrap()
 bool logger::endsession()
 {
     return true;
+}
+
+void logger::enable(level l)
+{
+    _enabled_levels.insert(l);
+}
+
+void logger::disable(level l)
+{
+    _enabled_levels.erase(l);
+}
+
+bool logger::enabled(level l)
+{
+    return _enabled_levels.find(l)!=_enabled_levels.end();
 }

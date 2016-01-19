@@ -8,6 +8,7 @@
 #include <interpreter/eval_exception.h>
 #include <parser/ast_nodes.h>
 #include <logger/logger.h>
+#include <cassert>
 
 using std::string;
 using std::map;
@@ -44,6 +45,7 @@ void context::merge_in( const context& other)
     map<string,string> params;
     params["other"] = s.str();
     s.clear();
+    s.str("");
     s << (*this);
     params["this"] = s.str();
     wlog_entry_params(params);
@@ -68,10 +70,18 @@ objref context::resolve_symbol(const std::string& name)
     if (_symbols.find(name)!=_symbols.end())
 	return _symbols[name];
     else
+    {
+	wlog(level::error,"Unresolved symbol [" + name + "]");
 	return objref(nullptr);
+    }
 }
 void context::assign(const std::string& name, objref value)
 {
+    if (!value)
+    {
+	wlog(level::warning,"Assigning null value to [" + name + "]");
+    }
+    assert(value);
     _symbols[name] = value;
 }
 
@@ -98,4 +108,9 @@ std::ostream& operator<<( std::ostream& os, const context& c)
     }
 
     return os;
+}
+
+bool context::is_defined( const std::string& name) const
+{
+    return _symbols.find(name)!=_symbols.end();
 }

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <memory>
 #include <deque>
+#include <map>
 
 #include <logger/logger.h>
 #include <interpreter/context.h>
@@ -24,6 +25,7 @@ using std::list;
 using std::shared_ptr;
 using std::deque;
 using std::string;
+using std::map;
 
 action_target* target;
 
@@ -39,6 +41,11 @@ extern "C" void yyerror(char const* c)
 
 int main(void)
 {
+    g_logger.enable( level::info );
+    g_logger.enable( level::warning );
+    g_logger.enable( level::error );
+    g_logger.enable( level::fatal );
+
     wlog(level::info,"Application startup");
     std::cout << PACKAGE_STRING << std::endl;
     std::shared_ptr<context> shell_context(new context());
