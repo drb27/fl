@@ -51,6 +51,16 @@ protected:
     const int _value;
 };
 
+class class_object : public object
+{
+public:
+    class_object(fclass* pCls,fclass&);
+    virtual void render( std::ostream& os) const;
+    fclass* internal_value() const { return _value; }
+protected:
+    fclass* const _value;
+};
+
 class bool_object : public object
 {
 public:

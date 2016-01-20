@@ -42,6 +42,17 @@ void object::dump( std::ostream& out) const
     out << std::endl;
 }
 
+class_object::class_object(fclass* pCls, fclass& cls)
+    : object(cls),_value(pCls)
+{
+}
+
+void class_object::render(std::ostream& os ) const
+{
+    os << "(class " << _value->name() << ") ";
+    object::render(os);
+}
+
 int_object::int_object(int value, fclass& cls) : object(cls), _value(value)
 {
 }

@@ -17,6 +17,12 @@ public:
     static std::shared_ptr<fclass> build_class();
 };
 
+class flclass
+{
+public:
+    static std::shared_ptr<fclass> build_class();
+};
+
 class integer
 {
 public:
@@ -53,6 +59,7 @@ class string
 };
     
     objref obj_dump(context*, objref pThis);
+    objref obj_class(context*, objref pThis);
     objref add_integers(context*,intref a, intref b);
     objref int_dec(context*,intref pThis);
     objref in_range_integers(context* pContext, intref pThis, intref min, intref max);
@@ -64,6 +71,7 @@ class string
     objref int_equate(context* pContext, intref pThis, intref pOther);
     objref int_gt(context* pContext, intref pThis, intref pOther);
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
+
 }
 
 #endif

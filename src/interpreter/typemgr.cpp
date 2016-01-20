@@ -45,6 +45,9 @@ void typemgr::init_builtins()
 
     c = builtins::boolean::build_class(this);
     _typeMap[c->get_spec()] = c;
+
+    c = builtins::flclass::build_class();
+    _typeMap[c->get_spec()] = c;
 }
 
 fclass& typemgr::check_builtin( const typespec& ts )

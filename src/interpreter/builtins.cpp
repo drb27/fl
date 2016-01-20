@@ -13,6 +13,14 @@ namespace builtins
 	typespec spec("object",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec));
 	pCls->add_method("dump", make_marshall_mthd(&builtins::obj_dump));
+	pCls->add_method("class", make_marshall_mthd(&builtins::obj_class));
+	return pCls;
+    }
+
+    std::shared_ptr<fclass> flclass::build_class()
+    {
+	typespec spec("class",{});
+	std::shared_ptr<fclass> pCls(new fclass(spec));
 	return pCls;
     }
 
@@ -152,6 +160,13 @@ namespace builtins
     {
 	pThis->dump(std::cout);
 	return pThis;
+    }
+
+    objref obj_class(context* pContext, objref pThis)
+    {
+	typespec ts("class",{});
+	class_object* pClass = new class_object(&pThis->get_class(),pContext->types().lookup(ts));
+	return objref(pClass);
     }
 
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement)
