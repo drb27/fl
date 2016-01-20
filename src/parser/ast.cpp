@@ -512,7 +512,6 @@ void funcall_node::required_symbols(std::set<std::string>& s) const
 
 objref funcall_node::evaluate(context* pContext)
 {
-    wlog_entry();
 
     // Look up the function object in the context
     fnref fn = std::dynamic_pointer_cast<fn_object>(pContext->resolve_symbol(_name));
@@ -523,24 +522,37 @@ objref funcall_node::evaluate(context* pContext)
     // Get a list of argument names expected by the function
     auto argnames(fn->arglist());
 
+    map<string,string> p;
+    p["_name"] = _name;
+    for (auto n : argnames )
+    {
+	p[n] = n;
+    }
+    p["args->size()"] = std::to_string(args->internal_value().size());
+    wlog_entry_params(p);
+
     // Construct the argpair vector (string,objref)
     vector<fn_object::argpair_t> argpairs;
-    map<string,string> trace_params;
-    stringstream argstring;
+
+    stringstream s;
+    for (auto argval : args->internal_value() )
+    {
+	s.clear();
+	s.str("");
+	argval->render(s);
+	wlog(level::debug,s.str());
+    }
 
     for ( auto argval : args->internal_value() )
     {
-	argstring.clear();
-	argstring.str("");
+	wlog(level::debug,argnames.front());
 	string argname = argnames.front();
 	argnames.pop_front();
 	argpairs.push_back( fn_object::argpair_t(argname,argval));
-	argval->render(argstring);
-        trace_params[argname] = argstring.str();
     }
 
     // Call the function and return the result!
-    wlog_trace("CALL: " + _name,trace_params);
+    wlog_trace("CALL: " + _name,{});//trace_params);
     auto retVal =  (*fn)(pContext,argpairs);
     wlog_exit();
     return retVal;
