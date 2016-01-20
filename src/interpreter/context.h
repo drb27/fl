@@ -23,6 +23,8 @@ class context
     virtual void assign(const std::string& name, objref value);
     virtual void alias(symbol_node* lvalue, symbol_node* rvalue);
     virtual void reset();
+    virtual std::map<std::string,objref>& all() { return _symbols; }
+    virtual std::map<std::string,std::string> trace() const;
     virtual void merge_in( const context& other);
     static typemgr& types();
 

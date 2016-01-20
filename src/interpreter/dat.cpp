@@ -61,9 +61,10 @@ void dat::respond( ast* def, std::ostream& os) const
     }
 }
 
-ast* dat::make_methodcall( ast* target, std::string* method,list_node* args)
+ast* dat::make_methodcall( ast* target, ast* method,list_node* args)
 {
-    auto r = new methodcall_node(*method);
+    symbol_node* pMethodNameNode = dynamic_cast<symbol_node*>(method);
+    auto r = new methodcall_node(pMethodNameNode->name());
     for ( auto p : args->raw_elements() )
     {
 	r->add_param(p);

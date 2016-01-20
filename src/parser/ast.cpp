@@ -452,6 +452,7 @@ objref fundef_node::evaluate(context* pContext)
 	    std::shared_ptr<context> c( new context(*pContext) );
 	    wlog(level::debug,"Merging in the closure...");
 	    c->merge_in(*pClosure);
+	    wlog_trace("Final context",c->trace());
 	    wlog(level::debug,"Evaluating function definition...");
 	    auto retVal = localDef->evaluate(c.get());
 	    wlog(level::debug,"About to return result from fl function call lambda...");

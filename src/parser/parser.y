@@ -11,6 +11,9 @@ extern "C" void yyerror(const char*);
 
 extern action_target* target;
 
+ static std::string add_str("add");
+ static std::string dec_str("dec");
+
 %}
 
 %token TRACE
@@ -107,7 +110,7 @@ typespeclist: typespec
 
 /* LISTS ******************************************************************/
 
-list_literal:        OPEN_PAREN { target->start_list(); } items_empty CLOSE_PAREN { $$=target->finish_list();};
+list_literal: OPEN_PAREN { target->start_list(); } items_empty CLOSE_PAREN { $$=target->finish_list();};
 
 list_symbol: QUOTE symbol { $$=$2; };
 
@@ -130,16 +133,16 @@ expr:   literal
       | alias
       | assign
       | symbol %prec LOWEST 
-      | expr ADD expr { $$=target->make_methodcall($1, new std::string("add"),
+      | expr ADD expr { auto as = new std::string(add_str); $$=target->make_methodcall($1, target->make_symbol(as),
 						   (list_node*)(target->make_single_list($3))); }
-      | expr DECREMENT { $$=target->make_methodcall($1,new std::string("dec"),
+| expr DECREMENT { auto ds = new std::string(dec_str); $$=target->make_methodcall($1, target->make_symbol(ds),
 						    (list_node*)(target->make_empty_list())); }
       ;
 
 literal: null | bool | integer | list_literal;
 funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
 
-methodcall: expr DOT SYMBOL list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
+methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
 
 bool: TRUE {$$=target->make_bool(true); } | FALSE { $$=target->make_bool(false); };
 

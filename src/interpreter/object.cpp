@@ -220,6 +220,8 @@ objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 	wlog(level::debug,"Merging in applied arguments...");
 	tempContext.merge_in(_applied_arguments);
 
+	wlog_trace("Post-merge context: ",tempContext.trace());
+
 	// Apply the accrued arguments to the marshall function
 	auto result = _fn(&tempContext,params);
 

@@ -115,3 +115,19 @@ bool context::is_defined( const std::string& name) const
 {
     return _symbols.find(name)!=_symbols.end();
 }
+
+map<string,string> context::trace() const
+{
+    stringstream ss;
+    map<string,string> symbols;
+
+    for ( auto s : _symbols )
+    {
+	ss.clear();
+	ss.str("");
+	s.second->render(ss);
+	symbols[s.first] = ss.str();
+    }
+
+    return symbols;
+}
