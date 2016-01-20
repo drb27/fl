@@ -27,4 +27,13 @@ class eval_exception : public std::runtime_error
     const cerror _errcode;
 };
 
+class terminate_exception : public std::runtime_error
+{
+public:
+    terminate_exception();
+
+private:
+    static const std::string _what;
+};
+
 #endif

@@ -32,6 +32,7 @@ class action_target
     virtual void render(ast* node)=0;
     virtual void enable_debug(bool enable=true)=0;
     virtual void enable_trace(bool enable=true)=0;
+    virtual void done()=0;
 };
 
 #endif

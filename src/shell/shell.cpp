@@ -31,7 +31,12 @@ action_target* target;
 
 logger g_logger(std::cout);
 
+struct yy_buffer_state;
+typedef struct yy_buffer_state *YY_BUFFER_STATE;
+
 int yyparse(void);
+extern YY_BUFFER_STATE yy_scan_string(const char*);
+extern void yy_delete_buffer(YY_BUFFER_STATE);
 
 extern "C" void yyerror(char const* c)
 {
@@ -48,12 +53,32 @@ int main(void)
     //g_logger.enable( level::trace );
     //g_logger.enable( level::debug );
 
-    wlog(level::info,"Application startup");
+    wlog(level::info,PACKAGE_STRING ": Application startup");
     std::cout << PACKAGE_STRING << std::endl;
     std::shared_ptr<context> shell_context(new context());
     target = new dat(shell_context);
 
-    yyparse();
+    bool more=true;
+    while(more)
+    {
+	string inputString;
+	std::getline(std::cin,inputString);
+	inputString = inputString + "\n";
+	auto newBuffer = yy_scan_string(inputString.c_str());
+	try
+	{
+	    yyparse();
+	}
+	catch ( eval_exception& e )
+	{
+	    std::cout << e.what() << std::endl;
+	}
+	catch( terminate_exception& )
+	{
+	    more=false;
+	}
+	yy_delete_buffer(newBuffer);
+    }
 
     return 0;
 }

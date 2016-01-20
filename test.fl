@@ -10,3 +10,6 @@ filter(pred,q)
 myfilter=filter(pred)
 q=reverse(build(1,15))
 myfilter(q)
+x
+x
+x
