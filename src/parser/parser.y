@@ -119,7 +119,7 @@ list: list_literal | list_symbol;
 items_empty: | items;
 
  items:       expr { target->push_list_element($1); }
-     | items expr { target->push_list_element($2); }
+     | items COMMA expr { target->push_list_element($3); }
            ;
 
 /* EXPRESSIONS ************************************************************/
