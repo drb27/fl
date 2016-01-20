@@ -237,11 +237,6 @@ void methodcall_node::add_param(ast* pNode)
     _params.push_back(pNode);
 }
 
-void methodcall_node::finalize_params()
-{
-
-}
-
 symbol_node::symbol_node(const std::string& name)
     : _name(name)
 {
@@ -512,10 +507,13 @@ void funcall_node::required_symbols(std::set<std::string>& s) const
 
 objref funcall_node::evaluate(context* pContext)
 {
-
     // Look up the function object in the context
     fnref fn = std::dynamic_pointer_cast<fn_object>(pContext->resolve_symbol(_name));
+    return evaluate(pContext,fn);
+}
 
+objref funcall_node::evaluate(context* pContext, fnref fn)
+{
     // Evaluate the argument list
     listref args = std::dynamic_pointer_cast<list_object>(_arg_list->evaluate(pContext));
 

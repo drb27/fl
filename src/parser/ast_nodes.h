@@ -77,7 +77,6 @@ public:
 
     virtual void add_target(ast* pObj);
     virtual void add_param(ast*);
-    virtual void finalize_params();
     virtual void required_symbols(std::set<std::string>&) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="",
@@ -94,6 +93,7 @@ class funcall_node : public ast
 public:
     funcall_node(const std::string&,ast* args);
     virtual objref evaluate(context*);
+    virtual objref evaluate(context*,fnref);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<std::string>&) const;
     virtual void render_dot(int& uuid, 

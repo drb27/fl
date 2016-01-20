@@ -7,6 +7,7 @@
 
 class fclass;
 class typemgr;
+class fundef_node;
 
 namespace builtins
 {
@@ -71,7 +72,7 @@ class string
     objref int_equate(context* pContext, intref pThis, intref pOther);
     objref int_gt(context* pContext, intref pThis, intref pOther);
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
-
+    objref class_addmethod(context* pContext, classref pThis, fundef_node* pFn, const std::string& name);
 }
 
 #endif

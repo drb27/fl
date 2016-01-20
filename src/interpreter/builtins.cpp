@@ -3,6 +3,7 @@
 #include <interpreter/class.h>
 #include <interpreter/context.h>
 #include <parser/callable.h>
+#include <parser/ast_nodes.h>
 
 #define N_INT(x) (x->internal_value())
 
@@ -176,5 +177,29 @@ namespace builtins
 
 	pNewList->append(pElement);
 	return objref(pNewList);
+    }
+
+    objref class_addmethod(context* pContext, classref pThis, fnref pFn, const std::string& name)
+    {
+	// Construct a lambda which executes the method on the object
+	auto le = [](context* pContext, objref pThis, std::vector<ast*>& params)
+	    {
+		// Create an anonymous funcall_node
+		funcall_node* pF = new funcall_node("",nullptr); // Expects list_node of params
+
+		// Consider using a fn_object directly ...
+		// ... could be useful to add a new method to fn_object to help handle this
+		// ... or maybe make good use of fn_object::operator()?
+
+		// return its evaluation in this context
+		return pF->evaluate(pContext);
+	    };
+
+	// Add the method to the class
+	fclass* pInternalClass = pThis->internal_value();
+	pInternalClass->add_method(name, le);
+
+	// Return a reference to the class
+	return pThis;
     }
 }
