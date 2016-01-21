@@ -107,6 +107,7 @@ public:
     
     virtual fnref partial_application( const std::vector<argpair_t>& args ) const;
     virtual objref operator()(context*,std::vector<argpair_t>&);
+    virtual objref operator()(context*,std::vector<objref>&);
     virtual const std::deque<std::string>& arglist() const;
     virtual void dump(std::ostream& out = std::cout ) const;
 

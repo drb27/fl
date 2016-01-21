@@ -206,6 +206,12 @@ const deque<string>& fn_object::arglist() const
     return _full_args;
 }
 
+objref fn_object::operator()(context* pContext, vector<objref>& args)
+{
+    vector<argpair_t> argpairs;
+    return (*this)(pContext,argpairs);
+}
+
 objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 {
     wlog_entry();
