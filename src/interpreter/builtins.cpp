@@ -5,6 +5,7 @@
 #include <interpreter/context.h>
 #include <parser/callable.h>
 #include <parser/ast_nodes.h>
+#include <logger/logger.h>
 
 using std::string;
 using std::vector;
@@ -25,6 +26,14 @@ namespace builtins
     std::shared_ptr<fclass> flclass::build_class()
     {
 	typespec spec("class",{});
+	std::shared_ptr<fclass> pCls(new fclass(spec));
+	pCls->add_method("addmethod",make_marshall_mthd(&builtins::class_addmethod));
+	return pCls;
+    }
+
+    std::shared_ptr<fclass> string::build_class()
+    {
+	typespec spec("string",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec));
 	return pCls;
     }
@@ -183,23 +192,28 @@ namespace builtins
 	return objref(pNewList);
     }
 
-    void class_addmethod(context* pContext, classref pThis, fnref pFn, const std::string& name)
+    objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name)
     {
 	// Construct a lambda which executes the method on the object
-	auto le = [pFn](context* pContext, objref pThis, std::vector<ast*>& params)
+	auto le = [fn](context* pContext, objref pThis, std::vector<ast*>& params)
 	    {
-		// Evaluate each parameter
+		// Evaluate each parameter,ignoring the first two
 		vector<objref> evaled_params;
+		evaled_params.push_back(pThis);
+		int guard=0;
 		for ( auto arg : params )
 		{
-		    evaled_params.push_back( arg->evaluate(pContext) );
+		    if (guard++>1)
+			evaled_params.push_back( arg->evaluate(pContext) );
 		}
-		return (*pFn)(pContext,evaled_params);
+		return (*fn)(pContext,evaled_params);
 	    };
 
 	// Add the method to the class
 	fclass* pInternalClass = pThis->internal_value();
-	pInternalClass->add_method(name, le);
+	pInternalClass->add_method(name->internal_value(), le);
 
+	// Return a reference to the class object
+	return pThis;
     }
 }

@@ -21,6 +21,7 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+\"[^\"]*\" { yylval.string_val =STR(yytext); return STRING; } 
 trace    { return TRACE; }
 debug    { return DEBUG; }
 ::       { return BUILDER; }

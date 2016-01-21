@@ -74,6 +74,26 @@ void int_object::render( std::ostream& os) const
     object::render(os);
 }
 
+string_object::string_object(const std::string& value, fclass& cls) : object(cls), _value(value)
+{
+
+}
+
+bool string_object::equate( objref other ) const
+{
+    if (&other->get_class()!=&get_class())
+	return false;
+
+    stringref otherRef = std::dynamic_pointer_cast<string_object>(other);
+    return (internal_value()==otherRef->internal_value());
+}
+
+void string_object::render( std::ostream& os) const
+{
+    os << _value << " ";
+    object::render(os);
+}
+
 bool_object::bool_object(bool b, fclass& cls)
     : _value(b),object(cls)
 {
@@ -210,6 +230,26 @@ const deque<string>& fn_object::arglist() const
 objref fn_object::operator()(context* pContext, vector<objref>& args)
 {
     vector<argpair_t> argpairs;
+
+    if ( args.size()==_full_args.size() )
+    {
+	// Zip 'em all up
+	int index=0;
+	for ( auto a : _full_args )
+	{
+	    argpairs.push_back(argpair_t(a,args[index++]));
+	}
+    }
+    else
+    {
+	// Just the expected args
+	int index=0;
+	for ( auto a : args )
+	{
+	    argpairs.push_back(argpair_t(_expected_args[index++],a));
+	}
+    }
+
     return (*this)(pContext,argpairs);
 }
 

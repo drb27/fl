@@ -31,6 +31,10 @@ btoi=(a)-> a? 1:0
 or=(a,b)-> btoi(a).add(btoi(b)).gt(0)
 and=(a,b)-> btoi(a).add(btoi(b)).eq(2)
 
+true.class().addmethod( (a,b)->and(a,b), "and" )
+true.class().addmethod( (a,b)->or(a,b), "or" )
+1.class().addmethod( (x)->x+1, "inc" )
+
 in_range=(t,a,b)-> and(t.gt(a.dec()),t.gt(b).not())
 
 eq=(a,b)->a.eq(b)

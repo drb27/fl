@@ -51,6 +51,17 @@ protected:
     const int _value;
 };
 
+class string_object : public object
+{
+public:
+    string_object(const std::string& value, fclass&);
+    virtual void render( std::ostream& os ) const;
+    const std::string& internal_value() const { return _value; }
+    virtual bool equate( objref other ) const;
+protected:
+    const std::string _value;
+};
+
 class class_object : public object
 {
 public:

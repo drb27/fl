@@ -34,6 +34,16 @@ ast* dat::make_int(int x) const
     return pNode;
 }
 
+ast* dat::make_string(std::string* x) const
+{
+    typespec string_spec = typespec("string",{});
+    fclass& string_cls = _context->types().lookup(string_spec);
+    objref pObject(new string_object((*x).substr(1,(*x).length()-2),string_cls));
+    delete x;
+    literal_node* pNode = new literal_node(pObject);
+    return pNode;
+}
+
 ast* dat::make_null() const
 {
     typespec obj_spec = typespec("object",{});

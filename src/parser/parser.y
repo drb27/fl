@@ -29,6 +29,7 @@ extern action_target* target;
 %token ADD
 %token MAPSTO
 %token INTEGER
+%token STRING
 %token NEWLINE
 %token SYMBOL
 %token EQ
@@ -51,6 +52,7 @@ extern action_target* target;
 
 %type <int_val> INTEGER
 %type <string_val> SYMBOL
+%type <string_val> STRING
 %type <node_val> integer
 %type <node_val> if
 %type <node_val> null
@@ -67,6 +69,7 @@ extern action_target* target;
 %type <node_val> listbuild
 %type <node_val> assign
 %type <node_val> bool
+%type <node_val> str
 %start input
 
 %precedence MAPSTO
@@ -90,6 +93,7 @@ input: stmt { YYACCEPT; };
 
 integer: INTEGER { $$=target->make_int($1); }
 symbol:  SYMBOL  { $$=target->make_symbol($1);  }
+str: STRING { $$=target->make_string($1); }
 
 /* DEFINITIONS ************************************************************/
 
@@ -126,7 +130,7 @@ expr:   literal
 						    (list_node*)(target->make_empty_list())); }
       ;
 
-literal: null | bool | integer | list_literal;
+literal: null | bool | integer | str | list_literal;
 funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
 
 methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 

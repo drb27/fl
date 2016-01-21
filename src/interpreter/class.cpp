@@ -1,15 +1,18 @@
 #include <string>
+#include <map>
 #include <sstream>
 #include <list>
 #include <functional>
 #include "named.h"
 #include "base.h"
 #include "class.h"
+#include <logger/logger.h>
 
 using std::string;
 using std::list;
 using std::stringstream;
 using std::function;
+using std::map;
 
 typespec::typespec( const string& nm, const list<typespec>& prms )
     : _name(nm)
@@ -117,6 +120,9 @@ void fclass::add_attribute(const string& name, fclass* ftype, object* pDefault)
 
 void fclass::add_method(const string& name, function<marshall_mthd_t> delegate)
 {
+    map<string,string> args;
+    args["name"] = name;
+    wlog_trace(__PRETTY_FUNCTION__,args);
     _methods[name] = delegate;
 }
 

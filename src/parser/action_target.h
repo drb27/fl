@@ -13,6 +13,7 @@ class action_target
  public:
 
     virtual ast* make_int(int x) const=0;
+    virtual ast* make_string(std::string* x) const=0;
     virtual ast* make_null() const=0;
     virtual ast* make_fundef( ast* arglist,  ast* def) const=0;
     virtual ast* make_funcall( ast* fn,  ast* args) const=0;

@@ -56,7 +56,8 @@ public:
 
 class string
 {
-
+public:
+    static std::shared_ptr<fclass> build_class();
 };
     
     objref obj_dump(context*, objref pThis);
@@ -72,7 +73,7 @@ class string
     objref int_equate(context* pContext, intref pThis, intref pOther);
     objref int_gt(context* pContext, intref pThis, intref pOther);
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
-    objref class_addmethod(context* pContext, classref pThis, fundef_node* pFn, const std::string& name);
+    objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
 }
 
 #endif
