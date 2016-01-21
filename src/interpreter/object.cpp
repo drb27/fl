@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "object.h"
+#include <cassert>
 #include <interpreter/eval_exception.h>
 #include <parser/ast_nodes.h>
 #include <logger/logger.h>
@@ -218,6 +219,8 @@ objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
     // Is this a full or partial application?
     if (args.size()==_full_args.size() )
     {
+	//assert(_applied_arguments.all().size()==0);
+	_expected_args = _full_args;
 	context tempContext(*pContext);
 	context savedAppliedArgs(_applied_arguments);
 

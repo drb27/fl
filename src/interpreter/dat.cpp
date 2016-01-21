@@ -57,7 +57,8 @@ void dat::respond( ast* def, std::ostream& os) const
     }
     catch( eval_exception& e )
     {
-	wlog(level::error,e.what());
+	//wlog(level::error,e.what());
+	throw e;
     }
 }
 
@@ -167,4 +168,9 @@ void dat::enable_debug(bool enable)
 void dat::enable_trace(bool enable)
 {
     (enable)? g_logger.enable(level::trace) : g_logger.disable(level::trace);
+}
+
+void dat::done()
+{
+    throw terminate_exception();
 }

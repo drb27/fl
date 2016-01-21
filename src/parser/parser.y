@@ -82,31 +82,18 @@ extern action_target* target;
 %precedence QUOTE
 %%
 
-
 /* INPUTS *****************************************************************/
 
-input: /* empty */
-     | stmts;
-
+input: stmt { YYACCEPT; };
 
 /* CONSTRUCTORS ***********************************************************/
 
 integer: INTEGER { $$=target->make_int($1); }
 symbol:  SYMBOL  { $$=target->make_symbol($1);  }
 
-
 /* DEFINITIONS ************************************************************/
 
 fundef: list MAPSTO expr { $$ = target->make_fundef($1,$3); };
-
-/*
-typealias: TYPEDEF symbol typespec;
-
-typespec: symbol | symbol OPEN_ANGLED typespeclist CLOSE_ANGLED;
-
-typespeclist: typespec 
-            | typespeclist COMMA typespec;
-*/
 
 /* LISTS ******************************************************************/
 
@@ -164,13 +151,12 @@ debug_cmd: DEBUG expr { target->enable_debug(); target->respond($2); target->ena
 
 trace_cmd: TRACE expr { target->enable_trace(); target->respond($2); target->enable_trace(false); };
 
-quit_cmd: QUIT { YYACCEPT; };
+quit_cmd: QUIT { target->done(); };
 
 /* STATEMENTS *************************************************************/
 
 stmt : expr NEWLINE {target->respond($1);}
-     | command NEWLINE {};
+     | command NEWLINE {}
+     | NEWLINE {};
 
-stmts: stmt | stmts stmt;
-
- assign: symbol EQ expr { $$=target->make_assign_node($1,$3); };
+assign: symbol EQ expr { $$=target->make_assign_node($1,$3); };
