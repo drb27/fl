@@ -49,7 +49,7 @@ void typemgr::init_builtins()
     c = builtins::flclass::build_class();
     _typeMap[c->get_spec()] = c;
 
-    c= builtins::string::build_class();
+    c= builtins::string::build_class(this);
     _typeMap[c->get_spec()] = c;
 }
 

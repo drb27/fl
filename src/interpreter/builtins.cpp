@@ -31,10 +31,13 @@ namespace builtins
 	return pCls;
     }
 
-    std::shared_ptr<fclass> string::build_class()
+    std::shared_ptr<fclass> string::build_class(typemgr* pTm)
     {
+	typespec base_spec("object",{});
+	const fclass& base_cls = pTm->lookup(base_spec);
+
 	typespec spec("string",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec));
+	std::shared_ptr<fclass> pCls(new fclass(spec,base_cls));
 	pCls->add_method("size",make_marshall_mthd(&builtins::string_length));
 	return pCls;
     }

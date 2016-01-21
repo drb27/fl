@@ -57,7 +57,7 @@ public:
 class string
 {
 public:
-    static std::shared_ptr<fclass> build_class();
+    static std::shared_ptr<fclass> build_class(typemgr*);
 };
     
     objref obj_dump(context*, objref pThis);

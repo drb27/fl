@@ -45,3 +45,10 @@ exceeds=(l,v)->containsp(l,v,(x,y)->x.gt(y))
 
 is_odd=(x) -> x.eq(0) ? false : is_even(x.dec())
 is_even=(x) -> x.eq(0)? true : is_odd(x.dec())
+
+countif=(p,l)->filter(p,l).size()
+
+countifnot=(p,l)->countif((x)->p(x).not(),l)
+
+
+merge=(la,lb)-> empty(lb)? la : merge(la::lb.head(),lb.tail())
