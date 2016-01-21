@@ -1,0 +1,43 @@
+// Predicate for testing for the empty list
+empty=(l) -> l.size().eq(0)
+
+// Reverse a list
+reverse=(l) -> empty(l)? () : reverse(l.tail())::l.head()
+
+// Reversed map
+rmap=(f,l) -> empty(l)? () : rmap(f,l.tail())::f(l.head())
+
+// Normal map
+map=(f,l)->reverse(rmap(f,l))
+
+// Build a list
+range=(b,e) -> b.eq(e) ? (e) : range(b,e.dec())::e
+
+// Reverse-filter a list
+rfilter=(p,l)-> empty(l)? () : p(l.head())? rfilter(p,l.tail())::l.head() : rfilter(p,l.tail())
+
+// Normal-filter a list
+filter=(p,l)->reverse(rfilter(p,l))
+
+// Accumulate a list
+accumulate=(a,f,l) -> empty(l)? a : accumulate(f(a,l.head()),f,l.tail())
+sum=accumulate(0,(a,b)->a+b)
+
+// Repeat an element in a list
+rep=(e,n)-> n.eq(0)? () : rep(e,n.dec())::e
+
+btoi=(a)-> a? 1:0
+
+or=(a,b)-> btoi(a).add(btoi(b)).gt(0)
+and=(a,b)-> btoi(a).add(btoi(b)).eq(2)
+
+in_range=(t,a,b)-> and(t.gt(a.dec()),t.gt(b).not())
+
+eq=(a,b)->a.eq(b)
+containsp=(l,v,t)-> empty(l)? false : t(l.head(),v)? true : containsp(l.tail(),v,t)
+contains=(l,v)->containsp(l,v,eq)
+
+exceeds=(l,v)->containsp(l,v,(x,y)->x.gt(y))
+
+is_odd=(x) -> x.eq(0) ? false : is_even(x.dec())
+is_even=(x) -> x.eq(0)? true : is_odd(x.dec())
