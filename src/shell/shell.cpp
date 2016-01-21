@@ -7,6 +7,7 @@
 #include <memory>
 #include <deque>
 #include <map>
+#include <fstream>
 
 #include <logger/logger.h>
 #include <interpreter/context.h>
@@ -58,6 +59,42 @@ int main(void)
     std::shared_ptr<context> shell_context(new context());
     target = new dat(shell_context);
 
+    // Library file
+    std::ifstream infile("my.fl");
+    if ( infile.good() )
+    {
+	try
+	{
+	    while(true)
+	    {
+		string inputString;
+		std::getline(infile,inputString);
+		inputString = inputString + "\n";
+		auto newBuffer = yy_scan_string(inputString.c_str());
+		try
+		{
+		    yyparse();
+		}
+		catch ( eval_exception& e )
+		{
+		    std::cout << e.what() << std::endl;
+		}
+
+		yy_delete_buffer(newBuffer);
+		if (infile.eof())
+		    throw std::exception();
+	    }
+	}
+	catch( ...)
+	{
+	    
+	}
+	infile.close();
+    }
+
+    
+
+    // User input
     bool more=true;
     while(more)
     {

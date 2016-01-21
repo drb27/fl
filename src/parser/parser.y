@@ -156,6 +156,7 @@ quit_cmd: QUIT { target->done(); };
 /* STATEMENTS *************************************************************/
 
 stmt : expr NEWLINE {target->respond($1);}
-     | command NEWLINE {};
+     | command NEWLINE {}
+     | NEWLINE {};
 
 assign: symbol EQ expr { $$=target->make_assign_node($1,$3); };

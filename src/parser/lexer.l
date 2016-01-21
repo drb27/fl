@@ -45,6 +45,7 @@ typedef  { return TYPEDEF; }
 {DIGIT}+            { yylval.int_val = atoi(yytext); return INTEGER; }
 {WS}     
 {LETTER}+ { yylval.string_val = STR(yytext); return SYMBOL; }
+\/\/[^\n]*
 =        { return EQ; }
 \n       { return NEWLINE; }
 
