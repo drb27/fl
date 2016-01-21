@@ -35,6 +35,7 @@ namespace builtins
     {
 	typespec spec("string",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec));
+	pCls->add_method("size",make_marshall_mthd(&builtins::string_length));
 	return pCls;
     }
 
@@ -190,6 +191,15 @@ namespace builtins
 
 	pNewList->append(pElement);
 	return objref(pNewList);
+    }
+
+    objref string_length(context* pContext, stringref pThis )
+    {
+	// Create a new integer
+	typespec ts("integer",{});
+	int_object* pResult = new int_object( pThis->internal_value().length(),
+					      pContext->types().lookup(ts));
+	return objref(pResult);
     }
 
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name)

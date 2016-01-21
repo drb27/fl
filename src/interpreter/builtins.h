@@ -74,6 +74,7 @@ public:
     objref int_gt(context* pContext, intref pThis, intref pOther);
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
+    objref string_length(context* pContext, stringref pThis);
 }
 
 #endif
