@@ -20,9 +20,15 @@ object::object(fclass& c) : _class(c)
     if ( c.is_abstract() )
 	throw eval_exception(cerror::instantiate_abstract,"An attempt was made to instantiate an object of an abstract class");
 
-    context tempContext;
-    vector<ast*> p;
-    //c.instantiator()(&tempContext,objref(this),p);
+    // Create the attributes
+    // TODO
+
+    // Call the constructor!
+    // objref pThis(this, [](object*) {});
+    // context* pContext = this->attr_as_context();
+    // vector<ast*> p(2);
+    // c.instantiator()(pContext,pThis,p);
+    // delete pContext;
 }
 
 object::~object()
