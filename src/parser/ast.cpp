@@ -196,7 +196,7 @@ objref methodcall_node::evaluate(context* pContext)
     objref target = _target->evaluate(pContext);
 
     // Look up the method on the class
-    function<marshall_mthd_t> m = target->get_class().lookup_method(_name);
+    function<marshall_mthd_t> m = target->get_class().lookup_method(_name).fn;
     
     // Prepare the parameter vector
     auto params = vector<ast*>(_params.size()+2);

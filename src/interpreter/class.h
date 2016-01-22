@@ -60,11 +60,11 @@ class fclass
     virtual std::list<std::string> methods() const;
     virtual bool is_abstract() const { return _is_abstract; }
 
-    virtual std::function<marshall_mthd_t> lookup_method(const std::string& name) const;
+    virtual const methodinfo& lookup_method(const std::string& name) const;
     virtual fclass* base(void) const { return _base; }
     virtual bool is_root() const { return _base==nullptr; }
 
-    virtual std::function<marshall_mthd_t> instantiator() { return lookup_method(".ctor"); }
+    virtual const methodinfo& instantiator() { return lookup_method(".ctor"); }
  protected:
 
  private:

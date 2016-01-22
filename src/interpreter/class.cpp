@@ -114,15 +114,26 @@ void fclass::add_attribute(const string& name, fclass* ftype, objref pDefault)
 
 void fclass::add_method(const methodinfo& m)
 {
-    _methods[m.name] = m;
+    auto i = _methods.find(m.name);
+    bool found = i!=_methods.end();
+
+    if( !found || ( found && !((*i).second.sealed) ) )
+    {
+	_methods[m.name] = m;
+    }
+    else
+    {
+	throw eval_exception(cerror::override_sealed, "Cannot override sealed method "+m.name);
+    }
+
 }
 
-function<marshall_mthd_t> fclass::lookup_method(const std::string& name) const
+const methodinfo& fclass::lookup_method(const std::string& name) const
 {
     auto methodIndex = _methods.find(name);
 
     if (methodIndex!=_methods.end())
-	return (*methodIndex).second.fn;
+	return (*methodIndex).second;
     else
 	if ( !is_root())
 	    return base()->lookup_method(name);

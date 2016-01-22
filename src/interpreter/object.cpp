@@ -23,7 +23,17 @@ object::object(fclass& c, vector<objref> params) : _class(c)
     // Create the attributes
     // TODO
 
-    // Call the constructor!
+    construct(params);
+}
+
+object::~object()
+{
+
+}
+
+void object::construct(vector<objref>& params)
+{
+   // Call the constructor!
     objref pThis(this, [](object*) {});
     context* pContext = this->attr_as_context();
     vector<ast*> ps(2);
@@ -32,17 +42,13 @@ object::object(fclass& c, vector<objref> params) : _class(c)
 	ps.push_back( new literal_node(p) );
     }
     
-    c.instantiator()(pContext,pThis,ps);
+    _class.instantiator().fn(pContext,pThis,ps);
 
     // Tidy up
     for ( auto p : ps )
 	delete p;
 
     delete pContext;
-}
-
-object::~object()
-{
 
 }
 

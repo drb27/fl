@@ -33,8 +33,8 @@ class object
     virtual void dump( std::ostream& out = std::cout) const;
     virtual context* attr_as_context() const;
 
-
  protected:
+    virtual void construct(std::vector<objref>&);
     std::map<std::string,objref> _attributes;
 
  private:

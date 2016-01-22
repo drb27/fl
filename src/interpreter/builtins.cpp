@@ -21,7 +21,7 @@ namespace builtins
 	std::shared_ptr<fclass> pCls(new fclass(spec,nullptr));
 	pCls->add_method( {"dump", make_marshall_mthd(&builtins::obj_dump),false});
 	pCls->add_method( {"class", make_marshall_mthd(&builtins::obj_class)} );
-	pCls->add_method( {".ctor", make_marshall_mthd(&builtins::obj_ctor)});
+	pCls->add_method( {".ctor", make_marshall_mthd(&builtins::obj_ctor),true});
 	return pCls;
     }
 
@@ -301,5 +301,16 @@ namespace builtins
 
 	// Return a reference to the class object
 	return pThis;
+    }
+
+    objref class_derive(context* pContext, classref pThis, stringref name)
+    {
+	typespec ts(name->internal_value(),{});
+	typespec tsc("class",{});
+	fclass* pNewNativeClass = new fclass(ts,pThis->internal_value()->base());
+	(pContext->types()).add(*pNewNativeClass);
+	class_object*  pNewClass = new class_object(pNewNativeClass,(pContext->types()).lookup(tsc));
+
+	return objref(pNewClass,[](object*){});
     }
 }

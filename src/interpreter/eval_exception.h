@@ -11,7 +11,8 @@ enum class cerror
 	undefined_symbol = 2,
 	symbol_redefinition=3,
 	instantiate_abstract=4,
-	undefined_method=5
+	undefined_method=5,
+	override_sealed=6
 };
 
 class eval_exception : public std::runtime_error
