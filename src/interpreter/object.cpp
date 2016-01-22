@@ -19,11 +19,23 @@ object::object(fclass& c) : _class(c)
 {
     if ( c.is_abstract() )
 	throw eval_exception(cerror::instantiate_abstract,"An attempt was made to instantiate an object of an abstract class");
+
 }
 
 object::~object()
 {
 
+}
+
+context* object::attr_as_context() const
+{
+    auto pCtx = new context();
+    for ( auto a : _attributes )
+    {
+	pCtx->assign(a.first,a.second);
+    }
+
+    return pCtx;
 }
 
 bool object::has_attribute(const std::string& name) const
@@ -54,8 +66,10 @@ void class_object::render(std::ostream& os ) const
     object::render(os);
 }
 
-int_object::int_object(int value, fclass& cls) : object(cls), _value(value)
+int_object::int_object(int value, fclass& cls,bool attr) : object(cls), _value(value)
 {
+    if (attr)
+	_attributes["x"] = intref(new int_object(42,cls,false));
 }
 
 bool int_object::equate( objref other ) const
@@ -173,11 +187,11 @@ void fn_object::dump( std::ostream& out) const
 
 }
 
-fnref fn_object::partial_application(const vector<argpair_t>& args) const
+fnref fn_object::partial_application(context* pContext,const vector<argpair_t>& args) const
 {
     wlog_entry();
     deque<string> remainingArgs(_full_args);
-    context newContext;
+    context newContext(*pContext);
 
     // For each partial application, add to the context and remove from
     // the remaining args
@@ -292,7 +306,7 @@ objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 	return result;
     }
     else
-	return partial_application(args);
+	return partial_application(pContext,args);
 }
 
 fn_object::fn_object(const fn_object& other)

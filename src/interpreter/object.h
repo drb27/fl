@@ -30,12 +30,12 @@ class object
     virtual void render( std::ostream& os ) const;
     virtual bool equate( objref other ) const { return false; }
     virtual void dump( std::ostream& out = std::cout) const;
-
+    virtual context* attr_as_context() const;
  protected:
-
+    std::map<std::string,objref> _attributes;
  private:
     fclass& _class;
-    std::map<std::string,object*> _attributes;
+
     std::map<std::string,std::function<marshall_fn_t>> _methods;
 
 };
@@ -43,7 +43,7 @@ class object
 class int_object : public object
 {
 public:
-    int_object(int value, fclass&);
+    int_object(int value, fclass&,bool attr=true);
     virtual void render( std::ostream& os ) const;
     int internal_value() const { return _value; }
     virtual bool equate( objref other ) const;
@@ -116,7 +116,7 @@ public:
     fn_object( const fn_object&);
     virtual void render( std::ostream& os) const;
     
-    virtual fnref partial_application( const std::vector<argpair_t>& args ) const;
+    virtual fnref partial_application( context*,const std::vector<argpair_t>& args ) const;
     virtual objref operator()(context*,std::vector<argpair_t>&);
     virtual objref operator()(context*,std::vector<objref>&);
     virtual const std::deque<std::string>& arglist() const;

@@ -206,9 +206,15 @@ objref methodcall_node::evaluate(context* pContext)
     {
 	params[index++] = p;
     }
+
+    // Add all of the target's attributes to the context
+    context* pNewContext = target->attr_as_context();
+    pNewContext->merge_in(*pContext);
     
     // Dispatch the call
-    auto retVal =  m(pContext,target,params);
+    auto retVal =  m(pNewContext,target,params);
+
+    delete pNewContext;
 
     // Invalidate cache
     _target->invalidate();
