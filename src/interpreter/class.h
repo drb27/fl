@@ -48,7 +48,7 @@ class fclass
     fclass(const typespec&, fclass* pBase, bool abstract=false);
     std::string name() const;
     const typespec& get_spec() const;
-    virtual void add_attribute(const std::string&,fclass*,object* d=nullptr);
+    virtual void add_attribute(const std::string&,fclass*,objref d);
     virtual void add_method(const std::string&,std::function<marshall_mthd_t>);
     virtual std::list<std::string> methods() const;
     virtual bool is_abstract() const { return _is_abstract; }
@@ -56,6 +56,8 @@ class fclass
     virtual std::function<marshall_mthd_t> lookup_method(const std::string& name) const;
     virtual fclass* base(void) const { return _base; }
     virtual bool is_root() const { return _base==nullptr; }
+
+    virtual std::function<marshall_mthd_t> instantiator() { return lookup_method(".ctor"); }
  protected:
 
  private:

@@ -20,6 +20,9 @@ object::object(fclass& c) : _class(c)
     if ( c.is_abstract() )
 	throw eval_exception(cerror::instantiate_abstract,"An attempt was made to instantiate an object of an abstract class");
 
+    context tempContext;
+    vector<ast*> p;
+    //c.instantiator()(&tempContext,objref(this),p);
 }
 
 object::~object()
@@ -296,6 +299,7 @@ objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 
 	wlog_trace("Post-merge context: ",tempContext.trace());
 
+	//tempContext.dump();
 	// Apply the accrued arguments to the marshall function
 	auto result = _fn(&tempContext,params);
 

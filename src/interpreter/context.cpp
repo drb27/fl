@@ -130,3 +130,13 @@ map<string,string> context::trace() const
 
     return symbols;
 }
+
+void context::dump(std::ostream& os)
+{
+    for ( auto s : _symbols )
+    {
+	os << s.first << ": ";
+	s.second->render(os);
+	os << std::endl;
+    }
+}

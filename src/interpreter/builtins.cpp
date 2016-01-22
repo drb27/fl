@@ -21,6 +21,7 @@ namespace builtins
 	std::shared_ptr<fclass> pCls(new fclass(spec,nullptr));
 	pCls->add_method("dump", make_marshall_mthd(&builtins::obj_dump));
 	pCls->add_method("class", make_marshall_mthd(&builtins::obj_class));
+	pCls->add_method(".ctor", make_marshall_mthd(&builtins::obj_ctor));
 	return pCls;
     }
 
@@ -104,7 +105,6 @@ namespace builtins
     {
 	typespec base_spec("object",{});
 	fclass& base_cls = pTm->lookup(base_spec);
-
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	return pCls;
     }
@@ -271,6 +271,11 @@ namespace builtins
 	    return objref(new class_object(baseClass,pContext->types().lookup(spec)));
 	}
 	
+    }
+
+    objref obj_ctor(context* pContext, objref pThis)
+    {
+	return pThis;
     }
 
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name)

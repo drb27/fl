@@ -31,13 +31,14 @@ class object
     virtual bool equate( objref other ) const { return false; }
     virtual void dump( std::ostream& out = std::cout) const;
     virtual context* attr_as_context() const;
+
+
  protected:
     std::map<std::string,objref> _attributes;
+
  private:
     fclass& _class;
-
     std::map<std::string,std::function<marshall_fn_t>> _methods;
-
 };
 
 class int_object : public object

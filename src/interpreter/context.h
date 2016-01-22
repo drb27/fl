@@ -27,6 +27,7 @@ class context
     virtual std::map<std::string,std::string> trace() const;
     virtual void merge_in( const context& other);
     static typemgr& types();
+    virtual void dump(std::ostream& os=std::cout);
 
     friend std::ostream& operator<<( std::ostream& os, const context& c);
     virtual void debug() const { std::cout << (*this) << std::endl; }

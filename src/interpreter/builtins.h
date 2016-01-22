@@ -77,6 +77,7 @@ public:
     objref string_length(context* pContext, stringref pThis);
     objref class_methods(context* pContext, classref pThis);
     objref class_base(context* pContext, classref pThis);
+    objref obj_ctor(context* pContext, objref pThis);
 }
 
 #endif

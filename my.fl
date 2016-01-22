@@ -55,5 +55,5 @@ merge=(la,lb)-> empty(lb)? la : merge(la::lb.head(),lb.tail())
 
 // The following is a bug
 1.class().addmethod( (t)->x, "value" )
-map( (x)->x.value(), (1,2,3) )
+debug map( (x)->x.value(), (1,2,3) )
 map( (y)->y.value(), (1,2,3) )
