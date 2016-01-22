@@ -15,7 +15,7 @@ using std::deque;
 using std::vector;
 using std::endl;
 
-object::object(fclass& c) : _class(c)
+object::object(fclass& c, vector<objref> params) : _class(c)
 {
     if ( c.is_abstract() )
 	throw eval_exception(cerror::instantiate_abstract,"An attempt was made to instantiate an object of an abstract class");
@@ -24,11 +24,21 @@ object::object(fclass& c) : _class(c)
     // TODO
 
     // Call the constructor!
-    // objref pThis(this, [](object*) {});
-    // context* pContext = this->attr_as_context();
-    // vector<ast*> p(2);
-    // c.instantiator()(pContext,pThis,p);
-    // delete pContext;
+    objref pThis(this, [](object*) {});
+    context* pContext = this->attr_as_context();
+    vector<ast*> ps(2);
+    for ( auto p : params )
+    {
+	ps.push_back( new literal_node(p) );
+    }
+    
+    c.instantiator()(pContext,pThis,ps);
+
+    // Tidy up
+    for ( auto p : ps )
+	delete p;
+
+    delete pContext;
 }
 
 object::~object()

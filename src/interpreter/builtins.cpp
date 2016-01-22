@@ -19,9 +19,9 @@ namespace builtins
     {
 	typespec spec("object",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,nullptr));
-	pCls->add_method("dump", make_marshall_mthd(&builtins::obj_dump));
-	pCls->add_method("class", make_marshall_mthd(&builtins::obj_class));
-	pCls->add_method(".ctor", make_marshall_mthd(&builtins::obj_ctor));
+	pCls->add_method( {"dump", make_marshall_mthd(&builtins::obj_dump),false});
+	pCls->add_method( {"class", make_marshall_mthd(&builtins::obj_class)} );
+	pCls->add_method( {".ctor", make_marshall_mthd(&builtins::obj_ctor)});
 	return pCls;
     }
 
@@ -33,9 +33,9 @@ namespace builtins
 	typespec spec("class",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 
-	pCls->add_method("addmethod",make_marshall_mthd(&builtins::class_addmethod));
-	pCls->add_method("methods",make_marshall_mthd(&builtins::class_methods));
-	pCls->add_method("base",make_marshall_mthd(&builtins::class_base));
+	pCls->add_method({"addmethod",make_marshall_mthd(&builtins::class_addmethod)});
+	pCls->add_method({"methods",make_marshall_mthd(&builtins::class_methods)});
+	pCls->add_method({"base",make_marshall_mthd(&builtins::class_base)});
 	return pCls;
     }
 
@@ -46,7 +46,7 @@ namespace builtins
 
 	typespec spec("string",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
-	pCls->add_method("size",make_marshall_mthd(&builtins::string_length));
+	pCls->add_method({"size",make_marshall_mthd(&builtins::string_length)});
 	return pCls;
     }
 
@@ -57,11 +57,11 @@ namespace builtins
 
 	typespec spec("integer",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
-	pCls->add_method("add", make_marshall_mthd(&builtins::add_integers));
-	pCls->add_method("in_range", make_marshall_mthd(&builtins::in_range_integers));
-	pCls->add_method("eq", make_marshall_mthd(&builtins::int_equate));
-	pCls->add_method("gt", make_marshall_mthd(&builtins::int_gt));
-	pCls->add_method("dec", make_marshall_mthd(&builtins::int_dec));
+	pCls->add_method({"add", make_marshall_mthd(&builtins::add_integers)});
+	pCls->add_method({"in_range", make_marshall_mthd(&builtins::in_range_integers)});
+	pCls->add_method({"eq", make_marshall_mthd(&builtins::int_equate)});
+	pCls->add_method({"gt", make_marshall_mthd(&builtins::int_gt)});
+	pCls->add_method({"dec", make_marshall_mthd(&builtins::int_dec)});
 	return pCls;
     }
 
@@ -86,11 +86,11 @@ namespace builtins
 	{
 	    fclass& base_cls = pTm->lookup(base_spec);
 	    std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
-	    pCls->add_method("size", make_marshall_mthd(&builtins::list_size));
-	    pCls->add_method("head", make_marshall_mthd(&builtins::list_head));
-	    pCls->add_method("append", make_marshall_mthd(&builtins::list_append));
-	    pCls->add_method("tail", make_marshall_mthd(&builtins::list_tail));
-	    pCls->add_method("duplicate_and_append", make_marshall_mthd(&builtins::list_dup_and_append));
+	    pCls->add_method({"size", make_marshall_mthd(&builtins::list_size)});
+	    pCls->add_method({"head", make_marshall_mthd(&builtins::list_head)});
+	    pCls->add_method({"append", make_marshall_mthd(&builtins::list_append)});
+	    pCls->add_method({"tail", make_marshall_mthd(&builtins::list_tail)});
+	    pCls->add_method({"duplicate_and_append", make_marshall_mthd(&builtins::list_dup_and_append)});
 	    return pCls;
 	}
 	else
@@ -116,7 +116,7 @@ namespace builtins
 
 	typespec spec("boolean",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
-	pCls->add_method("not", make_marshall_mthd(&builtins::logical_not));
+	pCls->add_method({"not", make_marshall_mthd(&builtins::logical_not)});
 	return pCls;
     }
 
@@ -297,7 +297,7 @@ namespace builtins
 
 	// Add the method to the class
 	fclass* pInternalClass = pThis->internal_value();
-	pInternalClass->add_method(name->internal_value(), le);
+	pInternalClass->add_method({name->internal_value(), le});
 
 	// Return a reference to the class object
 	return pThis;

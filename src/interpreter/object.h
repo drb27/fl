@@ -9,6 +9,7 @@
 #include <deque>
 #include <string>
 #include <list>
+#include <vector>
 #include "class.h"
 #include <interpreter/marshall.h>
 #include <interpreter/context.h>
@@ -21,7 +22,7 @@ class object
 
  public:
 
-    object(fclass&);
+    object(fclass&, std::vector<objref> params = {});
     object( const object&) =delete;
     virtual ~object();
 

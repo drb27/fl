@@ -11,6 +11,13 @@
 
 class object;
 
+struct methodinfo
+{
+    std::string name;
+    std::function<marshall_mthd_t> fn;
+    bool sealed{false};
+};
+
 class typespec
 {
   public:
@@ -49,7 +56,7 @@ class fclass
     std::string name() const;
     const typespec& get_spec() const;
     virtual void add_attribute(const std::string&,fclass*,objref d);
-    virtual void add_method(const std::string&,std::function<marshall_mthd_t>);
+    virtual void add_method(const methodinfo&);
     virtual std::list<std::string> methods() const;
     virtual bool is_abstract() const { return _is_abstract; }
 
@@ -66,7 +73,7 @@ class fclass
     const bool _is_abstract;
     const typespec _ts;
     std::map<std::string,fclass*> _attributes;
-    std::map<std::string,std::function<marshall_mthd_t>> _methods;
+    std::map<std::string,methodinfo> _methods;
 };
 
 #endif

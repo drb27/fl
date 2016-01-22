@@ -112,9 +112,9 @@ void fclass::add_attribute(const string& name, fclass* ftype, objref pDefault)
     _attributes[name] = ftype;
 }
 
-void fclass::add_method(const string& name, function<marshall_mthd_t> delegate)
+void fclass::add_method(const methodinfo& m)
 {
-    _methods[name] = delegate;
+    _methods[m.name] = m;
 }
 
 function<marshall_mthd_t> fclass::lookup_method(const std::string& name) const
@@ -122,7 +122,7 @@ function<marshall_mthd_t> fclass::lookup_method(const std::string& name) const
     auto methodIndex = _methods.find(name);
 
     if (methodIndex!=_methods.end())
-	return (*methodIndex).second;
+	return (*methodIndex).second.fn;
     else
 	if ( !is_root())
 	    return base()->lookup_method(name);
