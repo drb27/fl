@@ -46,9 +46,9 @@ ast* dat::make_string(std::string* x) const
 
 ast* dat::make_null() const
 {
-    typespec obj_spec = typespec("object",{});
+    typespec obj_spec = typespec("void",{});
     fclass& obj_cls = _context->types().lookup(obj_spec);
-    objref pObject(new null_object(obj_cls));
+    objref pObject(new void_object(obj_cls));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }

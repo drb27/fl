@@ -36,7 +36,7 @@ void typemgr::init_builtins()
     c = builtins::integer::build_class(this);
     _typeMap[c->get_spec()] = c;
 
-    c = builtins::flvoid::build_class();
+    c = builtins::flvoid::build_class(this);
     _typeMap[c->get_spec()] = c;
 
     typespec ts2=typespec("function",{});
@@ -46,11 +46,16 @@ void typemgr::init_builtins()
     c = builtins::boolean::build_class(this);
     _typeMap[c->get_spec()] = c;
 
-    c = builtins::flclass::build_class();
+    c = builtins::flclass::build_class(this);
     _typeMap[c->get_spec()] = c;
 
     c= builtins::string::build_class(this);
     _typeMap[c->get_spec()] = c;
+
+    typespec ts3=typespec("list",{ts});
+    c = builtins::list::build_class(ts3,this);
+    _typeMap[c->get_spec()] = c;
+
 }
 
 fclass& typemgr::check_builtin( const typespec& ts )

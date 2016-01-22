@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <cassert>
 #include "builtins.h"
 #include <interpreter/class.h>
 #include <interpreter/context.h>
@@ -17,27 +18,33 @@ namespace builtins
     std::shared_ptr<fclass> object::build_class()
     {
 	typespec spec("object",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec));
+	std::shared_ptr<fclass> pCls(new fclass(spec,nullptr));
 	pCls->add_method("dump", make_marshall_mthd(&builtins::obj_dump));
 	pCls->add_method("class", make_marshall_mthd(&builtins::obj_class));
 	return pCls;
     }
 
-    std::shared_ptr<fclass> flclass::build_class()
+    std::shared_ptr<fclass> flclass::build_class(typemgr* pTm)
     {
+	typespec base_spec("object",{});
+	fclass& base_cls = pTm->lookup(base_spec);
+
 	typespec spec("class",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec));
+	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+
 	pCls->add_method("addmethod",make_marshall_mthd(&builtins::class_addmethod));
+	pCls->add_method("methods",make_marshall_mthd(&builtins::class_methods));
+	pCls->add_method("base",make_marshall_mthd(&builtins::class_base));
 	return pCls;
     }
 
     std::shared_ptr<fclass> string::build_class(typemgr* pTm)
     {
 	typespec base_spec("object",{});
-	const fclass& base_cls = pTm->lookup(base_spec);
+	fclass& base_cls = pTm->lookup(base_spec);
 
 	typespec spec("string",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,base_cls));
+	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method("size",make_marshall_mthd(&builtins::string_length));
 	return pCls;
     }
@@ -45,10 +52,10 @@ namespace builtins
     std::shared_ptr<fclass> integer::build_class(typemgr* pTm)
     {
 	typespec base_spec("object",{});
-	const fclass& base_cls = pTm->lookup(base_spec);
+	fclass& base_cls = pTm->lookup(base_spec);
 
 	typespec spec("integer",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,base_cls));
+	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method("add", make_marshall_mthd(&builtins::add_integers));
 	pCls->add_method("in_range", make_marshall_mthd(&builtins::in_range_integers));
 	pCls->add_method("eq", make_marshall_mthd(&builtins::int_equate));
@@ -57,43 +64,58 @@ namespace builtins
 	return pCls;
     }
 
-    std::shared_ptr<fclass> flvoid::build_class()
+    std::shared_ptr<fclass> flvoid::build_class(typemgr* pTm)
     {
+	typespec base_spec("object",{});
+	fclass& base_cls = pTm->lookup(base_spec);
+
 	typespec spec("void",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,true));
+	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	return pCls;
     }
 
     std::shared_ptr<fclass> list::build_class(typespec spec, typemgr* pTm)
     {
-	typespec base_spec("object",{});
-	const fclass& base_cls = pTm->lookup(base_spec);
+	assert( spec.params().size()>0);
 
-	std::shared_ptr<fclass> pCls(new fclass(spec,base_cls));
-	pCls->add_method("size", make_marshall_mthd(&builtins::list_size));
-	pCls->add_method("head", make_marshall_mthd(&builtins::list_head));
-	pCls->add_method("append", make_marshall_mthd(&builtins::list_append));
-	pCls->add_method("tail", make_marshall_mthd(&builtins::list_tail));
-	pCls->add_method("duplicate_and_append", make_marshall_mthd(&builtins::list_dup_and_append));
-	return pCls;
+	typespec base_spec("object",{});
+	typespec listobj_spec("list",{base_spec});
+
+	if ( spec==listobj_spec)
+	{
+	    fclass& base_cls = pTm->lookup(base_spec);
+	    std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	    pCls->add_method("size", make_marshall_mthd(&builtins::list_size));
+	    pCls->add_method("head", make_marshall_mthd(&builtins::list_head));
+	    pCls->add_method("append", make_marshall_mthd(&builtins::list_append));
+	    pCls->add_method("tail", make_marshall_mthd(&builtins::list_tail));
+	    pCls->add_method("duplicate_and_append", make_marshall_mthd(&builtins::list_dup_and_append));
+	    return pCls;
+	}
+	else
+	{
+	    fclass& base_cls = pTm->lookup(listobj_spec);
+	    std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	    return pCls;
+	}
     }
 
     std::shared_ptr<fclass> function::build_class(typespec spec, typemgr* pTm)
     {
 	typespec base_spec("object",{});
-	const fclass& base_cls = pTm->lookup(base_spec);
+	fclass& base_cls = pTm->lookup(base_spec);
 
-	std::shared_ptr<fclass> pCls(new fclass(spec,base_cls));
+	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	return pCls;
     }
 
     std::shared_ptr<fclass> boolean::build_class(typemgr* pTm)
     {
 	typespec base_spec("object",{});
-	const fclass& base_cls = pTm->lookup(base_spec);
+	fclass& base_cls = pTm->lookup(base_spec);
 
 	typespec spec("boolean",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,base_cls));
+	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method("not", make_marshall_mthd(&builtins::logical_not));
 	return pCls;
     }
@@ -203,6 +225,52 @@ namespace builtins
 	int_object* pResult = new int_object( pThis->internal_value().length(),
 					      pContext->types().lookup(ts));
 	return objref(pResult);
+    }
+
+    objref class_methods(context* pContext, classref pThis)
+    {
+	// Typespecs
+	typespec string_ts("string",{});
+	typespec list_ts("list",{string_ts});
+	fclass& string_cls = pContext->types().lookup(string_ts);
+
+	// Create a native list of string_objects
+	std::list<objref> nativeList;
+
+	// Add all the methods of the given class
+	for ( auto m : pThis->internal_value()->methods() )
+	{
+	    string_object* pString = new string_object(m,string_cls);
+	    nativeList.push_back( objref(pString) );
+	}
+
+	// Create a new list
+	list_object* pList = new list_object( pContext->types().lookup(list_ts),
+					      nativeList);
+
+	// return a managed reference
+	return objref(pList);
+
+    }
+
+    objref class_base(context* pContext, classref pThis)
+    {
+	fclass* pInternalClass = pThis->internal_value();
+	fclass* baseClass = pInternalClass->base();
+
+	if ( pInternalClass->is_root() )
+	{
+	    // There is no base, return void
+	    typespec ts("void",{});
+	    return objref( new void_object(pContext->types().lookup(ts)));
+	}
+	else
+	{
+	    // There is a base!
+	    typespec spec("class",{});
+	    return objref(new class_object(baseClass,pContext->types().lookup(spec)));
+	}
+	
     }
 
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name)

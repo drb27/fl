@@ -21,7 +21,7 @@ public:
 class flclass
 {
 public:
-    static std::shared_ptr<fclass> build_class();
+    static std::shared_ptr<fclass> build_class(typemgr*);
 };
 
 class integer
@@ -45,7 +45,7 @@ public:
 class flvoid
 {
 public:
-    static std::shared_ptr<fclass> build_class();
+    static std::shared_ptr<fclass> build_class(typemgr*);
 };
 
 class boolean
@@ -75,6 +75,8 @@ public:
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
     objref string_length(context* pContext, stringref pThis);
+    objref class_methods(context* pContext, classref pThis);
+    objref class_base(context* pContext, classref pThis);
 }
 
 #endif

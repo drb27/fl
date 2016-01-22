@@ -4,9 +4,9 @@
 #include <list>
 #include <functional>
 #include "named.h"
-#include "base.h"
 #include "class.h"
 #include <logger/logger.h>
+#include <interpreter/eval_exception.h>
 
 using std::string;
 using std::list;
@@ -97,14 +97,8 @@ void typespec::validate() const
 
 }
 
-fclass::fclass( const typespec& ts, const fclass& base, bool abstract) 
-    : _ts(ts),_is_abstract(abstract),static_base<fclass>(base)
-{
-
-}
-
-fclass::fclass(const typespec& ts, bool abstract)
-    : _ts(ts),_is_abstract(abstract),static_base<fclass>(*this)
+fclass::fclass( const typespec& ts, fclass* pBase, bool abstract) 
+    : _ts(ts),_is_abstract(abstract),_base(pBase)
 {
 }
 
@@ -120,9 +114,6 @@ void fclass::add_attribute(const string& name, fclass* ftype, object* pDefault)
 
 void fclass::add_method(const string& name, function<marshall_mthd_t> delegate)
 {
-    map<string,string> args;
-    args["name"] = name;
-    wlog_trace(__PRETTY_FUNCTION__,args);
     _methods[name] = delegate;
 }
 
@@ -133,9 +124,19 @@ function<marshall_mthd_t> fclass::lookup_method(const std::string& name) const
     if (methodIndex!=_methods.end())
 	return (*methodIndex).second;
     else
-	if ( &base()!=this)
-	    return base().lookup_method(name);
+	if ( !is_root())
+	    return base()->lookup_method(name);
 	else
-	    throw std::exception();
+	    throw eval_exception(cerror::undefined_method,"Undefined method " + name);
 }
 
+list<string> fclass::methods() const
+{
+    list<string> methods;
+    for (auto mp : _methods )
+    {
+	methods.push_back(mp.first);
+    }
+
+    return methods;
+}

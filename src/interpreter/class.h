@@ -5,7 +5,6 @@
 #include <string>
 #include <map>
 #include <list>
-#include "base.h"
 #include "named.h"
 #include <parser/ast.h>
 #include <interpreter/marshall.h>
@@ -42,24 +41,26 @@ class typespec
     
 };
 
-class fclass : public static_base<fclass>
+class fclass
 {
 
  public:
-    fclass(const typespec&, const fclass& base, bool abstract=false);
-    fclass(const typespec&, bool abstract=false );
+    fclass(const typespec&, fclass* pBase, bool abstract=false);
     std::string name() const;
     const typespec& get_spec() const;
     virtual void add_attribute(const std::string&,fclass*,object* d=nullptr);
     virtual void add_method(const std::string&,std::function<marshall_mthd_t>);
+    virtual std::list<std::string> methods() const;
     virtual bool is_abstract() const { return _is_abstract; }
 
     virtual std::function<marshall_mthd_t> lookup_method(const std::string& name) const;
-
+    virtual fclass* base(void) const { return _base; }
+    virtual bool is_root() const { return _base==nullptr; }
  protected:
 
  private:
 
+    fclass* _base;
     const bool _is_abstract;
     const typespec _ts;
     std::map<std::string,fclass*> _attributes;

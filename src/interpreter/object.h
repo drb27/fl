@@ -96,10 +96,10 @@ protected:
     std::list<objref> _list;
 };
 
-class null_object : public object
+class void_object : public object
 {
 public:
-    null_object(fclass& cls) : object(cls) {}
+    void_object(fclass& cls) : object(cls) {}
     virtual void render( std::ostream& os) const;
 };
 

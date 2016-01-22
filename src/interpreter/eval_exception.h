@@ -10,7 +10,8 @@ enum class cerror
 	syntax_error = 1,
 	undefined_symbol = 2,
 	symbol_redefinition=3,
-	instantiate_abstract=4
+	instantiate_abstract=4,
+	undefined_method=5
 };
 
 class eval_exception : public std::runtime_error

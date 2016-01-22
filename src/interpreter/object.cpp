@@ -134,9 +134,9 @@ void list_object::render( std::ostream& os) const
     object::render(os);
 }
 
-void null_object::render( std::ostream& os) const
+void void_object::render( std::ostream& os) const
 {
-    os << "null ";
+    os << "(null) ";
     object::render(os);
 }
 
