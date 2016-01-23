@@ -18,7 +18,8 @@ using std::endl;
 object::object(fclass& c, vector<objref> params) : _class(c)
 {
     if ( c.is_abstract() )
-	throw eval_exception(cerror::instantiate_abstract,"An attempt was made to instantiate an object of an abstract class");
+	throw eval_exception(cerror::instantiate_abstract,
+			     "An attempt was made to instantiate an object of an abstract class");
 
     // Create the attributes for this class, and the base chain
     fclass* pCurrentClass = &c;
@@ -31,14 +32,10 @@ object::object(fclass& c, vector<objref> params) : _class(c)
 	    }
 	};
 
-    fn(pCurrentClass);
+    for ( auto pCls : c.hierarchy() )
+	fn(pCls);
 
-    while (!(pCurrentClass->is_root()))
-    {
-	pCurrentClass = pCurrentClass->base();
-	fn(pCurrentClass);
-    }
-    
+
     construct(params);
 }
 

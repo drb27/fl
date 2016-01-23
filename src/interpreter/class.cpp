@@ -2,6 +2,7 @@
 #include <map>
 #include <sstream>
 #include <list>
+#include <deque>
 #include <functional>
 #include "named.h"
 #include "class.h"
@@ -13,6 +14,7 @@ using std::list;
 using std::stringstream;
 using std::function;
 using std::map;
+using std::deque;
 
 class typemgr;
 
@@ -159,4 +161,18 @@ list<string> fclass::methods() const
     }
 
     return methods;
+}
+
+deque<fclass*> fclass::hierarchy()
+{
+    deque<fclass*> h;
+    fclass* p = this;
+    h.push_front(p);
+
+    while (!p->is_root())
+    {
+	p=p->base();
+	h.push_front(p);
+    }
+    return h;
 }

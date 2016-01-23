@@ -4,6 +4,7 @@
 #include <functional>
 #include <string>
 #include <map>
+#include <deque>
 #include <list>
 #include "named.h"
 #include <parser/ast.h>
@@ -65,6 +66,7 @@ class fclass
     virtual const methodinfo& lookup_method(const std::string& name) const;
     virtual fclass* base(void) const { return _base; }
     virtual bool is_root() const { return _base==nullptr; }
+    virtual std::deque<fclass*> hierarchy();
 
     virtual const methodinfo& instantiator() { return lookup_method(".ctor"); }
 
