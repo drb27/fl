@@ -15,7 +15,8 @@ extern action_target* target;
  static std::string dec_str("dec");
 
 %}
-
+%token OPEN_CURLY
+%token CLOSE_CURLY
 %token TRACE
 %token DEBUG
 %token BUILDER
@@ -28,6 +29,7 @@ extern action_target* target;
 %token DOT
 %token ADD
 %token MAPSTO
+%token ALIAS
 %token INTEGER
 %token STRING
 %token NEWLINE
@@ -42,6 +44,7 @@ extern action_target* target;
 %token TRUE
 %token FALSE
 %token NULLVAL
+%token SEMICOLON
 
 %union
 {
@@ -71,12 +74,15 @@ extern action_target* target;
 %type <node_val> bool
 %type <node_val> str
 %type <node_val> attr
+%type <node_val> sequence
 %start input
 
+%left SEMICOLON
 %precedence MAPSTO
+%left ALIAS
+%left EQ
 %left COLON
 %left QUESTION
-%left EQ
 %left BUILDER
 %left ADD
 %left DECREMENT
@@ -121,6 +127,7 @@ expr:   literal
       | funcall
       | fundef
       | attr
+      | sequence
       | listbuild
       | methodcall
       | alias
@@ -142,11 +149,17 @@ bool: TRUE {$$=target->make_bool(true); } | FALSE { $$=target->make_bool(false);
 
 null: NULLVAL { $$=target->make_null(); }
  
-alias: symbol MAPSTO symbol { $$ = target->make_alias($1,$3);};
+alias: expr ALIAS expr { $$ = target->make_assign_node($1,$3,true);};
 
 if: expr QUESTION expr COLON expr { $$ = target->make_ifnode($1,$3,$5); };
 
 listbuild: expr BUILDER expr { $$ = target->build_list($1,$3); };
+
+sequence: OPEN_CURLY { $<node_val>$ = target->make_seq(); } exprs CLOSE_CURLY { $$=$<node_val>2; target->finish_seq(); };
+
+exprs: expr { target->add_expr($1); }
+     | exprs SEMICOLON expr { target->add_expr($3); }
+     ;
 
 /* COMMANDS ***************************************************************/
 
@@ -166,4 +179,4 @@ stmt : expr NEWLINE {target->respond($1);}
      | command NEWLINE {}
      | NEWLINE {};
 
-assign: symbol EQ expr { $$=target->make_assign_node($1,$3); };
+assign: expr EQ expr { $$=target->make_assign_node($1,$3); };

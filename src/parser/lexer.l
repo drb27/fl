@@ -21,6 +21,9 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+\;       { return SEMICOLON; }
+\{       { return OPEN_CURLY; }
+\}       { return CLOSE_CURLY; }
 \"[^\"]*\" { yylval.string_val =STR(yytext); return STRING; } 
 trace    { return TRACE; }
 debug    { return DEBUG; }
@@ -38,6 +41,7 @@ false    { return FALSE; }
 typedef  { return TYPEDEF; }
 \+       { return ADD; }
 -\>      { return MAPSTO; }
+=\>      { return ALIAS; }
 ,        { return COMMA; }
 \(       { return OPEN_PAREN; }
 \)       { return CLOSE_PAREN; }

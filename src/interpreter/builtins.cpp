@@ -8,6 +8,7 @@
 #include <parser/callable.h>
 #include <parser/ast_nodes.h>
 #include <logger/logger.h>
+#include <interpreter/eval_exception.h>
 
 using std::string;
 using std::vector;
@@ -23,6 +24,7 @@ namespace builtins
 	pCls->add_method( {"dump", make_marshall_mthd(&builtins::obj_dump),false});
 	pCls->add_method( {"class", make_marshall_mthd(&builtins::obj_class)} );
 	pCls->add_method( {".ctor", make_marshall_mthd(&builtins::obj_ctor),true});
+	pCls->add_method( {".assign", make_marshall_mthd(&builtins::obj_assign),false});
 	return pCls;
     }
 
@@ -331,6 +333,12 @@ namespace builtins
 	fclass* pNativeClass = pThis->internal_value();
 	pNativeClass->add_attribute(name->internal_value(),d);
 	return pThis;
+    }
+
+    objref obj_assign(context* pContext, objref pThis, objref pOther)
+    {
+	throw eval_exception(cerror::invalid_assignment,
+			     "Incompatible assignment" );
     }
 
 }

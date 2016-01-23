@@ -297,6 +297,14 @@ symbol_node::symbol_node(const std::string& name)
 
 }
 
+function<void(objref)> symbol_node::setter(context* pContext)
+{
+    return [pContext,this](objref pNewVal)
+    {
+	pContext->assign(_name,pNewVal); 
+    };
+}
+
 void symbol_node::render_dot(int& uuid, 
 			     const std::string& parent, 
 			     const std::string& label,
@@ -375,28 +383,36 @@ void assign_node::required_symbols(std::set<std::string>& s) const
 
 objref assign_node::evaluate(context* pContext)
 {
-    auto pSymbolNodeL = dynamic_cast<symbol_node*>(_lvalue);
-    if (pSymbolNodeL)
-    {
-	// Evaluate RHS
-	auto result = _rvalue->evaluate(pContext);
+    // evaluate RHS and LHS
 
-	if (_alias)
+    auto rhs = _rvalue->evaluate(pContext);
+
+    if (_alias)
+    {
+	if ( _lvalue->is_lvalue())
 	{
-	    // Set up an alias to point to the same object
-	    auto pSymbolNodeR = dynamic_cast<symbol_node*>(_rvalue);
-	    pContext->alias(pSymbolNodeL,pSymbolNodeR);
+	    lvalue_node* pLvalue = dynamic_cast<lvalue_node*>(_lvalue);
+	    auto setfn = pLvalue->setter(pContext);
+	    setfn(rhs);
+	    auto lhs = _lvalue->evaluate(pContext);
+	    return lhs;
 	}
 	else
-	    // Assign the LHS to the symbol
-	    pContext->assign(pSymbolNodeL->name(),result);
-
-	// Return RHS
-	return result;
-       
+	{
+	    throw eval_exception(cerror::invalid_lvalue,"Invalid lvalue");
+	}
     }
     else
-	throw std::exception();
+    {
+	auto lhs = _lvalue->evaluate(pContext);
+	// Call the assign method on the lhs
+	methodinfo m = lhs->get_class().lookup_method(".assign");
+	vector<ast*> params(3);
+	params[2] = _rvalue;
+	m.fn(pContext,lhs,params);
+	return lhs;
+    }
+
 }
 
 fclass* assign_node::type(context* c) const
@@ -665,4 +681,47 @@ fclass* if_node::type(context* pContext) const
 {
     typespec ts("object",{});
     return &(pContext->types().lookup(ts));
+}
+
+function<void(objref)> attr_node::setter(context* pContext)
+{
+    return [this,pContext](objref pNewValue)
+    {
+	objref target = _target->evaluate(pContext);
+	target->set_attribute(_selector,pNewValue);
+    };
+}
+
+sequence_node::sequence_node()
+{
+
+}
+
+objref sequence_node::evaluate(context* pContext)
+{
+    objref latestResult;
+    for ( auto expr : _sequence )
+    {
+	latestResult=expr->evaluate(pContext);
+    }
+
+    return latestResult;
+}
+
+void sequence_node::required_symbols(set<string>& s) const
+{
+    for ( auto expr : _sequence )
+    {
+	expr->required_symbols(s);
+    }
+}
+
+void sequence_node::add_expr(ast* expr)
+{
+    _sequence.push_back(expr);
+}
+
+fclass* sequence_node::type(context* pContext) const
+{
+    return _sequence.back()->type(pContext);
 }

@@ -1,59 +1,85 @@
 // Predicate for testing for the empty list
-empty=(l) -> l.size().eq(0)
+empty=>(l) -> l.size().eq(0)
 
 // Reverse a list
-reverse=(l) -> empty(l)? () : reverse(l.tail())::l.head()
+reverse=>(l) -> empty(l)? () : reverse(l.tail())::l.head()
 
 // Reversed map
-rmap=(f,l) -> empty(l)? () : rmap(f,l.tail())::f(l.head())
+rmap=>(f,l) -> empty(l)? () : rmap(f,l.tail())::f(l.head())
 
 // Normal map
-map=(f,l)->reverse(rmap(f,l))
+map=>(f,l)->reverse(rmap(f,l))
 
 // Build a list
-range=(b,e) -> b.eq(e) ? (e) : range(b,e.dec())::e
+range=>(b,e) -> b.eq(e) ? (e) : range(b,e.dec())::e
 
 // Reverse-filter a list
-rfilter=(p,l)-> empty(l)? () : p(l.head())? rfilter(p,l.tail())::l.head() : rfilter(p,l.tail())
+rfilter=>(p,l)-> empty(l)? () : p(l.head())? rfilter(p,l.tail())::l.head() : rfilter(p,l.tail())
 
 // Normal-filter a list
-filter=(p,l)->reverse(rfilter(p,l))
+filter=>(p,l)->reverse(rfilter(p,l))
 
 // Accumulate a list
-accumulate=(a,f,l) -> empty(l)? a : accumulate(f(a,l.head()),f,l.tail())
-sum=accumulate(0,(a,b)->a+b)
+accumulate=>(a,f,l) -> empty(l)? a : accumulate(f(a,l.head()),f,l.tail())
+sum=>accumulate(0,(a,b)->a+b)
 
 // Repeat an element in a list
-rep=(e,n)-> n.eq(0)? () : rep(e,n.dec())::e
+rep=>(e,n)-> n.eq(0)? () : rep(e,n.dec())::e
+repg=>(g,n) -> n.eq(0)? () : repg(g,n.dec())::g()
 
-btoi=(a)-> a? 1:0
+btoi=>(a)-> a? 1:0
 
-or=(a,b)-> btoi(a).add(btoi(b)).gt(0)
-and=(a,b)-> btoi(a).add(btoi(b)).eq(2)
+or=>(a,b)-> btoi(a).add(btoi(b)).gt(0)
+and=>(a,b)-> btoi(a).add(btoi(b)).eq(2)
 
 true.class().addmethod( (a,b)->and(a,b), "and" )
 true.class().addmethod( (a,b)->or(a,b), "or" )
 1.class().addmethod( (x)->x+1, "inc" )
 
-in_range=(t,a,b)-> and(t.gt(a.dec()),t.gt(b).not())
+in_range=>(t,a,b)-> and(t.gt(a.dec()),t.gt(b).not())
 
-eq=(a,b)->a.eq(b)
-containsp=(l,v,t)-> empty(l)? false : t(l.head(),v)? true : containsp(l.tail(),v,t)
-contains=(l,v)->containsp(l,v,eq)
+eq=>(a,b)->a.eq(b)
+containsp=>(l,v,t)-> empty(l)? false : t(l.head(),v)? true : containsp(l.tail(),v,t)
+contains=>(l,v)->containsp(l,v,eq)
 
-exceeds=(l,v)->containsp(l,v,(x,y)->x.gt(y))
+exceeds=>(l,v)->containsp(l,v,(x,y)->x.gt(y))
 
-is_odd=(x) -> x.eq(0) ? false : is_even(x.dec())
-is_even=(x) -> x.eq(0)? true : is_odd(x.dec())
+is_odd=>(x) -> x.eq(0) ? false : is_even(x.dec())
+is_even=>(x) -> x.eq(0)? true : is_odd(x.dec())
 
-countif=(p,l)->filter(p,l).size()
+countif=>(p,l)->filter(p,l).size()
+countifnot=>(p,l)->countif((x)->p(x).not(),l)
 
-countifnot=(p,l)->countif((x)->p(x).not(),l)
+merge=>(la,lb)-> empty(lb)? la : merge(la::lb.head(),lb.tail())
 
+object=>null.class().base()
+car=>object.derive("car")
+car.addattr("wheels",4)
 
-merge=(la,lb)-> empty(lb)? la : merge(la::lb.head(),lb.tail())
+card=>object.derive("card")
+card.addattr("value",0)
+card.addattr("suit",0)
 
-// The following is a bug
-1.class().addmethod( (t)->x, "value" )
-map( (x)->x.value(), (1,2,3) )
-map( (y)->y.value(), (1,2,3) )
+suit=>(c)-> c.suit.eq(1)? "diamonds" : c.suit.eq(2)? "spades" : c.suit.eq(3)? "clubs" : "hearts"
+
+first=>(a)->a.head()
+second=>(a)->a.tail().head()
+
+keystore=>object.derive("keystore")
+keystore.addattr("store",())
+keystore.addmethod( (t) -> t.store.size(), "size")
+keystore.addmethod( (t,k,v)-> t.has(k)? null : t.store.append((k,v)),"add")
+keystore.addmethod( (t,v)-> containsp(t.store,v, (e,v)-> first(e).eq(v)), "has")
+keystore.addmethod( (t,k)-> t.has(k)? second(filter((p)->first(p).eq(k),t.store).head()) : null,"lookup")
+
+thing=>object.derive("thing")
+thing.addattr("store",null)
+thing.addattr("itemlist",null)
+thing.addmethod( (t)-> { t.store=>keystore.new(()); t.itemlist=>(1,2,3) } , ".ctor")
+
+node=>object.derive("node")
+node.addattr("lower",null)
+node.addattr("higher",null)
+node.addattr("value",null)
+
+make_node=>(v,l,h)-> { n=> node.new(()); n.lower=>l; n.higher=>h; n.value=>v; n}

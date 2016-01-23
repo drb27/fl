@@ -81,6 +81,7 @@ public:
     objref class_derive(context* pContext, classref pThis, stringref name);
     objref class_new(context* pContext, classref pThis, listref params);
     objref class_addattr(context* pContext, classref pThis, stringref name, objref d);
+    objref obj_assign(context* pContext, objref pThis, objref pOther);
 }
 
 #endif

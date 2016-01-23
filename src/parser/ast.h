@@ -26,6 +26,7 @@ class ast
 
     virtual void invalidate() const;
     virtual void required_symbols(std::set<std::string>&) const=0;
+    virtual bool is_lvalue() const { return false; }
 
  protected:
     ast();

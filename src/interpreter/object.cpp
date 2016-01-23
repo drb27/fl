@@ -49,10 +49,12 @@ void object::construct(vector<objref>& params)
    // Call the constructor!
     objref pThis(this, [](object*) {});
     context* pContext = this->attr_as_context();
-    vector<ast*> ps(2);
+    vector<ast*> ps(2+params.size());
+    int index=2;
+    ps[2]=new literal_node(objref(this));
     for ( auto p : params )
     {
-	ps.push_back( new literal_node(p) );
+	ps[index++] = new literal_node(p);
     }
     
     _class.instantiator().fn(pContext,pThis,ps);
@@ -84,6 +86,16 @@ bool object::has_attribute(const std::string& name) const
 objref object::get_attribute(const std::string& selector)
 {
     return _attributes[selector];
+}
+
+void object::set_attribute(const std::string& selector, objref newValue)
+{
+    if ( has_attribute(selector) )
+    {
+	_attributes[selector] = newValue;
+    }
+    else
+	throw eval_exception( cerror::missing_attribute, "Missing attribute " + selector);
 }
 
 void object::render( std::ostream& os ) const

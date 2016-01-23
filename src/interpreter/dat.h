@@ -8,6 +8,7 @@
 
 class context;
 class list_node;
+class sequence_node;
 
 class dat : public action_target
 {
@@ -26,8 +27,11 @@ class dat : public action_target
     virtual ast* make_symbol( std::string* name) const;
     virtual void respond( ast* def, std::ostream& os = std::cout ) const;
     virtual ast* make_methodcall( ast* target, ast* method, list_node* args);
-    virtual ast* make_assign_node(ast* lvalue, ast* rvalue);
+    virtual ast* make_assign_node(ast* lvalue, ast* rvalue,bool);
     virtual ast* make_attr( ast* target, std::string* selector);
+    virtual ast* make_seq();
+    virtual void add_expr(ast* expr);
+    virtual void finish_seq();
     virtual ast* start_list();
     virtual void push_list_element(ast*);
     virtual ast* finish_list();
@@ -43,6 +47,7 @@ class dat : public action_target
  protected:
     std::shared_ptr<context> _context;
     std::deque<list_node*> _list_stack;
+    std::deque<sequence_node*> _seq_stack;
  private:
 
 };

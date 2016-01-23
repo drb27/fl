@@ -104,9 +104,9 @@ ast* dat::make_alias(ast* alias, ast* existing) const
     return new assign_node(alias,existing,true);
 }
 
-ast* dat::make_assign_node(ast* lvalue, ast* rvalue)
+ast* dat::make_assign_node(ast* lvalue, ast* rvalue,bool alias)
 {
-    return new assign_node(lvalue,rvalue);
+    return new assign_node(lvalue,rvalue,alias);
 }
 
 ast* dat::start_list()
@@ -167,6 +167,24 @@ ast* dat::make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const
 {
     return new if_node(condExpr, trueExpr, falseExpr);
 }
+
+ast* dat::make_seq()
+{
+    auto s = new sequence_node();
+    _seq_stack.push_front(s);
+    return s;
+}
+
+void dat::add_expr(ast* expr)
+{
+    (*_seq_stack.begin())->add_expr(expr);
+}
+
+void dat::finish_seq()
+{
+    _seq_stack.pop_front();
+}
+
 void dat::render(ast* node)
 {
     auto& out = std::cout;

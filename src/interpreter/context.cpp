@@ -85,11 +85,6 @@ void context::assign(const std::string& name, objref value)
     _symbols[name] = value;
 }
 
-void context::alias(symbol_node* lvalue, symbol_node* rvalue)
-{
-    _symbols[lvalue->name()] = _symbols[rvalue->name()];
-}
-
 typemgr& context::types()
 {
     return _types;

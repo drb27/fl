@@ -7,7 +7,14 @@
 
 class context;
 
-class symbol_node : public ast
+class lvalue_node : public ast
+{
+public:
+    virtual bool is_lvalue() const { return true; }
+    virtual std::function<void(objref)> setter(context*)=0;
+};
+
+class symbol_node : public lvalue_node
 {
 public:
     symbol_node( const std::string& );
@@ -19,6 +26,7 @@ public:
 			    const std::string& parent="", 
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
+    virtual std::function<void(objref)> setter(context*);
 protected:
     const std::string _name;
 
@@ -33,6 +41,18 @@ public:
     virtual void required_symbols(std::set<std::string>&) const;
 protected:
     const objref _object;
+};
+
+class sequence_node : public ast
+{
+public:
+    sequence_node();
+    virtual objref evaluate(context*);
+    virtual fclass* type(context*) const;
+    virtual void required_symbols(std::set<std::string>&) const;
+    virtual void add_expr(ast*);
+protected:
+    std::list<ast*> _sequence;
 };
 
 class list_node : public ast
@@ -69,12 +89,13 @@ protected:
     ast* _falseExpr;
 };
 
-class attr_node : public ast
+class attr_node : public lvalue_node
 {
 public:
     attr_node(ast* target, const std::string& selector);
     virtual objref evaluate(context*);
     virtual void required_symbols(std::set<std::string>&) const;
+    virtual std::function<void(objref)> setter(context*);
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="",
 			    const std::string& label="",

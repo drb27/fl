@@ -29,6 +29,7 @@ class object
     fclass& get_class() const { return _class; }
     bool has_attribute(const std::string&) const;
     objref get_attribute(const std::string&);
+    virtual void set_attribute(const std::string&,objref);
     virtual void render( std::ostream& os ) const;
     virtual bool equate( objref other ) const { return false; }
     virtual void dump( std::ostream& out = std::cout) const;

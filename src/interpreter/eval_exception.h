@@ -13,7 +13,9 @@ enum class cerror
 	instantiate_abstract=4,
 	undefined_method=5,
 	override_sealed=6,
-	missing_attribute=7
+	missing_attribute=7,
+	invalid_assignment=8,
+	invalid_lvalue=9,
 };
 
 class eval_exception : public std::runtime_error
