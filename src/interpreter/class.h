@@ -10,6 +10,7 @@
 #include <interpreter/marshall.h>
 
 class object;
+class typemgr;
 
 struct methodinfo
 {
@@ -55,7 +56,8 @@ class fclass
     fclass(const typespec&, fclass* pBase, bool abstract=false);
     std::string name() const;
     const typespec& get_spec() const;
-    virtual void add_attribute(const std::string&,fclass*,objref d);
+    virtual void add_attribute(const std::string&,objref d);
+    virtual const std::map<std::string,objref>& attributes() const;
     virtual void add_method(const methodinfo&);
     virtual std::list<std::string> methods() const;
     virtual bool is_abstract() const { return _is_abstract; }
@@ -65,6 +67,8 @@ class fclass
     virtual bool is_root() const { return _base==nullptr; }
 
     virtual const methodinfo& instantiator() { return lookup_method(".ctor"); }
+
+    static typemgr* types;
  protected:
 
  private:
@@ -72,7 +76,7 @@ class fclass
     fclass* _base;
     const bool _is_abstract;
     const typespec _ts;
-    std::map<std::string,fclass*> _attributes;
+    std::map<std::string,objref> _attributes;
     std::map<std::string,methodinfo> _methods;
 };
 

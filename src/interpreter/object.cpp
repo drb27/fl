@@ -20,9 +20,25 @@ object::object(fclass& c, vector<objref> params) : _class(c)
     if ( c.is_abstract() )
 	throw eval_exception(cerror::instantiate_abstract,"An attempt was made to instantiate an object of an abstract class");
 
-    // Create the attributes
-    // TODO
+    // Create the attributes for this class, and the base chain
+    fclass* pCurrentClass = &c;
 
+    auto fn = [this](fclass* pClass)
+	{
+	    for ( auto a : pClass->attributes() )
+	    {
+		_attributes[a.first] = a.second;
+	    }
+	};
+
+    fn(pCurrentClass);
+
+    while (!(pCurrentClass->is_root()))
+    {
+	pCurrentClass = pCurrentClass->base();
+	fn(pCurrentClass);
+    }
+    
     construct(params);
 }
 
@@ -67,6 +83,11 @@ bool object::has_attribute(const std::string& name) const
 {
     return _attributes.find(name)!=_attributes.end();
 }
+    
+objref object::get_attribute(const std::string& selector)
+{
+    return _attributes[selector];
+}
 
 void object::render( std::ostream& os ) const
 {
@@ -93,8 +114,6 @@ void class_object::render(std::ostream& os ) const
 
 int_object::int_object(int value, fclass& cls,bool attr) : object(cls), _value(value)
 {
-    if (attr)
-	_attributes["x"] = intref(new int_object(42,cls,false));
 }
 
 bool int_object::equate( objref other ) const

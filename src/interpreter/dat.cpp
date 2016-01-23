@@ -72,6 +72,13 @@ void dat::respond( ast* def, std::ostream& os) const
     }
 }
 
+ast* dat::make_attr( ast* target, std::string* selector)
+{
+    attr_node* pAttrNode = new attr_node(target,*selector);
+    delete selector;
+    return pAttrNode;
+}
+
 ast* dat::make_methodcall( ast* target, ast* method,list_node* args)
 {
     symbol_node* pMethodNameNode = dynamic_cast<symbol_node*>(method);

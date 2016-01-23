@@ -69,6 +69,22 @@ protected:
     ast* _falseExpr;
 };
 
+class attr_node : public ast
+{
+public:
+    attr_node(ast* target, const std::string& selector);
+    virtual objref evaluate(context*);
+    virtual void required_symbols(std::set<std::string>&) const;
+    virtual void render_dot(int& uuid, 
+			    const std::string& parent="",
+			    const std::string& label="",
+			    std::ostream& out=std::cout) const;
+
+protected:
+    ast* _target;
+    std::string _selector;
+};
+
 class methodcall_node : public ast
 {
 public:

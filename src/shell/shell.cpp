@@ -57,6 +57,7 @@ int main(void)
     wlog(level::info,PACKAGE_STRING ": Application startup");
     std::cout << PACKAGE_STRING << std::endl;
     std::shared_ptr<context> shell_context(new context());
+    fclass::types = &shell_context->types();
     target = new dat(shell_context);
 
     // Library file

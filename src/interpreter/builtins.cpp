@@ -4,6 +4,7 @@
 #include "builtins.h"
 #include <interpreter/class.h>
 #include <interpreter/context.h>
+#include <interpreter/object.h>
 #include <parser/callable.h>
 #include <parser/ast_nodes.h>
 #include <logger/logger.h>
@@ -36,6 +37,9 @@ namespace builtins
 	pCls->add_method({"addmethod",make_marshall_mthd(&builtins::class_addmethod)});
 	pCls->add_method({"methods",make_marshall_mthd(&builtins::class_methods)});
 	pCls->add_method({"base",make_marshall_mthd(&builtins::class_base)});
+	pCls->add_method({"derive",make_marshall_mthd(&builtins::class_derive),true});
+	pCls->add_method({"new",make_marshall_mthd(&builtins::class_new),true});
+	pCls->add_method({"addattr",make_marshall_mthd(&builtins::class_addattr),true});
 	return pCls;
     }
 
@@ -47,6 +51,7 @@ namespace builtins
 	typespec spec("string",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method({"size",make_marshall_mthd(&builtins::string_length)});
+	pCls->add_attribute("lang", objref( new void_object(base_cls) ));
 	return pCls;
     }
 
@@ -307,10 +312,25 @@ namespace builtins
     {
 	typespec ts(name->internal_value(),{});
 	typespec tsc("class",{});
-	fclass* pNewNativeClass = new fclass(ts,pThis->internal_value()->base());
+	fclass* pNewNativeClass = new fclass(ts,pThis->internal_value());
 	(pContext->types()).add(*pNewNativeClass);
 	class_object*  pNewClass = new class_object(pNewNativeClass,(pContext->types()).lookup(tsc));
 
-	return objref(pNewClass,[](object*){});
+	return objref(pNewClass,[](class_object*){});
     }
+
+    objref class_new(context* pContext, classref pThis, listref params)
+    {
+	// TODO: Add params
+	::object* pObj = new ::object(*(pThis->internal_value()));
+	return objref(pObj);
+    }
+
+    objref class_addattr(context* pContext, classref pThis, stringref name, objref d)
+    {
+	fclass* pNativeClass = pThis->internal_value();
+	pNativeClass->add_attribute(name->internal_value(),d);
+	return pThis;
+    }
+
 }

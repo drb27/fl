@@ -70,6 +70,7 @@ extern action_target* target;
 %type <node_val> assign
 %type <node_val> bool
 %type <node_val> str
+%type <node_val> attr
 %start input
 
 %precedence MAPSTO
@@ -119,6 +120,7 @@ expr:   literal
       | if 
       | funcall
       | fundef
+      | attr
       | listbuild
       | methodcall
       | alias
@@ -134,6 +136,7 @@ literal: null | bool | integer | str | list_literal;
 funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
 
 methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
+attr: expr DOT SYMBOL {$$=target->make_attr($1,$3); };
 
 bool: TRUE {$$=target->make_bool(true); } | FALSE { $$=target->make_bool(false); };
 

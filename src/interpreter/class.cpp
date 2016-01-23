@@ -14,6 +14,10 @@ using std::stringstream;
 using std::function;
 using std::map;
 
+class typemgr;
+
+typemgr* fclass::types{nullptr};
+
 typespec::typespec( const string& nm, const list<typespec>& prms )
     : _name(nm)
 {
@@ -107,9 +111,14 @@ string fclass::name() const
     return _ts.full_name();
 }
 
-void fclass::add_attribute(const string& name, fclass* ftype, objref pDefault)
+void fclass::add_attribute(const string& name, objref pDefault)
 {
-    _attributes[name] = ftype;
+    _attributes[name] = pDefault;
+}
+
+const map<string,objref>& fclass::attributes() const
+{
+    return _attributes;
 }
 
 void fclass::add_method(const methodinfo& m)
