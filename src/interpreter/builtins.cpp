@@ -1,6 +1,8 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <random>
+#include <deque>
 #include "builtins.h"
 #include <interpreter/class.h>
 #include <interpreter/context.h>
@@ -12,11 +14,24 @@
 
 using std::string;
 using std::vector;
+using std::deque;
 
 #define N_INT(x) (x->internal_value())
 
 namespace builtins
 {
+    void build_globals(context* pContext)
+    {
+	typespec fnspec("function",{});
+	fclass& fncls = pContext->types().lookup(fnspec);
+
+	deque<std::string> args;
+	args.push_back("a"); 
+	args.push_back("b");
+
+	pContext->assign("rnd", fnref( new fn_object(fncls,make_marshall(&builtins::rnd),args) ) );
+    }
+
     std::shared_ptr<fclass> object::build_class()
     {
 	typespec spec("object",{});
@@ -25,6 +40,7 @@ namespace builtins
 	pCls->add_method( {"class", make_marshall_mthd(&builtins::obj_class)} );
 	pCls->add_method( {".ctor", make_marshall_mthd(&builtins::obj_ctor),true});
 	pCls->add_method( {".assign", make_marshall_mthd(&builtins::obj_assign),false});
+	pCls->add_method( {"eq", make_marshall_mthd(&builtins::obj_equate),false} );
 	return pCls;
     }
 
@@ -68,6 +84,7 @@ namespace builtins
 	pCls->add_method({"in_range", make_marshall_mthd(&builtins::in_range_integers)});
 	pCls->add_method({"eq", make_marshall_mthd(&builtins::int_equate)});
 	pCls->add_method({"gt", make_marshall_mthd(&builtins::int_gt)});
+	pCls->add_method({"lt", make_marshall_mthd(&builtins::int_lt)});
 	pCls->add_method({"dec", make_marshall_mthd(&builtins::int_dec)});
 	return pCls;
     }
@@ -79,6 +96,7 @@ namespace builtins
 
 	typespec spec("void",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	pCls->add_method({"eq", make_marshall_mthd(&builtins::void_equate)});
 	return pCls;
     }
 
@@ -190,6 +208,14 @@ namespace builtins
     objref int_gt(context* pContext, intref pThis, intref pOther )
     {
 	bool result = pThis->internal_value() > pOther->internal_value();
+	typespec ts("boolean",{});
+	return boolref(new bool_object(result,pContext->types().lookup(ts)));
+
+    }
+
+    objref int_lt(context* pContext, intref pThis, intref pOther )
+    {
+	bool result = pThis->internal_value() < pOther->internal_value();
 	typespec ts("boolean",{});
 	return boolref(new bool_object(result,pContext->types().lookup(ts)));
 
@@ -340,5 +366,28 @@ namespace builtins
 	throw eval_exception(cerror::invalid_assignment,
 			     "Incompatible assignment" );
     }
+    
+    objref obj_equate(context* pContext, objref pThis,objref pOther)
+    {
+	typespec ts("boolean",{});
+	return boolref(new bool_object(false,pContext->types().lookup(ts)));
+    }
 
+    objref void_equate(context* pContext, objref pThis, objref pOther)
+    {
+	bool result = ( &(pThis->get_class())==&(pOther->get_class()) );
+	typespec ts("boolean",{});
+	return boolref(new bool_object(result,pContext->types().lookup(ts)));
+    }
+
+    objref rnd(context* pContext, intref a, intref b)
+    {
+	int lower = a->internal_value();
+	int upper = b->internal_value();
+
+	static std::default_random_engine generator;
+	std::uniform_int_distribution<int> distribution(lower,upper);
+
+	return objref( new int_object(distribution(generator), a->get_class()));
+    }
 }

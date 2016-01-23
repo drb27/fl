@@ -58,6 +58,7 @@ int main(void)
     std::cout << PACKAGE_STRING << std::endl;
     std::shared_ptr<context> shell_context(new context());
     fclass::types = &shell_context->types();
+    builtins::build_globals(shell_context.get());
     target = new dat(shell_context);
 
     // Library file

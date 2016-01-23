@@ -62,6 +62,35 @@ card.addattr("suit",0)
 
 suit=>(c)-> c.suit.eq(1)? "diamonds" : c.suit.eq(2)? "spades" : c.suit.eq(3)? "clubs" : "hearts"
 
+thing=>object.derive("thing")
+thing.addattr("store",null)
+thing.addattr("itemlist",null)
+thing.addmethod( (t)-> { t.store=>keystore.new(()); t.itemlist=>(1,2,3) } , ".ctor")
+
+do=>(f,l) -> empty(l)? null : { f(l.head()); do(f,l.tail()); null }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NODES
+
+node=>object.derive("node")
+node.addattr("lower",null)
+node.addattr("higher",null)
+node.addattr("value",null)
+node.addattr("tag",null)
+
+make_node=>(v,l,h,t)-> { n=> node.new(()); n.lower=>l; n.higher=>h; n.value=>v; n.tag=>t; n}
+copy_node=>(o)-> { n=> node.new(()); n.lower=>o.lower; n.higher=>o.higher; n.value=>o.value; n.tag=>o.tag; n}
+
+insert=>(n,v,t)-> n.value.eq(v)? null : { v.lt(n.value)? {n.lower.eq(null)? n.lower=>make_node(v,null,null,t) : insert(n.lower,v,t) }  : { n.higher.eq(null)? n.higher=>make_node(v,null,null,t) : insert(n.higher,v,t) } }
+
+find=>(n,v)-> n.eq(null)? null : n.value.eq(v)? n : v.lt(n.value)? find(n.lower,v) : find(n.higher,v)  
+
+node.addmethod(insert,"insert")
+node.addmethod(find,"find")
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BASIC KEYSTORE
+
 first=>(a)->a.head()
 second=>(a)->a.tail().head()
 
@@ -72,14 +101,10 @@ keystore.addmethod( (t,k,v)-> t.has(k)? null : t.store.append((k,v)),"add")
 keystore.addmethod( (t,v)-> containsp(t.store,v, (e,v)-> first(e).eq(v)), "has")
 keystore.addmethod( (t,k)-> t.has(k)? second(filter((p)->first(p).eq(k),t.store).head()) : null,"lookup")
 
-thing=>object.derive("thing")
-thing.addattr("store",null)
-thing.addattr("itemlist",null)
-thing.addmethod( (t)-> { t.store=>keystore.new(()); t.itemlist=>(1,2,3) } , ".ctor")
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BETTER KEYSTORE
 
-node=>object.derive("node")
-node.addattr("lower",null)
-node.addattr("higher",null)
-node.addattr("value",null)
-
-make_node=>(v,l,h)-> { n=> node.new(()); n.lower=>l; n.higher=>h; n.value=>v; n}
+intmap=>object.derive("intmap")
+intmap.addattr("store",null)
+intmap.addmethod( (t,k,v)-> t.store.eq(null)? { t.store=>make_node(k,null,null,v) ; t } : { insert( t.store, k, v ) ; t } , "add")
+intmap.addmethod( (t,k) -> t.store.find(k), "find" )

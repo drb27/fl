@@ -24,20 +24,6 @@ namespace
 	return apply_impl(std::forward<F>(f), std::forward<T>(t), Indices{} );
     }
 
-
-    template<std::size_t I=0, typename... P>
-    inline typename std::enable_if<I==sizeof...(P),void>::type
-    eval_each(std::array<ast*,sizeof...(P)>&, std::tuple<P...>&) {}
-
-    template<std::size_t I=0, typename... P>
-    inline typename std::enable_if<I < sizeof...(P), void>::type
-    eval_each(std::array<ast*,sizeof...(P)>& p,std::tuple<P...>& t)
-    {
-	auto result = std::get<I>(p)->evaluate(nullptr);
-	std::get<I>(t) = std::dynamic_pointer_cast<typename std::tuple_element<I,std::tuple<P...>>::type::element_type>(result);
-	eval_each<I+1,P...>(p,t);
-    }
-
     template<std::size_t I=0, typename... P>
     inline typename std::enable_if<I==sizeof...(P),void>::type
     v_eval_each(context*,std::vector<ast*>&, std::tuple<P...>&) {}
@@ -66,7 +52,11 @@ namespace
 	{
 	    typename ArgTuple<F>::type evaled_params;
 	    std::get<0>(evaled_params) = pContext;
-	    v_eval_each<1>(pContext,p,evaled_params);
+
+	    // Experimental: prepare args with one additional element
+	    std::vector<ast*> myArgs(p);
+	    myArgs.insert( myArgs.begin(),nullptr);
+	    v_eval_each<1>(pContext,myArgs,evaled_params);
 	    return apply(*f,evaled_params);
 	};
     }
@@ -85,10 +75,5 @@ namespace
     }
 }
 
-class i_callable
-{
-public:
-    virtual objref operator()(context*)=0;
-};
 
 #endif

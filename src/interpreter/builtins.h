@@ -59,8 +59,10 @@ class string
 public:
     static std::shared_ptr<fclass> build_class(typemgr*);
 };
-    
+
+    void build_globals(context*);
     objref obj_dump(context*, objref pThis);
+    objref obj_equate(context*, objref pThis,objref pOther);
     objref obj_class(context*, objref pThis);
     objref add_integers(context*,intref a, intref b);
     objref int_dec(context*,intref pThis);
@@ -72,6 +74,7 @@ public:
     objref list_tail(context* pContext, listref pThis);
     objref int_equate(context* pContext, intref pThis, intref pOther);
     objref int_gt(context* pContext, intref pThis, intref pOther);
+    objref int_lt(context* pContext, intref pThis, intref pOther);
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
     objref string_length(context* pContext, stringref pThis);
@@ -82,6 +85,8 @@ public:
     objref class_new(context* pContext, classref pThis, listref params);
     objref class_addattr(context* pContext, classref pThis, stringref name, objref d);
     objref obj_assign(context* pContext, objref pThis, objref pOther);
+    objref void_equate(context* pContext, objref pThis, objref pOther);
+    objref rnd(context* pContext, intref a, intref b);
 }
 
 #endif
