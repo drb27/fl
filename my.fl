@@ -81,7 +81,7 @@ node.addattr("tag",null)
 make_node=>(v,l,h,t)-> { n=> node.new(()); n.lower=>l; n.higher=>h; n.value=>v; n.tag=>t; n}
 copy_node=>(o)-> { n=> node.new(()); n.lower=>o.lower; n.higher=>o.higher; n.value=>o.value; n.tag=>o.tag; n}
 
-insert=>(n,v,t)-> n.value.eq(v)? null : { v.lt(n.value)? {n.lower.eq(null)? n.lower=>make_node(v,null,null,t) : insert(n.lower,v,t) }  : { n.higher.eq(null)? n.higher=>make_node(v,null,null,t) : insert(n.higher,v,t) } }
+insert=>(n,v,t)-> n.value.eq(v)? { n.tag=>t ; null } : { v.lt(n.value)? {n.lower.eq(null)? n.lower=>make_node(v,null,null,t) : insert(n.lower,v,t) }  : { n.higher.eq(null)? n.higher=>make_node(v,null,null,t) : insert(n.higher,v,t) } }
 
 find=>(n,v)-> n.eq(null)? null : n.value.eq(v)? n : v.lt(n.value)? find(n.lower,v) : find(n.higher,v)  
 

@@ -58,7 +58,7 @@ void ast::render_dot(int& uuid,
 fclass* ast::type(context* pContext) const
 {
     typespec os("object",{});
-    return &(pContext->types().lookup(os));
+    return &(pContext->types()->lookup(os));
 }
 
 literal_node::literal_node(objref pObj)
@@ -111,7 +111,7 @@ void list_node::render_dot(int& uuid,
 
 objref list_node::evaluate(context* pContext)
 {
-    auto l = new list_object(*(type(pContext)));
+    auto l = new list_object(pContext,*(type(pContext)));
     for ( auto e : _elements )
     {
 	l->internal_value().push_back(e->evaluate(pContext));
@@ -149,13 +149,13 @@ fclass* list_node::type(context* pContext) const
     {
 	typespec subtypespec( (*subtypes.begin())->get_spec().full_name(), {} );
 	typespec listspec( "list", {subtypespec} );
-	return &(pContext->types().lookup(listspec)); 
+	return &(pContext->types()->lookup(listspec)); 
     }
     else
     {
 	typespec objspec( "object", {} );
-	typespec listspec( "list", { pContext->types().lookup(objspec).get_spec() } );
-	return &(pContext->types().lookup(listspec)); 
+	typespec listspec( "list", { pContext->types()->lookup(objspec).get_spec() } );
+	return &(pContext->types()->lookup(listspec)); 
     }
     
 }
@@ -193,6 +193,7 @@ void methodcall_node::render_dot(int& uuid,
 
 objref methodcall_node::evaluate(context* pContext)
 {
+    state_guard g(pContext);
     // Evaluate the target
     objref target = _target->evaluate(pContext);
 
@@ -208,17 +209,10 @@ objref methodcall_node::evaluate(context* pContext)
 	params[index++] = p;
     }
 
-    // Add all of the target's attributes to the context
-    context* pNewContext = target->attr_as_context();
-    pNewContext->merge_in(*pContext);
-    
+    g.new_collection();
+
     // Dispatch the call
-    auto retVal =  m(pNewContext,target,params);
-
-    delete pNewContext;
-
-    // Invalidate cache
-    _target->invalidate();
+    auto retVal =  m(pContext,target,params);
 
     // Return result
     return retVal;
@@ -488,7 +482,7 @@ objref fundef_node::evaluate(context* pContext)
 
     ast* localDef = _definition;
     typespec ts("function",{});
-    fclass& cls = pContext->types().lookup(ts);
+    fclass& cls = pContext->types()->lookup(ts);
     
     deque<string> argnames;
 
@@ -500,39 +494,39 @@ objref fundef_node::evaluate(context* pContext)
     }
 
     wlog(level::debug,"Creating a closure for required symbols...");
-    std::shared_ptr<context> pClosure( new context() );
+    colref pClosure( new collection );
     for ( auto s : requiredSymbols )
     {
 	if (pContext->is_defined(s))
-	    pClosure->assign(s, pContext->resolve_symbol(s));
+	    (*pClosure)[s] = pContext->resolve_symbol(s);
     }
 
     wlog(level::debug,"Contructing lambda for function execution and embedding closure...");
     // Construct a marshall_fn_t compatible lambda expression
     function<marshall_fn_t> fn = [localDef,pClosure](context* pContext, vector<ast*>& arglist)
 	{
+	    state_guard g(pContext);
 	    wlog_entry();
 	    wlog(level::debug,"Executing lambda for fl function call...");
-	    wlog(level::debug,"Copying global context...");
-	    std::shared_ptr<context> c( new context(*pContext) );
 	    wlog(level::debug,"Merging in the closure...");
-	    c->merge_in(*pClosure);
-	    wlog_trace("Final context",c->trace());
+	    g.new_collection(pClosure);
+	    g.new_collection();
+	    wlog_trace("Final context",pContext->trace());
 	    wlog(level::debug,"Evaluating function definition...");
-	    auto retVal = localDef->evaluate(c.get());
+	    auto retVal = localDef->evaluate(pContext);
 	    wlog(level::debug,"About to return result from fl function call lambda...");
 	    return retVal;
 	};
 
     wlog(level::debug,"Creating new fn_object instance with embedded closure (leaving fundef_node::evaluate)");
-    return objref( new fn_object(cls,fn,argnames) );
+    return objref( new fn_object(pContext,cls,fn,argnames,{}) );
     
 }
 
 fclass* fundef_node::type(context* pContext) const
 {
     typespec ts("function",{});
-    return &(pContext->types().lookup(ts));
+    return &(pContext->types()->lookup(ts));
 }
 
 funcall_node::funcall_node(const string& name, ast* args)
@@ -631,7 +625,7 @@ fclass* funcall_node::type(context* pContext) const
 {
     // TODO
     typespec obj_spec("object",{});
-    return &(pContext->types().lookup(obj_spec));
+    return &(pContext->types()->lookup(obj_spec));
     //throw std::exception();
 }
 
@@ -680,7 +674,7 @@ objref if_node::evaluate(context* pContext)
 fclass* if_node::type(context* pContext) const
 {
     typespec ts("object",{});
-    return &(pContext->types().lookup(ts));
+    return &(pContext->types()->lookup(ts));
 }
 
 function<void(objref)> attr_node::setter(context* pContext)

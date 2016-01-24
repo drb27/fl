@@ -45,24 +45,26 @@ extern "C" void yyerror(char const* c)
 }
 
 
-int main(void)
+void parse_string(const std::string& inputString)
 {
-    g_logger.enable( level::info );
-    g_logger.enable( level::warning );
-    g_logger.enable( level::error );
-    g_logger.enable( level::fatal );
-    //g_logger.enable( level::trace );
-    //g_logger.enable( level::debug );
+    string str = inputString + "\n";
+    auto newBuffer = yy_scan_string(str.c_str());
+    try
+    {
+	yyparse();
+    }
+    catch ( eval_exception& e )
+    {
+	std::cout << e.what() << std::endl;
+    }
 
-    wlog(level::info,PACKAGE_STRING ": Application startup");
-    std::cout << PACKAGE_STRING << std::endl;
-    std::shared_ptr<context> shell_context(new context());
-    fclass::types = &shell_context->types();
-    builtins::build_globals(shell_context.get());
-    target = new dat(shell_context);
+    yy_delete_buffer(newBuffer);
+}
 
+void read_file(const std::string& fname)
+{
     // Library file
-    std::ifstream infile("my.fl");
+    std::ifstream infile(fname);
     if ( infile.good() )
     {
 	try
@@ -71,18 +73,7 @@ int main(void)
 	    {
 		string inputString;
 		std::getline(infile,inputString);
-		inputString = inputString + "\n";
-		auto newBuffer = yy_scan_string(inputString.c_str());
-		try
-		{
-		    yyparse();
-		}
-		catch ( eval_exception& e )
-		{
-		    std::cout << e.what() << std::endl;
-		}
-
-		yy_delete_buffer(newBuffer);
+		parse_string(inputString);
 		if (infile.eof())
 		    throw std::exception();
 	    }
@@ -93,9 +84,30 @@ int main(void)
 	}
 	infile.close();
     }
+}
 
+int main(int argc, char** argv)
+{
+    g_logger.enable( level::info );
+    g_logger.enable( level::warning );
+    g_logger.enable( level::error );
+    g_logger.enable( level::fatal );
+    //g_logger.enable( level::trace );
+    //g_logger.enable( level::debug );
+
+    wlog(level::info,PACKAGE_STRING ": Application startup");
+    std::cout << PACKAGE_STRING << std::endl;
+    wlog(level::debug,"Creating context");
+    context* shell_context = new context();
+    builtins::build_globals(shell_context);
+    target = new dat(shell_context);
+
+    string fname="my.fl";
+    if (argc>1)
+	fname=argv[1];
+    // File input
+    read_file(fname);
     
-
     // User input
     bool more=true;
     while(more)
@@ -103,20 +115,14 @@ int main(void)
 	string inputString;
 	std::getline(std::cin,inputString);
 	inputString = inputString + "\n";
-	auto newBuffer = yy_scan_string(inputString.c_str());
 	try
 	{
-	    yyparse();
-	}
-	catch ( eval_exception& e )
-	{
-	    std::cout << e.what() << std::endl;
+	    parse_string(inputString);
 	}
 	catch( terminate_exception& )
 	{
 	    more=false;
 	}
-	yy_delete_buffer(newBuffer);
     }
 
     return 0;

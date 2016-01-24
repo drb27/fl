@@ -2,18 +2,21 @@
 #include <list>
 #include "typemgr.h"
 #include "builtins.h"
+#include <logger/logger.h>
 
 using std::string;
 using std::list;
 
 typemgr::typemgr()
 {
+    wlog(level::debug,"Setting type manager in fclass");
+    fclass::types = this;
     init_builtins();
 }
 
 typemgr::~typemgr()
 {
-
+    wlog_entry();
 }
 
 fclass& typemgr::lookup( const typespec& ts )
@@ -29,6 +32,7 @@ fclass& typemgr::lookup( const typespec& ts )
 
 void typemgr::init_builtins()
 {
+    wlog_entry();
     typespec ts("object",{});
     auto c = builtins::object::build_class();
     _typeMap[c->get_spec()] = c;

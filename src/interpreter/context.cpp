@@ -14,124 +14,172 @@ using std::string;
 using std::map;
 using std::stringstream;
 
-typemgr context::_types;
 
 context::context()
 {
-}
-
-context::context( const context& other )
-{
     wlog_entry();
-    typespec ts("function",{});
-    auto& fnclass = types().lookup(ts);
 
-    for ( auto s : other._symbols)
-    {
-	if ( &(s.second->get_class()) == &fnclass )
-	{
-	    fnref cloned_fn( new fn_object(*std::dynamic_pointer_cast<fn_object>(s.second)));
-	    assign(s.first,cloned_fn);
-	}
-	else
-	    assign(s.first,s.second);
-    }
-}
-
-void context::merge_in( const context& other)
-{
-    stringstream s;
-    s << other;
-    map<string,string> params;
-    params["other"] = s.str();
-    s.clear();
-    s.str("");
-    s << (*this);
-    params["this"] = s.str();
-    wlog_entry_params(params);
-
-    for ( auto s : other._symbols )
-    {
-	assign(s.first,s.second);
-    }
+    // Create the type manager
+    _types = new typemgr();
+    // Create the global collection
+    new_collection();
 }
 
 context::~context()
 {
-
+    wlog_entry();
 }
 
-objref context::resolve_symbol(const std::string& name)
+objref context::resolve_symbol(const string& name)
 {
-    map<string,string> params;
-    params["name"] = name;
-    wlog_entry_params(params);
-
-    if (_symbols.find(name)!=_symbols.end())
-	return _symbols[name];
-    else
+    wlog_entry();
+    // Newest collections are at the head
+    for ( auto col : _collections )
     {
-	string msg = "Unresolved symbol [" + name + "]";
-	throw eval_exception(cerror::undefined_symbol,msg);
+        auto i = col->find(name);
+	if (i!=col->end())
+	    return (*i).second;
     }
-}
-void context::assign(const std::string& name, objref value)
-{
-    if (!value)
-    {
-	wlog(level::warning,"Assigning null value to [" + name + "]");
-    }
-    assert(value);
-    _symbols[name] = value;
+
+    // Not found in any collection
+    string msg = "Unresolved symbol [" + name + "]";
+    throw eval_exception(cerror::undefined_symbol,msg);
 }
 
-typemgr& context::types()
+colref context::new_collection()
 {
+    wlog_entry();
+    auto pCol = colref( new collection );
+    return new_collection(pCol);
+}
+
+colref context::new_collection( colref pCol)
+{
+    wlog_entry();
+    _collections.push_front(pCol);
+    return pCol;
+}
+
+void context::pop_collection()
+{
+    wlog_entry();
+    _collections.pop_front();
+}
+
+void context::stash_state()
+{
+    wlog_entry();
+    _states.push_back(_collections);
+}
+
+void context::restore_state()
+{
+    wlog_entry();
+    _collections = std::move( _states.back() );
+    _states.pop_back();
+}
+
+typemgr* context::types()
+{
+    wlog_entry();
     return _types;
+}
+
+bool context::is_defined(const string& name)
+{
+    wlog_entry();
+
+    for ( auto col : _collections )
+    {
+	auto i = col->find(name);
+	if ( i!=col->end())
+	    return true;
+    }
+
+    return false;
+}
+
+void context::assign(const string& name, objref value )
+{
+    wlog_entry();
+    (*_collections.front())[name] = value;
 }
 
 void context::reset()
 {
-    _symbols.clear();
+    wlog_entry();
+    _collections.clear();
+    _states.clear();
+    new_collection();
+}
+
+colref context::all()
+{
+    wlog_entry();
+    auto pooled = colref( new collection );
+
+    for ( auto i = _collections.rbegin(); i!= _collections.rend(); i++ )
+    {
+	for ( auto p : *(*i) )
+	{
+	    (*pooled)[p.first] = p.second;
+	}
+    }
+
+    return pooled;
+}
+
+void context::dump( std::ostream& os )
+{
+    wlog_entry();
+    int level_index=0;
+
+    // Iterate over the levels (from global->most local)
+    for ( auto level_iter = _collections.rbegin();
+	  level_iter != _collections.rend();
+	  level_iter++ )
+    {
+	colref pCol = *level_iter;
+
+	os << " LEVEL " << level_index << "----->" << std::endl;
+
+	// Iterate over symbols in this collection
+	for ( auto s : *pCol )
+	{
+	    os << s.first << ": ";
+	    s.second->render(os);
+	    os << std::endl;
+	}
+    }
 }
 
 std::ostream& operator<<( std::ostream& os, const context& c)
 {
-    for ( auto symbol : c._symbols )
+    wlog_entry();
+    int level_index=0;
+
+    // Iterate over the levels (from global->most local)
+    for ( auto level_iter = c._collections.rbegin();
+	  level_iter != c._collections.rend();
+	  level_iter++ )
     {
-	os << symbol.first << "(" << symbol.second << ") ";
+	colref pCol = *level_iter;
+
+	os << " LEVEL " << level_index << "----->" << std::endl;
+
+	// Iterate over symbols in this collection
+	for ( auto symbol : *pCol )
+	{
+	    os << symbol.first << "(" << symbol.second << ") ";
+	}
     }
 
     return os;
 }
 
-bool context::is_defined( const std::string& name) const
-{
-    return _symbols.find(name)!=_symbols.end();
-}
-
 map<string,string> context::trace() const
 {
-    stringstream ss;
-    map<string,string> symbols;
-
-    for ( auto s : _symbols )
-    {
-	ss.clear();
-	ss.str("");
-	s.second->render(ss);
-	symbols[s.first] = ss.str();
-    }
-
-    return symbols;
-}
-
-void context::dump(std::ostream& os)
-{
-    for ( auto s : _symbols )
-    {
-	os << s.first << ": ";
-	s.second->render(os);
-	os << std::endl;
-    }
+    wlog_entry();
+    map<string,string> m;
+    return m;
 }

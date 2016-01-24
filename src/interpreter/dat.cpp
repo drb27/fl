@@ -16,7 +16,7 @@ using std::deque;
 using std::shared_ptr;
 using std::vector;
 
-dat::dat(shared_ptr<context> pContext) : _context(pContext)
+dat::dat(context* pContext) : _context(pContext)
 {
 }
 
@@ -28,8 +28,8 @@ dat::~dat()
 ast* dat::make_int(int x) const
 {
     typespec int_spec = typespec("integer",{});
-    fclass& int_cls = _context->types().lookup(int_spec);
-    objref pObject(new int_object(x,int_cls));
+    fclass& int_cls = _context->types()->lookup(int_spec);
+    objref pObject(new int_object(_context,x,int_cls));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
@@ -37,8 +37,8 @@ ast* dat::make_int(int x) const
 ast* dat::make_string(std::string* x) const
 {
     typespec string_spec = typespec("string",{});
-    fclass& string_cls = _context->types().lookup(string_spec);
-    objref pObject(new string_object((*x).substr(1,(*x).length()-2),string_cls));
+    fclass& string_cls = _context->types()->lookup(string_spec);
+    objref pObject(new string_object(_context,(*x).substr(1,(*x).length()-2),string_cls));
     delete x;
     literal_node* pNode = new literal_node(pObject);
     return pNode;
@@ -47,8 +47,8 @@ ast* dat::make_string(std::string* x) const
 ast* dat::make_null() const
 {
     typespec obj_spec = typespec("void",{});
-    fclass& obj_cls = _context->types().lookup(obj_spec);
-    objref pObject(new void_object(obj_cls));
+    fclass& obj_cls = _context->types()->lookup(obj_spec);
+    objref pObject(new void_object(_context,obj_cls));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
@@ -62,7 +62,7 @@ void dat::respond( ast* def, std::ostream& os) const
 {
     try
     {
-	def->evaluate(_context.get())->render(os);
+	def->evaluate(_context)->render(os);
 	os << "OK" << std::endl;
     }
     catch( eval_exception& e )
@@ -151,8 +151,8 @@ ast* dat::make_single_list(ast* item)
 ast* dat::make_bool(bool b)
 {
     typespec bool_spec = typespec("boolean",{});
-    fclass& bool_cls = _context->types().lookup(bool_spec);
-    objref pObject(new bool_object(b,bool_cls));
+    fclass& bool_cls = _context->types()->lookup(bool_spec);
+    objref pObject(new bool_object(_context,b,bool_cls));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }

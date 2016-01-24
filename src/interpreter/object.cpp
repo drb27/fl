@@ -15,7 +15,7 @@ using std::deque;
 using std::vector;
 using std::endl;
 
-object::object(fclass& c, vector<objref> params) : _class(c)
+object::object(context* pContext, fclass& c, vector<objref> params) : _class(c)
 {
     if ( c.is_abstract() )
 	throw eval_exception(cerror::instantiate_abstract,
@@ -36,19 +36,18 @@ object::object(fclass& c, vector<objref> params) : _class(c)
 	fn(pCls);
 
 
-    construct(params);
+    construct(pContext,params);
 }
 
 object::~object()
 {
-
+    wlog_entry();
 }
 
-void object::construct(vector<objref>& params)
+void object::construct(context* pContext, vector<objref>& params)
 {
    // Call the constructor!
     objref pThis(this, [](object*) {});
-    context* pContext = this->attr_as_context();
     vector<ast*> ps(2+params.size());
     int index=2;
     ps[2]=new literal_node(objref(this));
@@ -63,19 +62,6 @@ void object::construct(vector<objref>& params)
     for ( auto p : ps )
 	delete p;
 
-    delete pContext;
-
-}
-
-context* object::attr_as_context() const
-{
-    auto pCtx = new context();
-    for ( auto a : _attributes )
-    {
-	pCtx->assign(a.first,a.second);
-    }
-
-    return pCtx;
 }
 
 bool object::has_attribute(const std::string& name) const
@@ -110,8 +96,8 @@ void object::dump( std::ostream& out) const
     out << std::endl;
 }
 
-class_object::class_object(fclass* pCls, fclass& cls)
-    : object(cls),_value(pCls)
+class_object::class_object(context* pContext, fclass* pCls, fclass& cls)
+    : object(pContext,cls),_value(pCls)
 {
 }
 
@@ -121,7 +107,8 @@ void class_object::render(std::ostream& os ) const
     object::render(os);
 }
 
-int_object::int_object(int value, fclass& cls,bool attr) : object(cls), _value(value)
+int_object::int_object(context* pContext, int value, fclass& cls,bool attr) 
+    : object(pContext,cls), _value(value)
 {
 }
 
@@ -141,7 +128,8 @@ void int_object::render( std::ostream& os) const
     object::render(os);
 }
 
-string_object::string_object(const std::string& value, fclass& cls) : object(cls), _value(value)
+string_object::string_object(context* pContext, const std::string& value, fclass& cls) 
+    : object(pContext,cls), _value(value)
 {
 
 }
@@ -161,8 +149,8 @@ void string_object::render( std::ostream& os) const
     object::render(os);
 }
 
-bool_object::bool_object(bool b, fclass& cls)
-    : _value(b),object(cls)
+bool_object::bool_object(context* pContext,bool b, fclass& cls)
+    : _value(b),object(pContext,cls)
 {
 }
 
@@ -172,21 +160,21 @@ void bool_object::render( std::ostream& os) const
     object::render(os);
 }
 
-list_object::list_object(fclass& cls)
-    : object(cls)
+list_object::list_object(context* pContext,fclass& cls)
+    : object(pContext,cls)
 {
 }
 
-list_object::list_object(fclass& cls, std::list<objref> startList)
-    : object(cls), _list(startList)
+list_object::list_object(context* pContext,fclass& cls, std::list<objref> startList)
+    : object(pContext,cls), _list(startList)
 {
 }
 
-listref list_object::tail() const
+listref list_object::tail(context* pContext) const
 {
     std::list<objref> startList(_list);
     startList.pop_front();
-    return listref( new list_object(get_class(),startList ));
+    return listref( new list_object(pContext,get_class(),startList ));
 }
 
 void list_object::render( std::ostream& os) const
@@ -207,10 +195,15 @@ void void_object::render( std::ostream& os) const
     object::render(os);
 }
 
-fn_object::fn_object(fclass& cls, function<marshall_fn_t> impl, deque<string> args)
-    : _expected_args(args), _full_args(args), object(cls), _fn(impl)
+fn_object::fn_object(context* pContext,
+		     fclass& cls, 
+		     function<marshall_fn_t> impl, 
+		     deque<string> fullArgs,
+		     collection&& appliedArgs)
+    : _full_args(fullArgs), _expected_args(fullArgs), object(pContext,cls), _fn(impl)
 {
     wlog_entry();
+    _applied_arguments=std::move(appliedArgs);
 }
 
 void fn_object::render(std::ostream& os) const
@@ -236,7 +229,7 @@ void fn_object::dump( std::ostream& out) const
     }
     out << endl;
 
-    out << "Applied Args: " << _applied_arguments << endl;
+    //out << "Applied Args: " << _applied_arguments << endl;
 
 }
 
@@ -244,49 +237,20 @@ fnref fn_object::partial_application(context* pContext,const vector<argpair_t>& 
 {
     wlog_entry();
     deque<string> remainingArgs(_full_args);
-    context newContext(*pContext);
+    collection appliedArgs;
 
     // For each partial application, add to the context and remove from
     // the remaining args
     for ( auto arg : args )
     {
-	newContext.assign(arg.first,arg.second);
+	appliedArgs[arg.first] = arg.second;
 	remainingArgs.erase(std::find(remainingArgs.begin(),remainingArgs.end(),arg.first));
     }
     
-    auto result = fnref( new fn_object(get_class(),_fn,remainingArgs));
-    result->_applied_arguments.merge_in(newContext);
+    auto result = fnref( new fn_object(pContext,get_class(),_fn,
+				       remainingArgs,std::move(appliedArgs)));
     return result;
 
-}
-
-void fn_object::apply_argument( objref arg )
-{
-    wlog_entry();
-    // Pop the next expected argument name
-    string argname = _expected_args.front();
-    _expected_args.pop_front();
-
-    // Add the symbol to the applied arguments context
-    _applied_arguments.assign(argname,arg);
-}
-
-void fn_object::apply_argument( const string& name, objref arg )
-{
-    wlog_entry();
-    // Check the named argument is valid
-    deque<string>::iterator i = std::find(_expected_args.begin(),_expected_args.end(),name);
-    
-    if (i==_expected_args.end())
-    {
-	throw std::exception();
-    }
-
-    // Remove from expected arguments
-    _expected_args.erase(i);
-
-    // Add th1e symbol to the applied arguments context
-    _applied_arguments.assign(name,arg);
 }
 
 const deque<string>& fn_object::arglist() const
@@ -326,46 +290,33 @@ objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
     // Is this a full or partial application?
     if (args.size()==_full_args.size() )
     {
-	//assert(_applied_arguments.all().size()==0);
-	_expected_args = _full_args;
-	context tempContext(*pContext);
-	context savedAppliedArgs(_applied_arguments);
-
-	// Apply each of the arguments
-	for ( auto p : args )
-	{
-	    apply_argument(p.first,p.second);
-	}
-
-	// Prepare a vector<ast*> of symbol_nodes, one for each expected argument
+	state_guard g(pContext);
+	g.new_collection();
 	vector<ast*> params;
-	for ( auto p : _full_args )
+
+	for ( auto arg : args )
 	{
-	    params.push_back( new symbol_node(p) );
+	    params.push_back( new symbol_node(arg.first) );
+	    pContext->assign(arg.first,arg.second);
 	}
-    
-	wlog(level::debug,"Merging in applied arguments...");
-	tempContext.merge_in(_applied_arguments);
 
-	wlog_trace("Post-merge context: ",tempContext.trace());
-
-	//tempContext.dump();
+	for ( auto aa : _applied_arguments )
+	{
+	    pContext->assign(aa.first,aa.second);
+	}
+	
 	// Apply the accrued arguments to the marshall function
-	auto result = _fn(&tempContext,params);
-
-	// Reset arguments for another invocation
-	_expected_args = _full_args;
-	_applied_arguments = savedAppliedArgs;
-
+	auto result = _fn(pContext,params);
 	return result;
     }
     else
 	return partial_application(pContext,args);
 }
 
-fn_object::fn_object(const fn_object& other)
-    : object(other.get_class()), _fn(other._fn), _applied_arguments(other._applied_arguments), 
-	     _expected_args(other._expected_args), _full_args(other._full_args)
+fn_object::fn_object(context* pContext, const fn_object& other)
+    : object(pContext,other.get_class()), _fn(other._fn), 
+      _applied_arguments(other._applied_arguments), 
+      _expected_args(other._expected_args), _full_args(other._full_args)
 {
     wlog_entry();
 }

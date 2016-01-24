@@ -23,6 +23,7 @@ typemgr* fclass::types{nullptr};
 typespec::typespec( const string& nm, const list<typespec>& prms )
     : _name(nm)
 {
+    wlog_entry();
     for (auto p : prms )
     {
 	_params.push_back(p);

@@ -22,14 +22,17 @@ namespace builtins
 {
     void build_globals(context* pContext)
     {
+	wlog_entry();
 	typespec fnspec("function",{});
-	fclass& fncls = pContext->types().lookup(fnspec);
+	fclass& fncls = pContext->types()->lookup(fnspec);
 
 	deque<std::string> args;
 	args.push_back("a"); 
 	args.push_back("b");
 
-	pContext->assign("rnd", fnref( new fn_object(fncls,make_marshall(&builtins::rnd),args) ) );
+	pContext->assign("rnd", 
+			 fnref( new fn_object(pContext,fncls,
+					      make_marshall(&builtins::rnd),args,{}) ) );
     }
 
     std::shared_ptr<fclass> object::build_class()
@@ -69,7 +72,6 @@ namespace builtins
 	typespec spec("string",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method({"size",make_marshall_mthd(&builtins::string_length)});
-	pCls->add_attribute("lang", objref( new void_object(base_cls) ));
 	return pCls;
     }
 
@@ -149,8 +151,8 @@ namespace builtins
     {
 	const int result = a->internal_value() + b->internal_value();
 	typespec int_spec = typespec("integer",{});
-	fclass& int_cls = pContext->types().lookup(int_spec);
-	objref pObject(new int_object(result,int_cls));
+	fclass& int_cls = pContext->types()->lookup(int_spec);
+	objref pObject(new int_object(pContext,result,int_cls));
     
 	return pObject;
     }
@@ -159,16 +161,16 @@ namespace builtins
     {
 	bool in_range = (N_INT(pThis) >= N_INT(min)) && ( N_INT(pThis) <= N_INT(max));
 	typespec bool_spec = typespec("boolean",{});
-	fclass& bool_cls = pContext->types().lookup(bool_spec);
-	objref pObject( new bool_object( (in_range)?true:false, bool_cls));
+	fclass& bool_cls = pContext->types()->lookup(bool_spec);
+	objref pObject( new bool_object(pContext, (in_range)?true:false, bool_cls));
 	return pObject;
     }
 
     objref logical_not(context* pContext,boolref a)
     {
 	typespec bool_spec = typespec("boolean",{});
-	fclass& bool_cls = pContext->types().lookup(bool_spec);
-	objref pObject( new bool_object( !a->internal_value(), bool_cls ));
+	fclass& bool_cls = pContext->types()->lookup(bool_spec);
+	objref pObject( new bool_object(pContext, !a->internal_value(), bool_cls ));
 	return pObject;
 
     }
@@ -176,9 +178,9 @@ namespace builtins
     objref list_size(context* pContext, listref pThis)
     {
 	typespec int_spec = typespec("integer",{});
-	fclass& int_cls = pContext->types().lookup(int_spec);
+	fclass& int_cls = pContext->types()->lookup(int_spec);
 	
-	objref pObject(new int_object(pThis->internal_value().size(),int_cls));
+	objref pObject(new int_object(pContext,pThis->internal_value().size(),int_cls));
 	return pObject;
     }
 
@@ -195,21 +197,21 @@ namespace builtins
 
     objref list_tail(context* pContext, listref pThis)
     {
-	return pThis->tail();
+	return pThis->tail(pContext);
     }
 
     objref int_equate(context* pContext, intref pThis, intref pOther)
     {
 	bool result = pThis->equate(pOther);
 	typespec ts("boolean",{});
-	return boolref(new bool_object(result,pContext->types().lookup(ts)));
+	return boolref(new bool_object(pContext,result,pContext->types()->lookup(ts)));
     }
 
     objref int_gt(context* pContext, intref pThis, intref pOther )
     {
 	bool result = pThis->internal_value() > pOther->internal_value();
 	typespec ts("boolean",{});
-	return boolref(new bool_object(result,pContext->types().lookup(ts)));
+	return boolref(new bool_object(pContext,result,pContext->types()->lookup(ts)));
 
     }
 
@@ -217,15 +219,15 @@ namespace builtins
     {
 	bool result = pThis->internal_value() < pOther->internal_value();
 	typespec ts("boolean",{});
-	return boolref(new bool_object(result,pContext->types().lookup(ts)));
+	return boolref(new bool_object(pContext,result,pContext->types()->lookup(ts)));
 
     }
 
     objref int_dec(context* pContext,intref pThis)
     {
 	typespec ts("integer",{});
-	return intref( new int_object(pThis->internal_value()-1,
-				      pContext->types().lookup(ts)));
+	return intref( new int_object(pContext, pThis->internal_value()-1,
+				      pContext->types()->lookup(ts)));
 	
     }
 
@@ -238,13 +240,14 @@ namespace builtins
     objref obj_class(context* pContext, objref pThis)
     {
 	typespec ts("class",{});
-	class_object* pClass = new class_object(&pThis->get_class(),pContext->types().lookup(ts));
+	class_object* pClass = 
+	    new class_object(pContext,&pThis->get_class(),pContext->types()->lookup(ts));
 	return objref(pClass);
     }
 
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement)
     {
-	list_object* pNewList = new list_object(pThis->get_class(),
+	list_object* pNewList = new list_object(pContext, pThis->get_class(),
 						pThis->internal_value() );
 
 	pNewList->append(pElement);
@@ -255,8 +258,8 @@ namespace builtins
     {
 	// Create a new integer
 	typespec ts("integer",{});
-	int_object* pResult = new int_object( pThis->internal_value().length(),
-					      pContext->types().lookup(ts));
+	int_object* pResult = new int_object( pContext, pThis->internal_value().length(),
+					      pContext->types()->lookup(ts));
 	return objref(pResult);
     }
 
@@ -265,7 +268,7 @@ namespace builtins
 	// Typespecs
 	typespec string_ts("string",{});
 	typespec list_ts("list",{string_ts});
-	fclass& string_cls = pContext->types().lookup(string_ts);
+	fclass& string_cls = pContext->types()->lookup(string_ts);
 
 	// Create a native list of string_objects
 	std::list<objref> nativeList;
@@ -273,12 +276,12 @@ namespace builtins
 	// Add all the methods of the given class
 	for ( auto m : pThis->internal_value()->methods() )
 	{
-	    string_object* pString = new string_object(m,string_cls);
+	    string_object* pString = new string_object(pContext, m,string_cls);
 	    nativeList.push_back( objref(pString) );
 	}
 
 	// Create a new list
-	list_object* pList = new list_object( pContext->types().lookup(list_ts),
+	list_object* pList = new list_object( pContext, pContext->types()->lookup(list_ts),
 					      nativeList);
 
 	// return a managed reference
@@ -295,13 +298,13 @@ namespace builtins
 	{
 	    // There is no base, return void
 	    typespec ts("void",{});
-	    return objref( new void_object(pContext->types().lookup(ts)));
+	    return objref( new void_object(pContext, pContext->types()->lookup(ts)));
 	}
 	else
 	{
 	    // There is a base!
 	    typespec spec("class",{});
-	    return objref(new class_object(baseClass,pContext->types().lookup(spec)));
+	    return objref(new class_object(pContext, baseClass,pContext->types()->lookup(spec)));
 	}
 	
     }
@@ -341,8 +344,9 @@ namespace builtins
 	typespec ts(name->internal_value(),{});
 	typespec tsc("class",{});
 	fclass* pNewNativeClass = new fclass(ts,pThis->internal_value());
-	(pContext->types()).add(*pNewNativeClass);
-	class_object*  pNewClass = new class_object(pNewNativeClass,(pContext->types()).lookup(tsc));
+	(pContext->types())->add(*pNewNativeClass);
+	class_object*  pNewClass = 
+	    new class_object(pContext, pNewNativeClass,(pContext->types())->lookup(tsc));
 
 	return objref(pNewClass,[](class_object*){});
     }
@@ -350,7 +354,7 @@ namespace builtins
     objref class_new(context* pContext, classref pThis, listref params)
     {
 	// TODO: Add params
-	::object* pObj = new ::object(*(pThis->internal_value()));
+	::object* pObj = new ::object(pContext, *(pThis->internal_value()));
 	return objref(pObj);
     }
 
@@ -370,14 +374,14 @@ namespace builtins
     objref obj_equate(context* pContext, objref pThis,objref pOther)
     {
 	typespec ts("boolean",{});
-	return boolref(new bool_object(false,pContext->types().lookup(ts)));
+	return boolref(new bool_object(pContext, false,pContext->types()->lookup(ts)));
     }
 
     objref void_equate(context* pContext, objref pThis, objref pOther)
     {
 	bool result = ( &(pThis->get_class())==&(pOther->get_class()) );
 	typespec ts("boolean",{});
-	return boolref(new bool_object(result,pContext->types().lookup(ts)));
+	return boolref(new bool_object(pContext,result,pContext->types()->lookup(ts)));
     }
 
     objref rnd(context* pContext, intref a, intref b)
@@ -388,6 +392,6 @@ namespace builtins
 	static std::default_random_engine generator;
 	std::uniform_int_distribution<int> distribution(lower,upper);
 
-	return objref( new int_object(distribution(generator), a->get_class()));
+	return objref( new int_object(pContext, distribution(generator), a->get_class()));
     }
 }

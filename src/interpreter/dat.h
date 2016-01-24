@@ -14,7 +14,7 @@ class dat : public action_target
 {
 
  public:
-    dat(std::shared_ptr<context>);
+    dat(context*);
     virtual ~dat();
 
     virtual ast* make_int(int x) const;
@@ -45,7 +45,7 @@ class dat : public action_target
     virtual void done();
 
  protected:
-    std::shared_ptr<context> _context;
+    context* _context;
     std::deque<list_node*> _list_stack;
     std::deque<sequence_node*> _seq_stack;
  private:
