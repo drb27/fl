@@ -34,6 +34,7 @@ class object
     virtual void dump( std::ostream& out = std::cout) const;
 
     virtual bool operator==(const objref other) const; 
+    virtual object& operator=(const objref other);
 
  protected:
     virtual void construct(context* pContext, std::vector<objref>&);

@@ -379,8 +379,7 @@ namespace builtins
 
     objref obj_assign(context* pContext, objref pThis, objref pOther)
     {
-	throw eval_exception(cerror::invalid_assignment,
-			     "Incompatible assignment" );
+	(*pThis)=pOther;
     }
     
     objref obj_equate(context* pContext, objref pThis,objref pOther)

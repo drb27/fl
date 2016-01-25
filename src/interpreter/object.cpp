@@ -44,6 +44,11 @@ bool object::operator==(const objref other) const
     return false;
 }
 
+object& object::operator=(const objref other)
+{
+    throw eval_exception(cerror::invalid_assignment, "Incompatible assignment");
+}
+
 object::~object()
 {
     wlog_entry();
