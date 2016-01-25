@@ -66,6 +66,8 @@ public:
     objref obj_class(context*, objref pThis);
     objref add_integers(context*,intref a, intref b);
     objref int_dec(context*,intref pThis);
+    objref int_div(context*,intref,intref);
+    objref int_mod(context*,intref,intref);
     objref in_range_integers(context* pContext, intref pThis, intref min, intref max);
     objref logical_not(context* pContext,boolref a);
     objref list_size(context* pContext, listref pThis);

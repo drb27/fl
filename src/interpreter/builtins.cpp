@@ -88,6 +88,8 @@ namespace builtins
 	pCls->add_method({"gt", make_marshall_mthd(&builtins::int_gt)});
 	pCls->add_method({"lt", make_marshall_mthd(&builtins::int_lt)});
 	pCls->add_method({"dec", make_marshall_mthd(&builtins::int_dec)});
+	pCls->add_method({"div", make_marshall_mthd(&builtins::int_div)});
+	pCls->add_method({"mod", make_marshall_mthd(&builtins::int_mod)});
 	return pCls;
     }
 
@@ -231,6 +233,20 @@ namespace builtins
 	
     }
 
+    objref int_div(context* pContext, intref pThis, intref divisor)
+    {
+	typespec ts("integer",{});
+	return intref( new int_object(pContext, N_INT(pThis)/N_INT(divisor),
+				      pContext->types()->lookup(ts)));
+    }
+    
+    objref int_mod(context* pContext, intref pThis, intref modulus)
+    {
+	typespec ts("integer",{});
+	return intref( new int_object(pContext, N_INT(pThis)%N_INT(modulus),
+				      pContext->types()->lookup(ts)));
+    }
+
     objref obj_dump(context*, objref pThis)
     {
 	pThis->dump(std::cout);
@@ -353,8 +369,12 @@ namespace builtins
 
     objref class_new(context* pContext, classref pThis, listref params)
     {
-	// TODO: Add params
-	::object* pObj = new ::object(pContext, *(pThis->internal_value()));
+	vector<objref> evaled_params;
+	for ( auto o : params->internal_value() )
+	{
+	    evaled_params.push_back(o);
+	}
+	::object* pObj = new ::object(pContext, *(pThis->internal_value()),evaled_params);
 	return objref(pObj);
     }
 

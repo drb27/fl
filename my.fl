@@ -52,6 +52,8 @@ countifnot=>(p,l)->countif((x)->p(x).not(),l)
 
 merge=>(la,lb)-> empty(lb)? la : merge(la::lb.head(),lb.tail())
 
+nth=>(l,n)-> n.eq(0)?l.head() : nth(l.tail(),n.dec())
+
 object=>null.class().base()
 car=>object.derive("car")
 car.addattr("wheels",4)
