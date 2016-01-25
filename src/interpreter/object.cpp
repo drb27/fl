@@ -39,6 +39,11 @@ object::object(context* pContext, fclass& c, vector<objref> params) : _class(c)
     construct(pContext,params);
 }
 
+bool object::operator==(const objref other) const
+{
+    return false;
+}
+
 object::~object()
 {
     wlog_entry();
@@ -112,7 +117,7 @@ int_object::int_object(context* pContext, int value, fclass& cls,bool attr)
 {
 }
 
-bool int_object::equate( objref other ) const
+bool int_object::operator==( const objref other ) const
 {
     if (&other->get_class()!=&get_class())
 	return false;
@@ -134,7 +139,7 @@ string_object::string_object(context* pContext, const std::string& value, fclass
 
 }
 
-bool string_object::equate( objref other ) const
+bool string_object::operator==( const objref other ) const
 {
     if (&other->get_class()!=&get_class())
 	return false;
@@ -152,6 +157,16 @@ void string_object::render( std::ostream& os) const
 bool_object::bool_object(context* pContext,bool b, fclass& cls)
     : _value(b),object(pContext,cls)
 {
+}
+
+bool bool_object::operator==( const objref other ) const
+{
+    if (&other->get_class()!=&get_class())
+	return false;
+
+    boolref other_bool = std::dynamic_pointer_cast<bool_object>(other);
+
+    return (internal_value()==other_bool->internal_value());
 }
 
 void bool_object::render( std::ostream& os) const
@@ -193,6 +208,11 @@ void void_object::render( std::ostream& os) const
 {
     os << "(null) ";
     object::render(os);
+}
+
+bool void_object::operator==( const objref other ) const
+{
+    return (&other->get_class()==&get_class());
 }
 
 fn_object::fn_object(context* pContext,

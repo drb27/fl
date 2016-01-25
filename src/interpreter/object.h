@@ -31,8 +31,9 @@ class object
     objref get_attribute(const std::string&);
     virtual void set_attribute(const std::string&,objref);
     virtual void render( std::ostream& os ) const;
-    virtual bool equate( objref other ) const { return false; }
     virtual void dump( std::ostream& out = std::cout) const;
+
+    virtual bool operator==(const objref other) const; 
 
  protected:
     virtual void construct(context* pContext, std::vector<objref>&);
@@ -49,7 +50,9 @@ public:
     int_object(context*,int value, fclass&,bool attr=true);
     virtual void render( std::ostream& os ) const;
     int internal_value() const { return _value; }
-    virtual bool equate( objref other ) const;
+
+    virtual bool operator==(const objref other) const; 
+
 protected:
     const int _value;
 };
@@ -60,7 +63,9 @@ public:
     string_object(context*,const std::string& value, fclass&);
     virtual void render( std::ostream& os ) const;
     const std::string& internal_value() const { return _value; }
-    virtual bool equate( objref other ) const;
+
+    virtual bool operator==(const objref other) const; 
+
 protected:
     const std::string _value;
 };
@@ -81,6 +86,9 @@ public:
     bool_object(context*,bool b, fclass&);
     virtual void render( std::ostream& os) const;
     bool internal_value() const { return _value; }
+
+    virtual bool operator==(const objref other) const; 
+
 protected:
     const bool _value;
 };
@@ -104,6 +112,8 @@ class void_object : public object
 public:
     void_object(context* pContext,fclass& cls) : object(pContext,cls) {}
     virtual void render( std::ostream& os) const;
+    
+    virtual bool operator==( const objref other) const;
 };
 
 // A function which can only be evaluated when all of its arguments have been

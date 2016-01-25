@@ -85,7 +85,6 @@ namespace builtins
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method({"add", make_marshall_mthd(&builtins::add_integers)});
 	pCls->add_method({"in_range", make_marshall_mthd(&builtins::in_range_integers)});
-	pCls->add_method({"eq", make_marshall_mthd(&builtins::int_equate)});
 	pCls->add_method({"gt", make_marshall_mthd(&builtins::int_gt)});
 	pCls->add_method({"lt", make_marshall_mthd(&builtins::int_lt)});
 	pCls->add_method({"dec", make_marshall_mthd(&builtins::int_dec)});
@@ -101,7 +100,6 @@ namespace builtins
 
 	typespec spec("void",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
-	pCls->add_method({"eq", make_marshall_mthd(&builtins::void_equate)});
 	return pCls;
     }
 
@@ -201,13 +199,6 @@ namespace builtins
     objref list_tail(context* pContext, listref pThis)
     {
 	return pThis->tail(pContext);
-    }
-
-    objref int_equate(context* pContext, intref pThis, intref pOther)
-    {
-	bool result = pThis->equate(pOther);
-	typespec ts("boolean",{});
-	return boolref(new bool_object(pContext,result,pContext->types()->lookup(ts)));
     }
 
     objref int_gt(context* pContext, intref pThis, intref pOther )
@@ -394,16 +385,9 @@ namespace builtins
     
     objref obj_equate(context* pContext, objref pThis,objref pOther)
     {
-	bool result = pThis->equate(pOther);
+	bool result = (*pThis)==pOther;
 	typespec ts("boolean",{});
 	return boolref(new bool_object(pContext, result,pContext->types()->lookup(ts)));
-    }
-
-    objref void_equate(context* pContext, objref pThis, objref pOther)
-    {
-	bool result = ( &(pThis->get_class())==&(pOther->get_class()) );
-	typespec ts("boolean",{});
-	return boolref(new bool_object(pContext,result,pContext->types()->lookup(ts)));
     }
 
     objref rnd(context* pContext, intref a, intref b)
