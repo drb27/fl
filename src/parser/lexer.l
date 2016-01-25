@@ -21,6 +21,7 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+==       { return EQUALITY; }
 \?\?     { return SELECTOR; }
 \|       { return BAR; }
 default  { return DEFAULT; }

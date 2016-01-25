@@ -79,6 +79,14 @@ ast* dat::make_attr( ast* target, std::string* selector)
     return pAttrNode;
 }
 
+ast* dat::make_equality(ast* target, ast* other)
+{
+    list_node* args = new list_node();
+    symbol_node* method = new symbol_node("eq");
+    args->push_element(other);
+    return make_methodcall(target,method,args);
+}
+
 ast* dat::make_methodcall( ast* target, ast* method,list_node* args)
 {
     symbol_node* pMethodNameNode = dynamic_cast<symbol_node*>(method);

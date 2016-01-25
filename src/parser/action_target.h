@@ -25,6 +25,7 @@ class action_target
     virtual ast* make_attr( ast* target, std::string* selector)=0;
     virtual ast* make_pair(ast*,ast*)=0;
     virtual ast* make_selector(ast*)=0;
+    virtual ast* make_equality(ast*,ast*)=0;
     virtual ast* selector_default(ast*)=0;
     virtual ast* selector_condition(ast*)=0;
     virtual ast* finish_selector()=0;

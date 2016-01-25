@@ -15,6 +15,7 @@ extern action_target* target;
  static std::string dec_str("dec");
 
 %}
+%token EQUALITY
 %token BAR
 %token SELECTOR
 %token DEFAULT
@@ -90,6 +91,7 @@ extern action_target* target;
 %left BAR
 %left COLON
 %left QUESTION
+%precedence EQUALITY
 %left BUILDER
 %left ADD
 %left DECREMENT
@@ -141,6 +143,7 @@ expr:   literal
       | assign
       | selector
       | symbol %prec LOWEST 
+      | expr EQUALITY expr { $$=target->make_equality($1,$3); }
       | expr ADD expr  { auto as = new std::string(add_str); 
 	                 $$=target->make_methodcall($1, target->make_symbol(as), 
 				       (list_node*)(target->make_single_list($3))); }
@@ -155,7 +158,9 @@ funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
 methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
 attr: expr DOT SYMBOL {$$=target->make_attr($1,$3); };
 
-bool: TRUE {$$=target->make_bool(true); } | FALSE { $$=target->make_bool(false); };
+bool: TRUE {$$=target->make_bool(true); } 
+    | FALSE { $$=target->make_bool(false); }
+    ;
 
 null: NULLVAL { $$=target->make_null(); }
  
