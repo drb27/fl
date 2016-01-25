@@ -171,10 +171,10 @@ exprs: expr { target->add_expr($1); }
      | exprs SEMICOLON expr { target->add_expr($3); }
      ;
 
-selector: expr SELECTOR selset { $$=$1; };
+selector: expr SELECTOR {$<node_val>$=target->make_selector($1); } selset { $$=$<node_val>3; target->finish_selector(); };
 selset: selpair | selset BAR selpair;
-selpair: expr COLON expr { $$=$1; }
-       | DEFAULT COLON expr { $$=$3; };
+selpair: expr COLON expr { target->selector_condition( target->make_pair($1,$3) ); }
+       | DEFAULT COLON expr { target->selector_default($3); };
 
 /* COMMANDS ***************************************************************/
 

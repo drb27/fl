@@ -209,3 +209,30 @@ void dat::done()
 {
     throw terminate_exception();
 }
+
+ast* dat::make_pair(ast* f,ast* s)
+{
+    return new pair_node(f,s);
+}
+
+ast* dat::make_selector(ast* pSel)
+{
+    auto s = new selector_node(pSel);
+    _sel_stack.push_front(s);
+    return s;
+}
+
+ast* dat::selector_default(ast* pDefault)
+{
+    (*_sel_stack.begin())->set_default(pDefault);
+}
+
+ast* dat::selector_condition(ast* pCondPair)
+{
+    (*_sel_stack.begin())->add_condition(pCondPair);
+}
+
+ast* dat::finish_selector()
+{
+    _sel_stack.pop_front();
+}

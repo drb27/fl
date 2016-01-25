@@ -45,6 +45,7 @@ namespace builtins
 	pCls->add_method( {".assign", make_marshall_mthd(&builtins::obj_assign),false});
 	pCls->add_method( {"eq", make_marshall_mthd(&builtins::obj_equate),false} );
 	pCls->add_method( {"is", make_marshall_mthd(&builtins::obj_is),true } );
+	pCls->add_method( {"invoke", make_marshall_mthd(&builtins::obj_invoke),true} );
 	return pCls;
     }
 
@@ -405,5 +406,17 @@ namespace builtins
 	bool result = pThis.get()==pOther.get();
 	typespec ts("boolean",{});
 	return boolref(new bool_object(pContext,result,pContext->types()->lookup(ts)));
+    }
+
+    objref obj_invoke(context* pContext,objref pThis,stringref name, listref params)
+    {
+	vector<objref> raw_params(params->internal_value().size());
+
+	int index=0;
+	for ( auto p : params->internal_value() )
+	{
+	    raw_params[index++] = p;
+	}
+	return pThis->invoke( name->internal_value(), pContext, raw_params );
     }
 }

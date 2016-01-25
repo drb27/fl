@@ -9,6 +9,7 @@
 class context;
 class list_node;
 class sequence_node;
+class selector_node;
 
 class dat : public action_target
 {
@@ -43,11 +44,17 @@ class dat : public action_target
     virtual void enable_debug(bool enable=true);
     virtual void enable_trace(bool enable=true);
     virtual void done();
+    virtual ast* make_pair(ast*,ast*);
+    virtual ast* make_selector(ast*);
+    virtual ast* selector_default(ast*);
+    virtual ast* selector_condition(ast*);
+    virtual ast* finish_selector();
 
  protected:
     context* _context;
     std::deque<list_node*> _list_stack;
     std::deque<sequence_node*> _seq_stack;
+    std::deque<selector_node*> _sel_stack;
  private:
 
 };

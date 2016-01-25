@@ -56,8 +56,20 @@ object::~object()
 
 objref object::invoke( const string& mthdName, context* pContext, vector<objref>& params)
 {
-    // TODO
-    return objref(nullptr);
+    // Create a methodcall node to do all of the hard work for us
+    methodcall_node* pCallNode = new methodcall_node(mthdName);
+
+    // Set up the node here
+    pCallNode->add_target( new literal_node( objref(this) ));
+
+    for ( auto param : params )
+    {
+	pCallNode->add_param( new literal_node( param ) );
+    }
+
+    objref result = pCallNode->evaluate(pContext);
+    delete pCallNode;
+    return result;
 }
 
 void object::construct(context* pContext, vector<objref>& params)

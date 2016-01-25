@@ -56,7 +56,10 @@ nth=>(l,n)-> n.eq(0)?l.head() : nth(l.tail(),n.dec())
 
 object=>null.class().base()
 car=>object.derive("car")
-car.addattr("wheels",4)
+car.addattr("wheels",0)
+car.addmethod( (t,v)-> t.wheels=>v, "setwheels")
+car.addmethod( (t,x,y) -> t.wheels=>x+y, "setfrontback" )
+c=>car.new(())
 
 card=>object.derive("card")
 card.addattr("value",0)
