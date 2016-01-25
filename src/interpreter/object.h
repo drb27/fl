@@ -33,6 +33,8 @@ class object
     virtual void render( std::ostream& os ) const;
     virtual void dump( std::ostream& out = std::cout) const;
 
+    virtual objref invoke( const std::string& mthdName, context* pCtx, std::vector<objref>& params);
+
     virtual bool operator==(const objref other) const; 
     virtual object& operator=(const objref other);
 

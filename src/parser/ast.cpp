@@ -719,3 +719,111 @@ fclass* sequence_node::type(context* pContext) const
 {
     return _sequence.back()->type(pContext);
 }
+
+pair_node::pair_node(ast* f, ast* s )
+    : _first(f), _second(s)
+{
+}
+
+objref pair_node::evaluate(context* pContext)
+{
+    return _second->evaluate(pContext);
+}
+
+fclass* pair_node::type(context* pContext) const
+{
+    return _second->type(pContext);
+}
+
+void pair_node::required_symbols(set<string>& s) const
+{
+    _first->required_symbols(s);
+    _second->required_symbols(s);
+}
+
+selector_node::selector_node(ast* selector)
+    : _selector(selector)
+{
+}
+
+objref selector_node::evaluate(context* pContext)
+{
+    // Evaluate the selector
+    objref selResult = _selector->evaluate(pContext);
+
+    objref result=objref(nullptr);
+
+    typespec bts("boolean",{});
+    auto bool_cls = pContext->types()->lookup(bts);
+    boolref trueObj = boolref( new bool_object(pContext,true,bool_cls));
+
+    // Search the conditions in order
+    for ( auto pair : _conditions )
+    {
+	// Evaluate the guard
+	auto firstResult = pair->first()->evaluate(pContext);
+
+	// Compare the guard to the selector value
+	vector<objref> params{firstResult};
+	if ( selResult->invoke("eq",pContext,params) == trueObj )
+	{
+	    // We have a match!
+	    result = pair->second()->evaluate(pContext);
+	    break;
+	}   
+    }
+    
+    // Match found?
+    if (result)
+    {
+	// Yes, return it now
+	return result;
+    }
+    else
+    {
+	// No match - do we have a default?
+	if (_default)
+	{
+	    // Evaluate and return the default
+	    return _default->evaluate(pContext);
+	}
+	else
+	{
+	    // Failed to match anything
+	    throw eval_exception(cerror::selector_nomatch, "Selector failed to match anything");
+	}
+    }
+
+    // TODO
+    return objref(nullptr);
+}
+
+fclass* selector_node::type(context* pContext) const
+{
+    typespec ts("object",{});
+    return &(pContext->types()->lookup(ts));    
+}
+
+void selector_node::required_symbols(set<string>& s ) const
+{
+    _selector->required_symbols(s);
+    if (_default)
+	_default->required_symbols(s);
+
+    for ( auto pair : _conditions )
+    {
+	pair->first()->required_symbols(s);
+	pair->second()->required_symbols(s);
+    }
+}
+
+void selector_node::add_condition(ast* pair)
+{
+    pair_node* pPairNode = dynamic_cast<pair_node*>(pair);
+    _conditions.push_back(pPairNode);
+}
+
+void selector_node::set_default(ast* defaultExpr)
+{
+    _default = defaultExpr;
+}

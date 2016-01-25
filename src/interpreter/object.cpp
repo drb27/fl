@@ -54,6 +54,12 @@ object::~object()
     wlog_entry();
 }
 
+objref object::invoke( const string& mthdName, context* pContext, vector<objref>& params)
+{
+    // TODO
+    return objref(nullptr);
+}
+
 void object::construct(context* pContext, vector<objref>& params)
 {
    // Call the constructor!

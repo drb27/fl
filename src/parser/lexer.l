@@ -21,6 +21,9 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+\?\?     { return SELECTOR; }
+\|       { return BAR; }
+default  { return DEFAULT; }
 \;       { return SEMICOLON; }
 \{       { return OPEN_CURLY; }
 \}       { return CLOSE_CURLY; }

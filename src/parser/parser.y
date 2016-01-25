@@ -15,6 +15,9 @@ extern action_target* target;
  static std::string dec_str("dec");
 
 %}
+%token BAR
+%token SELECTOR
+%token DEFAULT
 %token OPEN_CURLY
 %token CLOSE_CURLY
 %token TRACE
@@ -75,12 +78,16 @@ extern action_target* target;
 %type <node_val> str
 %type <node_val> attr
 %type <node_val> sequence
+%type <node_val> selector
+%type <node_val> selpair
 %start input
 
 %left SEMICOLON
 %precedence MAPSTO
 %left ALIAS
 %left EQ
+%left SELECTOR
+%left BAR
 %left COLON
 %left QUESTION
 %left BUILDER
@@ -132,11 +139,14 @@ expr:   literal
       | methodcall
       | alias
       | assign
+      | selector
       | symbol %prec LOWEST 
-      | expr ADD expr { auto as = new std::string(add_str); $$=target->make_methodcall($1, target->make_symbol(as),
-						   (list_node*)(target->make_single_list($3))); }
-| expr DECREMENT { auto ds = new std::string(dec_str); $$=target->make_methodcall($1, target->make_symbol(ds),
-						    (list_node*)(target->make_empty_list())); }
+      | expr ADD expr  { auto as = new std::string(add_str); 
+	                 $$=target->make_methodcall($1, target->make_symbol(as), 
+				       (list_node*)(target->make_single_list($3))); }
+      | expr DECREMENT { auto ds = new std::string(dec_str); 
+                         $$=target->make_methodcall($1, target->make_symbol(ds),
+				       (list_node*)(target->make_empty_list())); }
       ;
 
 literal: null | bool | integer | str | list_literal;
@@ -160,6 +170,11 @@ sequence: OPEN_CURLY { $<node_val>$ = target->make_seq(); } exprs CLOSE_CURLY { 
 exprs: expr { target->add_expr($1); }
      | exprs SEMICOLON expr { target->add_expr($3); }
      ;
+
+selector: expr SELECTOR selset { $$=$1; };
+selset: selpair | selset BAR selpair;
+selpair: expr COLON expr { $$=$1; }
+       | DEFAULT COLON expr { $$=$3; };
 
 /* COMMANDS ***************************************************************/
 

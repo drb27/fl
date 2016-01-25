@@ -43,6 +43,39 @@ protected:
     const objref _object;
 };
 
+class pair_node : public ast
+{
+public:
+    pair_node( ast*,ast*);
+    virtual objref evaluate(context*);
+    virtual fclass* type(context*) const;
+    virtual void required_symbols(std::set<std::string>&) const;
+    virtual ast* first() const { return _first; }
+    virtual ast* second() const { return _second; }
+
+protected:
+    ast* _first;
+    ast* _second;
+};
+
+class selector_node : public ast
+{
+public:
+    selector_node( ast* selector);
+    virtual objref evaluate(context*);
+    virtual fclass* type(context*) const;
+    virtual void required_symbols(std::set<std::string>&) const;
+
+    virtual void add_condition(ast* pair);
+    virtual void set_default(ast* defaultExpr);
+
+protected:
+    ast* _selector;
+    ast* _default{nullptr};
+    std::list<pair_node*> _conditions;
+
+};
+
 class sequence_node : public ast
 {
 public:
