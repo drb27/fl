@@ -105,6 +105,7 @@ public:
     std::list<objref>& internal_value() { return _list; }
     objref first() const { return _list.front(); }
     void append(objref e) { _list.push_back(e); }
+    void prepend(objref e) { _list.push_front(e); }
     listref tail(context*) const;
 protected:
     std::list<objref> _list;

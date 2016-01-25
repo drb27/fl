@@ -73,6 +73,7 @@ public:
     objref list_size(context* pContext, listref pThis);
     objref list_head(context* pContext, listref pThis);
     objref list_append(context* pContext, listref pThis, objref e);
+    objref list_prepend(context* pContext, listref pThis, objref e);
     objref list_tail(context* pContext, listref pThis);
     objref int_equate(context* pContext, intref pThis, intref pOther);
     objref int_gt(context* pContext, intref pThis, intref pOther);

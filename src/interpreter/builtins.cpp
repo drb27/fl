@@ -118,6 +118,7 @@ namespace builtins
 	    pCls->add_method({"size", make_marshall_mthd(&builtins::list_size)});
 	    pCls->add_method({"head", make_marshall_mthd(&builtins::list_head)});
 	    pCls->add_method({"append", make_marshall_mthd(&builtins::list_append)});
+	    pCls->add_method({"prepend", make_marshall_mthd(&builtins::list_prepend)});
 	    pCls->add_method({"tail", make_marshall_mthd(&builtins::list_tail)});
 	    pCls->add_method({"duplicate_and_append", make_marshall_mthd(&builtins::list_dup_and_append)});
 	    return pCls;
@@ -194,6 +195,12 @@ namespace builtins
     objref list_append(context* pContext, listref pThis, objref e)
     {
 	pThis->append(e);
+	return pThis;
+    }
+
+    objref list_prepend(context* pContext, listref pThis, objref e)
+    {
+	pThis->prepend(e);
 	return pThis;
     }
 
