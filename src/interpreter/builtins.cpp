@@ -44,6 +44,7 @@ namespace builtins
 	pCls->add_method( {".ctor", make_marshall_mthd(&builtins::obj_ctor),true});
 	pCls->add_method( {".assign", make_marshall_mthd(&builtins::obj_assign),false});
 	pCls->add_method( {"eq", make_marshall_mthd(&builtins::obj_equate),false} );
+	pCls->add_method( {"is", make_marshall_mthd(&builtins::obj_is),true } );
 	return pCls;
     }
 
@@ -413,5 +414,12 @@ namespace builtins
 	std::uniform_int_distribution<int> distribution(lower,upper);
 
 	return objref( new int_object(pContext, distribution(generator), a->get_class()));
+    }
+
+    objref obj_is(context* pContext,objref pThis, objref pOther)
+    {
+	bool result = pThis.get()==pOther.get();
+	typespec ts("boolean",{});
+	return boolref(new bool_object(pContext,result,pContext->types()->lookup(ts)));
     }
 }

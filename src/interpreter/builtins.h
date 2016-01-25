@@ -89,6 +89,7 @@ public:
     objref obj_assign(context* pContext, objref pThis, objref pOther);
     objref void_equate(context* pContext, objref pThis, objref pOther);
     objref rnd(context* pContext, intref a, intref b);
+    objref obj_is(context*,objref,objref);
 }
 
 #endif
