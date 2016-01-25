@@ -394,8 +394,9 @@ namespace builtins
     
     objref obj_equate(context* pContext, objref pThis,objref pOther)
     {
+	bool result = pThis->equate(pOther);
 	typespec ts("boolean",{});
-	return boolref(new bool_object(pContext, false,pContext->types()->lookup(ts)));
+	return boolref(new bool_object(pContext, result,pContext->types()->lookup(ts)));
     }
 
     objref void_equate(context* pContext, objref pThis, objref pOther)
