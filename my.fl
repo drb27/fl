@@ -65,7 +65,9 @@ card=>object.derive("card")
 card.addattr("value",0)
 card.addattr("suit",0)
 
-suit=>(c)-> c.suit.eq(1)? "diamonds" : c.suit.eq(2)? "spades" : c.suit.eq(3)? "clubs" : "hearts"
+// suit=>(c)-> c.suit.eq(1)? "diamonds" : c.suit.eq(2)? "spades" : c.suit.eq(3)? "clubs" : "hearts"
+
+suit=>(c) -> c.suit?? 1: "diamonds" | 2: "spades" | 3: "clubs" | default: "hearts"
 
 thing=>object.derive("thing")
 thing.addattr("store",null)
@@ -113,3 +115,12 @@ intmap=>object.derive("intmap")
 intmap.addattr("store",null)
 intmap.addmethod( (t,k,v)-> t.store.eq(null)? { t.store=>make_node(k,null,null,v) ; t } : { insert( t.store, k, v ) ; t } , "add")
 intmap.addmethod( (t,k) -> t.store.find(k), "find" )
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BETTER KEYSTORE
+
+set=>object.derive("set")
+set.addattr("store",null)
+set.addmethod( (t)-> t.store=>intmap.new(()), ".ctor")
+set.addmethod( (t,v) -> t.store.add(v,v), "insert" )
+set.addmethod( (t,v) -> t.store.find(v).eq(null).not(), "contains" )

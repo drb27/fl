@@ -104,7 +104,7 @@ public:
     virtual void render( std::ostream& os) const;
     std::list<objref>& internal_value() { return _list; }
     objref first() const { return _list.front(); }
-    listref append(objref e) { _list.push_back(e); }
+    void append(objref e) { _list.push_back(e); }
     listref tail(context*) const;
 protected:
     std::list<objref> _list;
