@@ -153,9 +153,7 @@ namespace builtins
     objref add_integers(context* pContext, intref a,intref b)
     {
 	const int result = a->internal_value() + b->internal_value();
-	typespec int_spec = typespec("integer",{});
-	fclass& int_cls = pContext->types()->lookup(int_spec);
-	objref pObject(new int_object(pContext,result,int_cls));
+	objref pObject(new int_object(pContext,result));
     
 	return pObject;
     }
@@ -180,10 +178,7 @@ namespace builtins
     
     objref list_size(context* pContext, listref pThis)
     {
-	typespec int_spec = typespec("integer",{});
-	fclass& int_cls = pContext->types()->lookup(int_spec);
-	
-	objref pObject(new int_object(pContext,pThis->internal_value().size(),int_cls));
+	objref pObject(new int_object(pContext,pThis->internal_value().size()));
 	return pObject;
     }
 
@@ -227,24 +222,20 @@ namespace builtins
 
     objref int_dec(context* pContext,intref pThis)
     {
-	typespec ts("integer",{});
-	return intref( new int_object(pContext, pThis->internal_value()-1,
-				      pContext->types()->lookup(ts)));
+	return intref( new int_object(pContext, pThis->internal_value()-1));
+
 	
     }
 
     objref int_div(context* pContext, intref pThis, intref divisor)
     {
-	typespec ts("integer",{});
-	return intref( new int_object(pContext, N_INT(pThis)/N_INT(divisor),
-				      pContext->types()->lookup(ts)));
+	return intref( new int_object(pContext, N_INT(pThis)/N_INT(divisor)));
+
     }
     
     objref int_mod(context* pContext, intref pThis, intref modulus)
     {
-	typespec ts("integer",{});
-	return intref( new int_object(pContext, N_INT(pThis)%N_INT(modulus),
-				      pContext->types()->lookup(ts)));
+	return intref( new int_object(pContext, N_INT(pThis)%N_INT(modulus)));
     }
 
     objref obj_dump(context*, objref pThis)
@@ -273,9 +264,8 @@ namespace builtins
     objref string_length(context* pContext, stringref pThis )
     {
 	// Create a new integer
-	typespec ts("integer",{});
-	int_object* pResult = new int_object( pContext, pThis->internal_value().length(),
-					      pContext->types()->lookup(ts));
+	int_object* pResult = new int_object( pContext, pThis->internal_value().length() );
+
 	return objref(pResult);
     }
 
@@ -405,7 +395,7 @@ namespace builtins
 	static std::default_random_engine generator;
 	std::uniform_int_distribution<int> distribution(lower,upper);
 
-	return objref( new int_object(pContext, distribution(generator), a->get_class()));
+	return objref( new int_object(pContext, distribution(generator)));
     }
 
     objref obj_is(context* pContext,objref pThis, objref pOther)

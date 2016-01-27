@@ -25,8 +25,6 @@ void PackageTestFixture::tearDown()
  */
 void PackageTestFixture::testConstruction()
 {
-    package p("root");
-    CPPUNIT_ASSERT( p.name()=="root" );
-    CPPUNIT_ASSERT( p.is_root() );
+
 }
 

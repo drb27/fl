@@ -54,7 +54,7 @@ class fclass
 {
 
  public:
-    fclass(const typespec&, fclass* pBase, bool abstract=false);
+    fclass(const typespec&, fclass* pBase=nullptr, bool abstract=false);
     std::string name() const;
     const typespec& get_spec() const;
     virtual void add_attribute(const std::string&,objref d);

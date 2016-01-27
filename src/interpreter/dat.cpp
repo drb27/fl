@@ -27,9 +27,7 @@ dat::~dat()
 
 ast* dat::make_int(int x) const
 {
-    typespec int_spec = typespec("integer",{});
-    fclass& int_cls = _context->types()->lookup(int_spec);
-    objref pObject(new int_object(_context,x,int_cls));
+    objref pObject(new int_object(_context,x));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }

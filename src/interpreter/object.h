@@ -50,7 +50,7 @@ class object
 class int_object : public object
 {
 public:
-    int_object(context*,int value, fclass&,bool attr=true);
+    int_object(context*,int value);
     virtual void render( std::ostream& os ) const;
     int internal_value() const { return _value; }
 

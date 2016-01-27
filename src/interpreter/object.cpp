@@ -134,11 +134,19 @@ void class_object::render(std::ostream& os ) const
     os << "(class " << _value->name() << ") ";
     object::render(os);
 }
-
-int_object::int_object(context* pContext, int value, fclass& cls,bool attr) 
-    : object(pContext,cls), _value(value)
+namespace
+{
+    inline fclass& get_int_cls(context* pContext)
+    {
+	typespec ts("integer",{});
+	return pContext->types()->lookup(ts);
+    }
+}
+int_object::int_object(context* pContext, int value)
+    : object(pContext,get_int_cls(pContext)), _value(value)
 {
 }
+
 
 bool int_object::operator==( const objref other ) const
 {

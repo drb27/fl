@@ -38,9 +38,9 @@ void FclassTestFixture::testNonRootConstruction()
     typespec child_spec("child",{});
     
     fclass root(obj_spec);
-    fclass child(child_spec,root);
+    fclass child(child_spec,&root);
 
-    CPPUNIT_ASSERT( &(child.base())==&root );
+    CPPUNIT_ASSERT( (child.base())==&root );
 }
 
 void FclassTestFixture::testTypeSpecEquality()
