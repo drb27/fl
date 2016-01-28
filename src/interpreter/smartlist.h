@@ -5,20 +5,21 @@
 #include <vector>
 #include <interpreter/marshall.h>
 
-typedef objref* objrefptr;
-
 class chunk;
 
 typedef std::shared_ptr<chunk> chunkref;
-typedef std::shared_ptr<objref*> blockref;
+typedef std::shared_ptr<objref> blockref;
 
 class chunk final
 {
  public:
     chunk(size_t,size_t,blockref&,chunkref&);
+    chunk(const chunk&);
 
     static chunkref make_singleblock_chunk( const std::vector<objref>& );
-
+    static blockref make_block( const std::vector<objref>& );
+    static blockref make_block( size_t size);
+    static blockref copy_block( blockref src, size_t size );
     size_t _size;
     size_t _idx_head;
     blockref _block;
@@ -32,8 +33,10 @@ class smartlist final
     smartlist();
     ~smartlist();
 
+    smartlist( const smartlist& other);
+
     size_t size() const;
-    objref* head() const;
+    objref head() const;
 
     void inplace_append(blockref&,size_t);
     void inplace_append(chunkref&);
@@ -43,7 +46,11 @@ class smartlist final
     void inplace_prefix(chunkref&);
     void inplace_prefix(objref&);
 
+    objref get_element(size_t) const;
+    smartlist* tail() const;
+
     bool unique() const;
+    void detach();
 
  protected:
 

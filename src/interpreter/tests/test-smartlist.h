@@ -21,7 +21,9 @@ public:
     void setUp();
     void tearDown();
 
-    chunkref make_chunk(size_t);
+    chunkref make_chunk(size_t, int start=0);
+    blockref make_block(size_t sz, int start=0);
+    void configure_shared_lists(smartlist&,smartlist&);
 
     /** @name Test Cases */
     // @{
@@ -35,6 +37,10 @@ public:
     void testUniqueEmpty();
     void testUniqueUnique();
     void testUniqueNotUnique();
+    void testDetach();
+    void testGetElement();
+    void testShallowCopyConstructor();
+    void testTail();
     // @}
 
     /** \cond internal */
@@ -49,6 +55,10 @@ public:
     CPPUNIT_TEST( testUniqueEmpty );
     CPPUNIT_TEST( testUniqueUnique );
     CPPUNIT_TEST( testUniqueNotUnique );
+    CPPUNIT_TEST( testDetach );
+    CPPUNIT_TEST( testGetElement );
+    CPPUNIT_TEST( testShallowCopyConstructor );
+    CPPUNIT_TEST( testTail );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

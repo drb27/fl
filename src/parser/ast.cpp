@@ -114,7 +114,7 @@ objref list_node::evaluate(context* pContext)
     auto l = new list_object(pContext,*(type(pContext)));
     for ( auto e : _elements )
     {
-	l->internal_value().push_back(e->evaluate(pContext));
+	l->append(e->evaluate(pContext));
     }
     return objref(l);
 }

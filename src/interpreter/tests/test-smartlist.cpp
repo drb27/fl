@@ -26,15 +26,49 @@ void smartlistTestFixture::tearDown()
 {
 }
 
-chunkref smartlistTestFixture::make_chunk(size_t sz)
+chunkref smartlistTestFixture::make_chunk(size_t sz,int start)
 {
     vector<objref> items(sz);
 
     for (int i = 0 ; i < sz ; i++ )
-	items[i] = objref( new int_object(g_pContext,i) );
+	items[i] = objref( new int_object(g_pContext,start+i) );
 
     return chunk::make_singleblock_chunk(items);
 
+}
+
+blockref smartlistTestFixture::make_block(size_t sz, int start)
+{
+    vector<objref> items(sz);
+
+    for (int i = 0 ; i < sz ; i++ )
+	items[i] = objref( new int_object(g_pContext,start+i) );
+
+    return chunk::make_block(items);
+}
+
+void smartlistTestFixture::configure_shared_lists(smartlist& a,smartlist& b)
+{
+    vector<objref> items;
+
+    blockref b1 = make_block(3,1);
+    blockref b2 = make_block(3,4);
+    blockref b3 = make_block(3,7);
+    blockref b4 = make_block(3,10);
+
+    chunkref nullchunk( chunkref(nullptr) );
+    chunkref c1 = chunkref( new chunk(3,0,b1,nullchunk) );
+    chunkref c2 = chunkref( new chunk(3,0,b2,nullchunk) );
+    chunkref c3 = chunkref( new chunk(3,0,b3,nullchunk) );
+    chunkref c4 = chunkref( new chunk(3,0,b4,nullchunk) );
+    chunkref c5 = chunkref( new chunk(3,0,b2,nullchunk) );
+
+    a.inplace_append(c1);
+    a.inplace_append(c2);
+    a.inplace_append(c3);
+
+    b.inplace_append(c4);
+    b.inplace_append(c5);
 }
 
 /**
@@ -63,9 +97,9 @@ void smartlistTestFixture::testMakeSingleblockChunk()
 
     for ( int i = 0 ; i < 5; i++ )
     {
-	objref* o = c->_block.get()[i];
+	objref o = c->_block.get()[i];
 	intref expected = intref( new int_object(g_pContext,i) );
-	CPPUNIT_ASSERT( (*expected)==*o );
+	CPPUNIT_ASSERT( (*expected)==o );
     }
 }
 
@@ -129,4 +163,100 @@ void smartlistTestFixture::testUniqueNotUnique()
     s2.inplace_append(c2);
     CPPUNIT_ASSERT( !s1.unique() );
     CPPUNIT_ASSERT( !s2.unique() );
+}
+
+void smartlistTestFixture::testDetach()
+{
+    smartlist a,b;
+    configure_shared_lists(a,b);
+
+    CPPUNIT_ASSERT( !a.unique() );
+    CPPUNIT_ASSERT( !b.unique() );
+
+    a.detach();
+
+    for ( int index = 0 ; index < a.size(); index++ )
+    {
+	intref el = std::dynamic_pointer_cast<int_object>(a.get_element(index));
+	CPPUNIT_ASSERT( el->internal_value() == 1+index );
+    }
+
+    CPPUNIT_ASSERT( a.unique() );
+    CPPUNIT_ASSERT( b.unique() );
+}
+
+void smartlistTestFixture::testGetElement()
+{
+    smartlist a,b;
+    configure_shared_lists(a,b);
+
+    for ( int index = 0 ; index < a.size(); index++ )
+    {
+	intref el = std::dynamic_pointer_cast<int_object>(a.get_element(index));
+	CPPUNIT_ASSERT( el->internal_value() == 1+index );
+    }
+
+    CPPUNIT_ASSERT( !a.unique() );
+    CPPUNIT_ASSERT( !b.unique() );
+}
+
+void smartlistTestFixture::testShallowCopyConstructor()
+{
+    smartlist b,c;
+    configure_shared_lists(b,c);
+
+    smartlist a(b);
+    for ( int index = 0 ; index < a.size(); index++ )
+    {
+	intref el = std::dynamic_pointer_cast<int_object>(a.get_element(index));
+	CPPUNIT_ASSERT( el->internal_value() == 1+index );
+    }
+    CPPUNIT_ASSERT( !a.unique() );
+    CPPUNIT_ASSERT( !b.unique() );
+    CPPUNIT_ASSERT( !c.unique() );
+
+    CPPUNIT_ASSERT( a.size()==b.size() );
+    a.detach();
+
+    for ( int index = 0 ; index < a.size(); index++ )
+    {
+	intref el = std::dynamic_pointer_cast<int_object>(a.get_element(index));
+	CPPUNIT_ASSERT( el->internal_value() == 1+index );
+    }
+
+    CPPUNIT_ASSERT( a.unique() );
+    CPPUNIT_ASSERT( a.size()==b.size() );
+}
+
+void smartlistTestFixture::testTail()
+{
+    smartlist a,b;
+    configure_shared_lists(a,b);
+
+    CPPUNIT_ASSERT(a.size()==9);
+    for ( int index = 0 ; index < a.size(); index++ )
+    {
+	intref el = std::dynamic_pointer_cast<int_object>(a.get_element(index));
+	CPPUNIT_ASSERT( el->internal_value() == 1+index );
+    }
+
+    smartlist* pC = a.tail();
+
+    CPPUNIT_ASSERT(pC->size()==8);
+    for ( int index = 0 ; index < pC->size(); index++ )
+    {
+	intref el = std::dynamic_pointer_cast<int_object>(pC->get_element(index));
+	CPPUNIT_ASSERT( el->internal_value() == 2+index );
+    }
+
+    delete pC;
+
+    CPPUNIT_ASSERT(a.size()==9);
+    for ( int index = 0 ; index < a.size(); index++ )
+    {
+	intref el = std::dynamic_pointer_cast<int_object>(a.get_element(index));
+	CPPUNIT_ASSERT( el->internal_value() == 1+index );
+    }
+
+
 }
