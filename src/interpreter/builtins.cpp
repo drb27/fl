@@ -178,7 +178,7 @@ namespace builtins
     
     objref list_size(context* pContext, listref pThis)
     {
-	objref pObject(new int_object(pContext,pThis->internal_value().size()));
+	objref pObject(new int_object(pContext,pThis->size()));
 	return pObject;
     }
 
@@ -254,9 +254,7 @@ namespace builtins
 
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement)
     {
-	list_object* pNewList = new list_object(pContext, pThis->get_class(),
-						pThis->internal_value() );
-
+	list_object* pNewList = new list_object(pContext, *pThis);
 	pNewList->append(pElement);
 	return objref(pNewList);
     }
@@ -360,9 +358,10 @@ namespace builtins
     objref class_new(context* pContext, classref pThis, listref params)
     {
 	vector<objref> evaled_params;
-	for ( auto o : params->internal_value() )
+	//for ( auto o : params->internal_value() )
+	for ( int index=0; index < params->size() ; index++ )
 	{
-	    evaled_params.push_back(o);
+	    evaled_params.push_back(params->get_element(index));
 	}
 	::object* pObj = new ::object(pContext, *(pThis->internal_value()),evaled_params);
 	return objref(pObj);
@@ -407,12 +406,12 @@ namespace builtins
 
     objref obj_invoke(context* pContext,objref pThis,stringref name, listref params)
     {
-	vector<objref> raw_params(params->internal_value().size());
+	vector<objref> raw_params(params->size());
 
-	int index=0;
-	for ( auto p : params->internal_value() )
+	//for ( auto p : params->internal_value() )
+	for ( int index=0; index < params->size(); index++ )
 	{
-	    raw_params[index++] = p;
+	    raw_params[index] = params->get_element(index);
 	}
 	return pThis->invoke( name->internal_value(), pContext, raw_params );
     }

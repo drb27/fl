@@ -13,7 +13,7 @@
 #include "class.h"
 #include <interpreter/marshall.h>
 #include <interpreter/context.h>
-
+#include <interpreter/smartlist.h>
 class ast;
 class typemgr;
 
@@ -101,14 +101,17 @@ class list_object : public object
 public:
     list_object(context*,fclass&);
     list_object(context*,fclass&,std::list<objref> startingList);
+    list_object(context*,fclass&,smartlist*);
+    list_object(context*,const list_object&);
     virtual void render( std::ostream& os) const;
-    std::list<objref>& internal_value() { return _list; }
-    objref first() const { return _list.front(); }
-    void append(objref e) { _list.push_back(e); }
-    void prepend(objref e) { _list.push_front(e); }
+    objref first();
+    void append(objref e);
+    void prepend(objref e);
+    objref get_element(size_t index);
+    int size() const;
     listref tail(context*) const;
 protected:
-    std::list<objref> _list;
+    std::shared_ptr<smartlist> _pList;
 };
 
 class void_object : public object

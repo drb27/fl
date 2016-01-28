@@ -8,6 +8,7 @@
 #include <interpreter/eval_exception.h>
 #include <parser/ast_nodes.h>
 #include <logger/logger.h>
+#include <interpreter/smartlist.h>
 
 using std::string;
 using std::function;
@@ -209,26 +210,73 @@ void bool_object::render( std::ostream& os) const
 list_object::list_object(context* pContext,fclass& cls)
     : object(pContext,cls)
 {
+    _pList.reset(new smartlist());
+}
+
+list_object::list_object( context* pContext, const list_object& other)
+    : object(pContext,other.get_class())
+{
+    _pList.reset( new smartlist(*(other._pList.get())) );
+}
+
+list_object::list_object(context* pContext, fclass& cls, smartlist* l)
+    : object(pContext,cls)
+{
+    _pList.reset(l);
 }
 
 list_object::list_object(context* pContext,fclass& cls, std::list<objref> startList)
-    : object(pContext,cls), _list(startList)
+    : object(pContext,cls)
 {
+    vector<objref> items(startList.size() );
+    int index=0;
+    for ( auto item : startList )
+    {
+	items[index++] = item;
+    }
+
+    blockref blk = chunk::make_block(items);
+    _pList.reset(new smartlist());
+    _pList->inplace_append(blk,items.size());
+}
+
+void list_object::append(objref e)
+{
+    _pList->inplace_append(e);
+}
+
+void list_object::prepend(objref e)
+{
+    _pList->inplace_prefix(e);
+}
+
+objref list_object::first()
+{
+    return get_element(0);
+}
+
+int list_object::size() const
+{
+    return _pList->size();
+}
+
+objref list_object::get_element(size_t index)
+{
+    return _pList->get_element(index);
 }
 
 listref list_object::tail(context* pContext) const
 {
-    std::list<objref> startList(_list);
-    startList.pop_front();
-    return listref( new list_object(pContext,get_class(),startList ));
+    smartlist* pNewList = _pList->tail();
+    return listref( new list_object(pContext,get_class(),pNewList) );
 }
 
 void list_object::render( std::ostream& os) const
 {
     os << "(";
-    for ( auto e : _list )
+    for ( int index = 0 ; index < _pList->size() ; index ++ )
     {
-	e->render(os); 
+	_pList->get_element(index)->render(os); 
 	os << " ";
     }
     os << ") ";
