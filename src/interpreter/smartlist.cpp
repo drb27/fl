@@ -79,6 +79,11 @@ smartlist::smartlist()
 {
 }
 
+smartlist::smartlist( chunkref c )
+    : _chunk(c)
+{
+}
+
 smartlist::~smartlist()
 {
 

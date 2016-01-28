@@ -35,6 +35,7 @@ class smartlist final
     ~smartlist();
 
     smartlist( const smartlist& other);
+    smartlist( chunkref );
 
     size_t size() const;
     size_t chunks() const;

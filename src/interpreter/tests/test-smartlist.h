@@ -42,6 +42,7 @@ public:
     void testShallowCopyConstructor();
     void testTail();
     void testChunkCount();
+    void testCopyBlockSub();
     // @}
 
     /** \cond internal */
@@ -61,6 +62,7 @@ public:
     CPPUNIT_TEST( testShallowCopyConstructor );
     CPPUNIT_TEST( testTail );
     CPPUNIT_TEST( testChunkCount );
+    CPPUNIT_TEST( testCopyBlockSub );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

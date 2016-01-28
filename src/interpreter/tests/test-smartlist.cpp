@@ -270,3 +270,26 @@ void smartlistTestFixture::testChunkCount()
     CPPUNIT_ASSERT( b.chunks()==2 );
     CPPUNIT_ASSERT( c.chunks()==0 );
 }
+
+void smartlistTestFixture::testCopyBlockSub()
+{
+
+    vector<objref> items(5);
+    for ( int index=0; index < 5 ; index++ )
+    {
+	items[index] = int_object(g_pContext,index);
+    }
+
+    blockref brSrc = chunk::make_block(items);
+    blockref brDst = chunk::make_block(2);
+
+    chunk::copy_block(brSrc,brDst,2,0,2);
+    chunkref nc = chunkref(nullptr);
+    chunkref cr = chunkref( new chunk(2,0,brDst,nc) );
+    smartlist s(cr);
+
+    CPPUNIT_ASSERT( *(s.get_element(0)) == items[2] );
+    CPPUNIT_ASSERT( *(s.get_element(1)) == items[3] );
+    CPPUNIT_ASSERT( s.size() == 2);
+
+}
