@@ -1,4 +1,5 @@
 #include <string>
+#include <cassert>
 #include <interpreter/eval_exception.h>
 #include "smartlist.h"
 
@@ -7,7 +8,6 @@ using std::vector;
 chunk::chunk(size_t size, size_t head, blockref& block, chunkref& chunk)
     : _size(size), _block(block), _next(chunk), _idx_head(head)
 {
-
 }
 
 chunk::chunk( const chunk& other )
@@ -278,7 +278,7 @@ smartlist* smartlist::tail() const
 
     if ( pNewList->_chunk )
     {
-	if ( pNewList->_chunk->_size > 2 )
+	if ( pNewList->_chunk->_size >= 2 )
 	{
 	    pNewList->_chunk->_idx_head++;
 	    pNewList->_chunk->_size--;

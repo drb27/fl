@@ -111,11 +111,15 @@ void list_node::render_dot(int& uuid,
 
 objref list_node::evaluate(context* pContext)
 {
-    auto l = new list_object(pContext,*(type(pContext)));
+    // Make a list of evaluated elements
+    list<objref> items;
+    
     for ( auto e : _elements )
     {
-	l->append(e->evaluate(pContext));
+	items.push_back(e->evaluate(pContext));
     }
+
+    auto l = new list_object(pContext,*(type(pContext)),items);
     return objref(l);
 }
 
@@ -380,6 +384,7 @@ objref assign_node::evaluate(context* pContext)
     // evaluate RHS and LHS
 
     auto rhs = _rvalue->evaluate(pContext);
+    rhs->optimise();
 
     if (_alias)
     {

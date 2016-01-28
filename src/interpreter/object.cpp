@@ -228,16 +228,21 @@ list_object::list_object(context* pContext, fclass& cls, smartlist* l)
 list_object::list_object(context* pContext,fclass& cls, std::list<objref> startList)
     : object(pContext,cls)
 {
-    vector<objref> items(startList.size() );
-    int index=0;
-    for ( auto item : startList )
+    if ( startList.size() )
     {
-	items[index++] = item;
-    }
+	vector<objref> items(startList.size() );
+	int index=0;
+	for ( auto item : startList )
+	{
+	    items[index++] = item;
+	}
 
-    blockref blk = chunk::make_block(items);
-    _pList.reset(new smartlist());
-    _pList->inplace_append(blk,items.size());
+	blockref blk = chunk::make_block(items);
+	_pList.reset(new smartlist());
+	_pList->inplace_append(blk,items.size());
+    }
+    else
+	_pList.reset( new smartlist() );
 }
 
 void list_object::append(objref e)
@@ -258,6 +263,16 @@ objref list_object::first()
 int list_object::size() const
 {
     return _pList->size();
+}
+
+int list_object::chunks() const
+{
+    return _pList->chunks();
+}
+
+void list_object::optimise()
+{
+    _pList->inplace_chunkify( _pList->size() );
 }
 
 objref list_object::get_element(size_t index)

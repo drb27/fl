@@ -92,6 +92,8 @@ public:
     objref rnd(context* pContext, intref a, intref b);
     objref obj_is(context*,objref,objref);
     objref obj_invoke(context*,objref,stringref,listref params);
+    objref list_optimise(context*,listref);
+    objref list_chunks(context* pContext, listref pThis );
 }
 
 #endif

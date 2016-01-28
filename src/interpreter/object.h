@@ -33,6 +33,7 @@ class object
     virtual void render( std::ostream& os ) const;
     virtual void dump( std::ostream& out = std::cout) const;
 
+    virtual void optimise() {}
     virtual objref invoke( const std::string& mthdName, context* pCtx, std::vector<objref>& params);
 
     virtual bool operator==(const objref other) const; 
@@ -109,7 +110,9 @@ public:
     void prepend(objref e);
     objref get_element(size_t index);
     int size() const;
+    int chunks() const;
     listref tail(context*) const;
+    virtual void optimise();
 protected:
     std::shared_ptr<smartlist> _pList;
 };

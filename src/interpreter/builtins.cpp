@@ -121,6 +121,8 @@ namespace builtins
 	    pCls->add_method({"prepend", make_marshall_mthd(&builtins::list_prepend)});
 	    pCls->add_method({"tail", make_marshall_mthd(&builtins::list_tail)});
 	    pCls->add_method({"duplicate_and_append", make_marshall_mthd(&builtins::list_dup_and_append)});
+	    pCls->add_method({"optimise", make_marshall_mthd(&builtins::list_optimise)});
+	    pCls->add_method({"chunks", make_marshall_mthd(&builtins::list_chunks)});
 	    return pCls;
 	}
 	else
@@ -415,4 +417,17 @@ namespace builtins
 	}
 	return pThis->invoke( name->internal_value(), pContext, raw_params );
     }
+    
+    objref list_optimise(context* pContext, listref pThis )
+    {
+	pThis->optimise();
+	return pThis;
+    }
+
+    objref list_chunks(context* pContext, listref pThis )
+    {
+	int_object* i = new int_object(pContext, pThis->chunks() );
+	return objref(i);
+    }
+
 }
