@@ -43,6 +43,7 @@ public:
     void testTail();
     void testChunkCount();
     void testCopyBlockSub();
+    void testInplaceChunkify();
     // @}
 
     /** \cond internal */
@@ -63,6 +64,7 @@ public:
     CPPUNIT_TEST( testTail );
     CPPUNIT_TEST( testChunkCount );
     CPPUNIT_TEST( testCopyBlockSub );
+    CPPUNIT_TEST( testInplaceChunkify );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

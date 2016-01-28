@@ -293,3 +293,52 @@ void smartlistTestFixture::testCopyBlockSub()
     CPPUNIT_ASSERT( s.size() == 2);
 
 }
+
+void smartlistTestFixture::testInplaceChunkify()
+{
+    smartlist a,b;
+    configure_shared_lists(a,b);
+
+    // Test 1 - Monolith
+    a.inplace_chunkify( a.size() );
+
+    CPPUNIT_ASSERT(a.chunks()==1);
+    CPPUNIT_ASSERT(a.size()==9);
+
+    for ( int index=0; index < a.size(); index++ )
+    {
+	intref el = std::dynamic_pointer_cast<int_object>(a.get_element(index));
+	CPPUNIT_ASSERT( el->internal_value() == 1+index );
+    }
+
+    // Test 2 - Perfect division
+    smartlist c,d;
+    configure_shared_lists(c,d);
+
+    c.inplace_chunkify( 3 );
+
+    CPPUNIT_ASSERT(c.chunks()==3);
+    CPPUNIT_ASSERT(c.size()==9);
+
+    for ( int index=0; index < c.size(); index++ )
+    {
+	intref el = std::dynamic_pointer_cast<int_object>(c.get_element(index));
+	CPPUNIT_ASSERT( el->internal_value() == 1+index );
+    }
+
+    // Test 3 - Imperfect division
+    smartlist e,f;
+    configure_shared_lists(e,f);
+
+    e.inplace_chunkify( 5 );
+
+    CPPUNIT_ASSERT(e.chunks()==2);
+    CPPUNIT_ASSERT(e.size()==9);
+
+    for ( int index=0; index < e.size(); index++ )
+    {
+	intref el = std::dynamic_pointer_cast<int_object>(e.get_element(index));
+	CPPUNIT_ASSERT( el->internal_value() == 1+index );
+    }
+
+}

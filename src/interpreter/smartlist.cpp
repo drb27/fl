@@ -308,22 +308,46 @@ void smartlist::inplace_chunkify(size_t chunkSize)
     if ( !chunkSize || (chunkSize > newBlockSize ) )
 	throw eval_exception(cerror::internal_error, "Invalid block size in inplace_chunkify");
 
-    const size_t firstChunkSize = newBlockSize%chunkSize;
-
     // First, copy into one large block
     chunkref nullChunk = chunkref(nullptr);
     blockref newBlock = chunk::make_block(newBlockSize);
-    chunkref newHead = chunkref( new chunk(newBlockSize,
+
+    // Copy each chunk's data into the monolith
+    auto currentChunk = _chunk;
+    int startingIndex = 0;
+
+    while(currentChunk)
+    {
+	chunk::copy_block(currentChunk->_block, newBlock, currentChunk->_idx_head, startingIndex, currentChunk->_size);
+	startingIndex+=currentChunk->_size;
+	currentChunk = currentChunk->_next;
+    }
+
+    // Now split into individual chunks, preserving the single block
+    const size_t firstChunkSize = newBlockSize%chunkSize;
+    chunkref newHead = chunkref( new chunk(firstChunkSize,
 					   0,
 					   newBlock,
 					   nullChunk) );
 
-    // ... DO THE COPY ...
+    size_t itemsRemaining = newBlockSize - firstChunkSize;
+    size_t nextHeadIndex = firstChunkSize;
 
-    // Now split into individual chunks, preserving the single block
+    currentChunk = newHead;
 
-    // Make the new large chunk our head chunk
-    _chunk = newHead;
+    while (itemsRemaining)
+    {
+	currentChunk->_next = chunkref ( new chunk(chunkSize,nextHeadIndex,newBlock,nullChunk) );
+	itemsRemaining -= chunkSize;
+	nextHeadIndex += chunkSize;
+	currentChunk = currentChunk->_next;
+    }
+
+    // Make the new chunk our head chunk, or skip it if it is zero sized
+    if ( newHead->_size)
+	_chunk = newHead;
+    else
+	_chunk = newHead->_next;
 }
 
 size_t smartlist::chunks() const
