@@ -638,6 +638,7 @@ if_node::if_node(ast* pCondition, ast* trueExpression, ast* falseExpression)
     : _condition(pCondition), _trueExpr(trueExpression), _falseExpr(falseExpression)
 {
 }
+
 void if_node::render_dot(int& uuid, 
 			     const string& parent,
 			     const string& label,
@@ -833,3 +834,65 @@ void selector_node::set_default(ast* defaultExpr)
 {
     _default = defaultExpr;
 }
+
+tailrec_node::tailrec_node(ast* pFn, ast* pCond, ast* paramUpdates)
+    : _fncall(pFn), _cond(pCond), _params(paramUpdates)
+{
+
+}
+
+#define BOOL_CAST(x) (std::dynamic_pointer_cast<bool_object>(x))->internal_value()
+
+objref tailrec_node::evaluate(context* pContext )
+{
+    // Create a new context level for this *series* of calls
+    state_guard g(pContext);
+    g.new_collection();
+
+    // Evaluate the function call
+    auto fn = std::dynamic_pointer_cast<fn_object>(_fncall->evaluate(pContext) );
+
+    objref result(nullptr);
+
+    // Loop around executing the function until the condition is true
+    while ( BOOL_CAST( _cond->evaluate(pContext) ) )
+    {
+	// Evaluate the parameters
+
+	// Execute the function NON-RECURSIVELY
+	//objref result = (*fn)(pContext,{}); // TODO - insert params here!
+
+	// Set up the parameters for the next call
+    }
+    
+    return result;
+}
+
+void tailrec_node::required_symbols(set<string>& s ) const
+{
+    _fncall->required_symbols(s);
+    _cond->required_symbols(s);
+    _params->required_symbols(s);
+}
+
+void tailrec_node::render_dot(int& uuid, 
+			     const string& parent,
+			     const string& label,
+			     std::ostream& out) const
+{
+    int myref=uuid++;
+    string labelString;
+
+    string myid = "tailrec_" + std::to_string(myref);
+    if (!parent.empty())
+    {
+	out << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+    out << myid << "[shape=box" << labelString << "];" << std::endl;
+
+    _fncall->render_dot(uuid,myid," fn",out);
+    _cond->render_dot(uuid,myid," cond",out);
+    _params->render_dot(uuid,myid," params",out);
+}
+

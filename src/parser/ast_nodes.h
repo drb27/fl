@@ -211,4 +211,23 @@ private:
     const bool _alias;
 };
 
+class tailrec_node : public ast
+{
+public:
+    tailrec_node(ast* pFncall, ast* pCond,ast* paramUpdates);
+    virtual objref evaluate(context*);
+    virtual void required_symbols(std::set<std::string>&) const;
+    virtual void render_dot(int& uuid, 
+			    const std::string& parent="",
+			    const std::string& label="",
+			    std::ostream& out=std::cout) const;
+
+private:
+
+    ast* _fncall;
+    ast* _cond;
+    ast* _params;
+
+};
+
 #endif
