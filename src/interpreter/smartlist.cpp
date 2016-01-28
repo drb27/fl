@@ -305,7 +305,10 @@ void smartlist::inplace_chunkify(size_t chunkSize)
 {
     const size_t newBlockSize = size();
 
-    if ( !chunkSize || (chunkSize > newBlockSize ) )
+    if (!chunkSize)
+	return;
+
+    if ( chunkSize > newBlockSize )
 	throw eval_exception(cerror::internal_error, "Invalid block size in inplace_chunkify");
 
     // First, copy into one large block
@@ -363,3 +366,6 @@ size_t smartlist::chunks() const
 
     return count;
 }
+
+
+

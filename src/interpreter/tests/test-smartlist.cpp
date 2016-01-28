@@ -342,3 +342,15 @@ void smartlistTestFixture::testInplaceChunkify()
     }
 
 }
+
+void smartlistTestFixture::testChunkedTail()
+{
+    smartlist a,b;
+    configure_shared_lists(a,b);
+
+    smartlist* pNewList = a.tail();
+
+    CPPUNIT_ASSERT( pNewList->size()==8);
+
+    delete pNewList;
+}
