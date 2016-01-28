@@ -277,7 +277,7 @@ void smartlistTestFixture::testCopyBlockSub()
     vector<objref> items(5);
     for ( int index=0; index < 5 ; index++ )
     {
-	items[index] = int_object(g_pContext,index);
+	items[index] = objref( new int_object(g_pContext,index));
     }
 
     blockref brSrc = chunk::make_block(items);
