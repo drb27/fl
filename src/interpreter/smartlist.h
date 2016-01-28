@@ -20,6 +20,7 @@ class chunk final
     static blockref make_block( const std::vector<objref>& );
     static blockref make_block( size_t size);
     static blockref copy_block( blockref src, size_t size );
+    static void copy_block( blockref src, blockref dst, size_t idxSrc, size_t idxDst, size_t length);
     size_t _size;
     size_t _idx_head;
     blockref _block;
@@ -48,6 +49,8 @@ class smartlist final
 
     objref get_element(size_t) const;
     smartlist* tail() const;
+
+    void inplace_chunkify(size_t blockSize=0);
 
     bool unique() const;
     void detach();

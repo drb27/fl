@@ -38,6 +38,17 @@ blockref chunk::copy_block( blockref src, size_t size )
     return br;
 }
 
+void chunk::copy_block( blockref src, blockref dst, size_t idxSrc, size_t idxDst, size_t length)
+{
+    // Copy each of the objrefs
+    
+    for ( objref* pSrcRef = src.get()+idxSrc; pSrcRef< src.get()+idxSrc+length; pSrcRef++ )
+    {
+	dst.get()[idxDst++] = objref(*pSrcRef);
+    }
+
+}
+
 blockref chunk::make_block( const vector<objref>& items )
 {
     // Make a new block
@@ -283,4 +294,29 @@ smartlist* smartlist::tail() const
     }
 
     return pNewList;
+}
+
+void smartlist::inplace_chunkify(size_t chunkSize)
+{
+    const size_t newBlockSize = size();
+
+    if ( !chunkSize || (chunkSize > newBlockSize ) )
+	throw eval_exception(cerror::internal_error, "Invalid block size in inplace_chunkify");
+
+    const size_t firstChunkSize = newBlockSize%chunkSize;
+
+    // First, copy into one large block
+    chunkref nullChunk = chunkref(nullptr);
+    blockref newBlock = chunk::make_block(newBlockSize);
+    chunkref newHead = chunkref( new chunk(newBlockSize,
+					   0,
+					   newBlock,
+					   nullChunk) );
+
+    // ... DO THE COPY ...
+
+    // Now split into individual chunks, preserving the single block
+
+    // Make the new large chunk our head chunk
+    _chunk = newHead;
 }
