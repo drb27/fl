@@ -320,3 +320,17 @@ void smartlist::inplace_chunkify(size_t chunkSize)
     // Make the new large chunk our head chunk
     _chunk = newHead;
 }
+
+size_t smartlist::chunks() const
+{
+    auto currentChunk = _chunk; 
+    size_t count=0;
+
+    while(currentChunk)
+    {
+	count++;
+	currentChunk = currentChunk->_next;
+    }
+
+    return count;
+}

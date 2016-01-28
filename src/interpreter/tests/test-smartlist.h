@@ -41,6 +41,7 @@ public:
     void testGetElement();
     void testShallowCopyConstructor();
     void testTail();
+    void testChunkCount();
     // @}
 
     /** \cond internal */
@@ -59,6 +60,7 @@ public:
     CPPUNIT_TEST( testGetElement );
     CPPUNIT_TEST( testShallowCopyConstructor );
     CPPUNIT_TEST( testTail );
+    CPPUNIT_TEST( testChunkCount );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

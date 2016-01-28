@@ -37,6 +37,7 @@ class smartlist final
     smartlist( const smartlist& other);
 
     size_t size() const;
+    size_t chunks() const;
     objref head() const;
 
     void inplace_append(blockref&,size_t);

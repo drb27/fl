@@ -260,3 +260,13 @@ void smartlistTestFixture::testTail()
 
 
 }
+
+void smartlistTestFixture::testChunkCount()
+{
+    smartlist a,b,c;
+    configure_shared_lists(a,b);
+
+    CPPUNIT_ASSERT( a.chunks()==3 );
+    CPPUNIT_ASSERT( b.chunks()==2 );
+    CPPUNIT_ASSERT( c.chunks()==0 );
+}
