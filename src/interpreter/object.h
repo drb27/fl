@@ -149,6 +149,10 @@ public:
     virtual objref operator()(context*,std::vector<objref>&);
     virtual const std::deque<std::string>& arglist() const;
     virtual void dump(std::ostream& out = std::cout ) const;
+    virtual bool is_tail_recursive() const;
+
+    virtual void set_name(std::string& fname);
+    virtual const std::string& name() const;
 
 protected:
 
@@ -156,6 +160,7 @@ protected:
     collection _applied_arguments;
     std::deque<std::string> _expected_args;
     std::deque<std::string> _full_args;
+    std::string _name{"(anonymous)"};
 };
 
 #endif

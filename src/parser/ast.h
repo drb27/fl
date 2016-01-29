@@ -28,6 +28,8 @@ class ast
     virtual void required_symbols(std::set<std::string>&) const=0;
     virtual bool is_lvalue() const { return false; }
 
+    virtual bool calls_and_returns( const std::string& fname) const;
+
  protected:
     ast();
 

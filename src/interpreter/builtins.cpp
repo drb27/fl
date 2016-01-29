@@ -138,6 +138,7 @@ namespace builtins
 	typespec base_spec("object",{});
 	fclass& base_cls = pTm->lookup(base_spec);
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	pCls->add_method({"itr", make_marshall_mthd(&builtins::fn_itr)});
 	return pCls;
     }
 
@@ -429,5 +430,11 @@ namespace builtins
 	int_object* i = new int_object(pContext, pThis->chunks() );
 	return objref(i);
     }
-
+    
+    objref fn_itr(context* pContext, fnref pThis )
+    {
+	typespec bs("boolean",{});
+	bool_object* r = new bool_object(pContext, pThis->is_tail_recursive(), pContext->types()->lookup(bs) );
+	return boolref(r);
+    }
 }

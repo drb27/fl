@@ -68,7 +68,7 @@ public:
 
     virtual void add_condition(ast* pair);
     virtual void set_default(ast* defaultExpr);
-
+    virtual bool calls_and_returns( const std::string& fname) const;
 protected:
     ast* _selector;
     ast* _default{nullptr};
@@ -84,6 +84,7 @@ public:
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<std::string>&) const;
     virtual void add_expr(ast*);
+    virtual  bool calls_and_returns( const std::string& fname) const;
 protected:
     std::list<ast*> _sequence;
 };
@@ -112,6 +113,7 @@ public:
     virtual objref evaluate(context*);    
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<std::string>&) const;
+    virtual bool calls_and_returns( const std::string& fname) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="",
 			    const std::string& label="",
@@ -171,7 +173,7 @@ public:
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
     virtual void invalidate() const;
-
+    virtual bool calls_and_returns( const std::string& fname) const;
 protected:
     const std::string _name;
     ast* _arg_list;
@@ -189,6 +191,9 @@ public:
 			    const std::string& parent="", 
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
+
+    virtual bool is_tail_recursive() const;
+
 protected:
     ast* _arglist;
     ast* _definition;
@@ -211,10 +216,10 @@ private:
     const bool _alias;
 };
 
-class tailrec_node : public ast
+class while_node : public ast
 {
 public:
-    tailrec_node(ast* pFncall, ast* pCond,ast* paramUpdates);
+    while_node(ast* pCond,ast* pAction);
     virtual objref evaluate(context*);
     virtual void required_symbols(std::set<std::string>&) const;
     virtual void render_dot(int& uuid, 
@@ -224,9 +229,8 @@ public:
 
 private:
 
-    ast* _fncall;
     ast* _cond;
-    ast* _params;
+    ast* _action;
 
 };
 

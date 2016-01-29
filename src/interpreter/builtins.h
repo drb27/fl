@@ -94,6 +94,7 @@ public:
     objref obj_invoke(context*,objref,stringref,listref params);
     objref list_optimise(context*,listref);
     objref list_chunks(context* pContext, listref pThis );
+    objref fn_itr(context* pContext, fnref pThis );
 }
 
 #endif

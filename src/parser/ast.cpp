@@ -39,6 +39,11 @@ void ast::invalidate() const
 {
 }
 
+bool ast::calls_and_returns( const string& name) const
+{
+    return false;
+}
+
 void ast::render_dot(int& uuid, 
 		     const string& parent, 
 		     const string& label,
@@ -425,6 +430,12 @@ fundef_node::fundef_node(ast* arglist, ast* definition)
     wlog_entry();
     wlog_exit();
 }
+
+bool fundef_node::is_tail_recursive() const
+{
+    return false;
+}
+
 void fundef_node::render_dot(int& uuid, 
 			     const string& parent,
 			     const string& label,
@@ -541,6 +552,11 @@ funcall_node::funcall_node(const string& name, ast* args)
     wlog_exit();
 }
 
+bool funcall_node::calls_and_returns( const std::string& fname) const
+{
+    return _name==fname;
+}
+
 void funcall_node::invalidate() const
 {
     _result = nullptr;
@@ -639,6 +655,12 @@ if_node::if_node(ast* pCondition, ast* trueExpression, ast* falseExpression)
 {
 }
 
+bool if_node::calls_and_returns( const std::string& fname) const
+{
+    // True if either the true branch or false branch returns true
+    return ( _trueExpr->calls_and_returns(fname) || _falseExpr->calls_and_returns(fname) );
+}
+
 void if_node::render_dot(int& uuid, 
 			     const string& parent,
 			     const string& label,
@@ -697,6 +719,12 @@ sequence_node::sequence_node()
 
 }
 
+bool sequence_node::calls_and_returns( const std::string& fname) const
+{
+    // True if the last expression in the sequence returns true
+    return _sequence.back()->calls_and_returns( fname );
+}
+
 objref sequence_node::evaluate(context* pContext)
 {
     objref latestResult;
@@ -750,6 +778,21 @@ void pair_node::required_symbols(set<string>& s) const
 selector_node::selector_node(ast* selector)
     : _selector(selector)
 {
+}
+
+bool selector_node::calls_and_returns( const std::string& fname) const
+{
+    // True if any of the actions (including the default action) return true
+    for ( auto pair : _conditions )
+    {
+	if ( pair->second()->calls_and_returns(fname) )
+	    return true;
+    }
+
+    if ( _default && ( _default->calls_and_returns(fname) ) )
+	return true;
+
+    return false;
 }
 
 objref selector_node::evaluate(context* pContext)
@@ -835,47 +878,35 @@ void selector_node::set_default(ast* defaultExpr)
     _default = defaultExpr;
 }
 
-tailrec_node::tailrec_node(ast* pFn, ast* pCond, ast* paramUpdates)
-    : _fncall(pFn), _cond(pCond), _params(paramUpdates)
+while_node::while_node(ast* pCond, ast* pAction)
+    : _cond(pCond), _action(pAction)
 {
 
 }
 
 #define BOOL_CAST(x) (std::dynamic_pointer_cast<bool_object>(x))->internal_value()
 
-objref tailrec_node::evaluate(context* pContext )
+objref while_node::evaluate(context* pContext )
 {
-    // Create a new context level for this *series* of calls
-    state_guard g(pContext);
-    g.new_collection();
-
-    // Evaluate the function call
-    auto fn = std::dynamic_pointer_cast<fn_object>(_fncall->evaluate(pContext) );
 
     objref result(nullptr);
 
     // Loop around executing the function until the condition is true
     while ( BOOL_CAST( _cond->evaluate(pContext) ) )
     {
-	// Evaluate the parameters
-
-	// Execute the function NON-RECURSIVELY
-	//objref result = (*fn)(pContext,{}); // TODO - insert params here!
-
-	// Set up the parameters for the next call
+	_action->evaluate(pContext);
     }
     
     return result;
 }
 
-void tailrec_node::required_symbols(set<string>& s ) const
+void while_node::required_symbols(set<string>& s ) const
 {
-    _fncall->required_symbols(s);
     _cond->required_symbols(s);
-    _params->required_symbols(s);
+    _action->required_symbols(s);
 }
 
-void tailrec_node::render_dot(int& uuid, 
+void while_node::render_dot(int& uuid, 
 			     const string& parent,
 			     const string& label,
 			     std::ostream& out) const
@@ -891,8 +922,7 @@ void tailrec_node::render_dot(int& uuid,
     }
     out << myid << "[shape=box" << labelString << "];" << std::endl;
 
-    _fncall->render_dot(uuid,myid," fn",out);
     _cond->render_dot(uuid,myid," cond",out);
-    _params->render_dot(uuid,myid," params",out);
+    _action->render_dot(uuid,myid," params",out);
 }
 

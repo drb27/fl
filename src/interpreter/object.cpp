@@ -398,6 +398,12 @@ objref fn_object::operator()(context* pContext, vector<objref>& args)
     return (*this)(pContext,argpairs);
 }
 
+bool fn_object::is_tail_recursive() const
+{
+    // TODO
+    return false;
+}
+
 objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 {
     wlog_entry();
