@@ -177,3 +177,15 @@ deque<fclass*> fclass::hierarchy()
     }
     return h;
 }
+
+bool fclass::is_in_hierarchy( const fclass& other)
+{
+    auto h = hierarchy();
+    for ( auto c : h )
+    {
+	if ( c == &other )
+	    return true;
+    }
+
+    return false;
+}

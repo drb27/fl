@@ -311,13 +311,28 @@ bool void_object::operator==( const objref other ) const
 
 fn_object::fn_object(context* pContext,
 		     fclass& cls, 
-		     function<marshall_fn_t> impl, 
+		     rawfn impl, 
 		     deque<string> fullArgs,
 		     collection&& appliedArgs)
     : _full_args(fullArgs), _expected_args(fullArgs), object(pContext,cls), _fn(impl)
 {
     wlog_entry();
+    _is_anon=true;
     _applied_arguments=std::move(appliedArgs);
+}
+
+void fn_object::set_name(const string& fname)
+{
+    if (_is_anon)
+    {
+	_name = fname;
+	_is_anon=false;
+    }
+}
+
+const string& fn_object::name() const
+{
+    return _name;
 }
 
 void fn_object::render(std::ostream& os) const
@@ -363,13 +378,36 @@ fnref fn_object::partial_application(context* pContext,const vector<argpair_t>& 
     
     auto result = fnref( new fn_object(pContext,get_class(),_fn,
 				       remainingArgs,std::move(appliedArgs)));
+    result->_is_anon = _is_anon;
+    result->_name = _name;
     return result;
 
+}
+
+const rawfn& fn_object::raw() const
+{
+    return _fn;
 }
 
 const deque<string>& fn_object::arglist() const
 {
     return _full_args;
+}
+
+bool fn_object::is_anonymous() const
+{
+    return _is_anon;
+}
+
+bool fn_object::is_tail_recursive() const
+{
+    // TODO
+    return _fn.def()->calls_and_returns(_name);
+}
+
+void fn_object::optimise_tail_recursion(context*)
+{
+
 }
 
 objref fn_object::operator()(context* pContext, vector<objref>& args)
@@ -396,12 +434,6 @@ objref fn_object::operator()(context* pContext, vector<objref>& args)
     }
 
     return (*this)(pContext,argpairs);
-}
-
-bool fn_object::is_tail_recursive() const
-{
-    // TODO
-    return false;
 }
 
 objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
@@ -436,8 +468,10 @@ objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 fn_object::fn_object(context* pContext, const fn_object& other)
     : object(pContext,other.get_class()), _fn(other._fn), 
       _applied_arguments(other._applied_arguments), 
-      _expected_args(other._expected_args), _full_args(other._full_args)
+      _expected_args(other._expected_args), _full_args(other._full_args),
+      _name(other._name)
 {
     wlog_entry();
+    _is_anon=other._is_anon;
 }
 

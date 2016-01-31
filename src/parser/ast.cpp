@@ -14,6 +14,7 @@
 #include <interpreter/context.h>
 #include <interpreter/marshall.h>
 #include <interpreter/eval_exception.h>
+#include <interpreter/optimization.h>
 
 using std::ostream;
 using std::endl;
@@ -304,7 +305,37 @@ function<void(objref)> symbol_node::setter(context* pContext)
 {
     return [pContext,this](objref pNewVal)
     {
-	pContext->assign(_name,pNewVal); 
+	pContext->assign(_name,pNewVal);
+
+	// Set function name, if this is a function
+	typespec ts("function",{});
+	if ( &(pContext->types()->lookup(ts))==&(pNewVal->get_class()) )
+	{
+	    // Yep!
+	    fnref pFn = std::dynamic_pointer_cast<fn_object>(pNewVal);
+
+	    if ( pFn->is_anonymous() && !pFn->raw().is_builtin() )
+	    {
+		pFn->set_name(_name);
+
+		ast* head;
+		opt::if_tailcall o(_name);
+		if ( head = o.search( pFn->raw().def() ) )
+		{
+		    std::cout << "Pattern detected" << std::endl;
+		    o.execute(head);
+		}
+		else
+		{
+		    std::cout << "Pattern not detected" << std::endl;
+		}
+		
+
+		// Now a function knows its own name, it can evalute whether or not
+		// it is tail recursive
+		pFn->optimise_tail_recursion(pContext);
+	    }
+	}
     };
 }
 
@@ -431,9 +462,10 @@ fundef_node::fundef_node(ast* arglist, ast* definition)
     wlog_exit();
 }
 
-bool fundef_node::is_tail_recursive() const
+bool fundef_node::is_tail_recursive(const string& myName) const
 {
-    return false;
+    // TODO
+    return calls_and_returns(myName);
 }
 
 void fundef_node::render_dot(int& uuid, 
@@ -535,7 +567,7 @@ objref fundef_node::evaluate(context* pContext)
 	};
 
     wlog(level::debug,"Creating new fn_object instance with embedded closure (leaving fundef_node::evaluate)");
-    return objref( new fn_object(pContext,cls,fn,argnames,{}) );
+    return objref( new fn_object(pContext,cls,rawfn(this,fn),argnames,{}) );
     
 }
 
@@ -926,3 +958,149 @@ void while_node::render_dot(int& uuid,
     _action->render_dot(uuid,myid," params",out);
 }
 
+asttype symbol_node::type() const
+{
+    return asttype::symbol;
+}
+
+asttype literal_node::type() const
+{
+    return asttype::literal;
+}
+
+asttype pair_node::type() const
+{
+    return asttype::pair;
+}
+
+asttype selector_node::type() const
+{
+    return asttype::selector;
+}
+
+asttype sequence_node::type() const
+{
+    return asttype::sequence;
+}
+
+asttype list_node::type() const
+{
+    return asttype::list;
+}
+
+asttype if_node::type() const
+{
+    return asttype::_if;
+}
+
+asttype attr_node::type() const
+{
+    return asttype::attr;
+}
+
+asttype methodcall_node::type() const
+{
+    return asttype::methodcall;
+}
+
+asttype funcall_node::type() const
+{
+    return asttype::funcall;
+}
+
+asttype fundef_node::type() const
+{
+    return asttype::fundef;
+}
+
+asttype assign_node::type() const
+{
+    return asttype::assign;
+}
+
+asttype while_node::type() const
+{
+    return asttype::_while;
+}
+
+void symbol_node::direct_subordinates( list<ast*>& subs ) const
+{
+}
+
+void literal_node::direct_subordinates( list<ast*>& subs ) const
+{
+}
+
+void pair_node::direct_subordinates( list<ast*>& subs ) const
+{
+    subs.push_back(_first);
+    subs.push_back(_second);
+}
+
+void selector_node::direct_subordinates( list<ast*>& subs ) const
+{
+    subs.push_back(_selector);
+
+    if (_default)
+	subs.push_back(_default);
+
+    for (auto p : _conditions )
+    {
+	subs.push_back(p->first());
+	subs.push_back(p->second());
+    }
+}
+
+void sequence_node::direct_subordinates( list<ast*>& subs ) const
+{
+    for ( auto n : _sequence)
+	subs.push_back(n);
+}
+
+void list_node::direct_subordinates( list<ast*>& subs ) const
+{
+    for ( auto e : _elements)
+	subs.push_back(e);
+}
+
+void if_node::direct_subordinates( list<ast*>& subs ) const
+{
+    subs.push_back(_condition);
+    subs.push_back(_trueExpr);
+    subs.push_back(_falseExpr);
+}
+
+void attr_node::direct_subordinates( list<ast*>& subs ) const
+{
+    subs.push_back(_target);
+}
+
+void methodcall_node::direct_subordinates( list<ast*>& subs ) const
+{
+    subs.push_back(_target);
+    for ( auto n : _params )
+	subs.push_back(n);
+}
+
+void funcall_node::direct_subordinates( list<ast*>& subs ) const
+{
+    subs.push_back(_arg_list);
+}
+
+void fundef_node::direct_subordinates( list<ast*>& subs ) const
+{
+    subs.push_back(_arglist);
+    subs.push_back(_definition);
+}
+
+void assign_node::direct_subordinates( list<ast*>& subs ) const
+{
+    subs.push_back(_lvalue);
+    subs.push_back(_rvalue);
+}
+
+void while_node::direct_subordinates( list<ast*>& subs ) const
+{
+    subs.push_back(_cond);
+    subs.push_back(_action);
+}

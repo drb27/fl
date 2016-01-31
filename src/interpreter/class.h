@@ -67,7 +67,7 @@ class fclass
     virtual fclass* base(void) const { return _base; }
     virtual bool is_root() const { return _base==nullptr; }
     virtual std::deque<fclass*> hierarchy();
-
+    virtual bool is_in_hierarchy( const fclass& other);
     virtual const methodinfo& instantiator() { return lookup_method(".ctor"); }
 
     static typemgr* types;

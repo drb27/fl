@@ -245,7 +245,7 @@ void smartlist::detach()
 objref smartlist::get_element(size_t index) const
 {
     // Bounds check
-    if ( (index >= size()) || (index < 0 )  )
+    if ( (index >= size()) || (index < 0 ) )
 	return objref(nullptr);
 
     // Now we must have a chunk

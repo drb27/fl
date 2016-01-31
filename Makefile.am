@@ -18,7 +18,8 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/interpreter/eval_exception.cpp \
 			src/interpreter/marshall.cpp \
 			src/logger/logger.cpp \
-			src/interpreter/smartlist.cpp
+			src/interpreter/smartlist.cpp \
+			src/interpreter/optimization.cpp
 
 liblang_a_DEPENDENCIES=src/parser/lexer.l src/parser/parser.y
 

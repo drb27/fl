@@ -32,7 +32,10 @@ namespace builtins
 
 	pContext->assign("rnd", 
 			 fnref( new fn_object(pContext,fncls,
-					      make_marshall(&builtins::rnd),args,{}) ) );
+					      rawfn(nullptr,make_marshall(&builtins::rnd)),
+					      args,
+					      {}) 
+				) );
     }
 
     std::shared_ptr<fclass> object::build_class()
@@ -139,6 +142,7 @@ namespace builtins
 	fclass& base_cls = pTm->lookup(base_spec);
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method({"itr", make_marshall_mthd(&builtins::fn_itr)});
+	pCls->add_method({"name", make_marshall_mthd(&builtins::fn_name)});
 	return pCls;
     }
 
@@ -187,7 +191,15 @@ namespace builtins
 
     objref list_head(context* pContext, listref pThis)
     {
-	return pThis->first();
+	auto r = pThis->first();
+	if (r)
+	    return r;
+	else
+	{
+	    typespec ts("void",{});
+	    auto n = new void_object(pContext, pContext->types()->lookup(ts));
+	    return objref(n);
+	}
     }
 
     objref list_append(context* pContext, listref pThis, objref e)
@@ -436,5 +448,15 @@ namespace builtins
 	typespec bs("boolean",{});
 	bool_object* r = new bool_object(pContext, pThis->is_tail_recursive(), pContext->types()->lookup(bs) );
 	return boolref(r);
+    }
+
+    objref fn_name(context* pContext, fnref pThis )
+    {
+	typespec ts("string",{});
+	string_object* pString = new string_object(pContext, 
+						   pThis->name(),
+						   pContext->types()->lookup(ts) );
+
+	return stringref(pString);
     }
 }

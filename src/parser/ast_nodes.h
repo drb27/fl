@@ -27,6 +27,9 @@ public:
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
     virtual std::function<void(objref)> setter(context*);
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
+
 protected:
     const std::string _name;
 
@@ -39,8 +42,11 @@ public:
     virtual objref evaluate(context*);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<std::string>&) const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
+
 protected:
     const objref _object;
+    virtual asttype type() const;
 };
 
 class pair_node : public ast
@@ -52,6 +58,8 @@ public:
     virtual void required_symbols(std::set<std::string>&) const;
     virtual ast* first() const { return _first; }
     virtual ast* second() const { return _second; }
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
 
 protected:
     ast* _first;
@@ -69,6 +77,9 @@ public:
     virtual void add_condition(ast* pair);
     virtual void set_default(ast* defaultExpr);
     virtual bool calls_and_returns( const std::string& fname) const;
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
+
 protected:
     ast* _selector;
     ast* _default{nullptr};
@@ -85,6 +96,9 @@ public:
     virtual void required_symbols(std::set<std::string>&) const;
     virtual void add_expr(ast*);
     virtual  bool calls_and_returns( const std::string& fname) const;
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
+
 protected:
     std::list<ast*> _sequence;
 };
@@ -101,6 +115,8 @@ public:
 			    const std::string& parent="", 
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
 
 private:
     std::list<ast*> _elements;
@@ -118,6 +134,13 @@ public:
 			    const std::string& parent="",
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
+
+    virtual ast* cond() const { return _condition; }
+    virtual ast* true_expr() const { return _trueExpr; }
+    virtual ast* false_expr() const { return _falseExpr; }
+
 protected:
     ast* _condition;
     ast* _trueExpr;
@@ -135,6 +158,8 @@ public:
 			    const std::string& parent="",
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
 
 protected:
     ast* _target;
@@ -154,6 +179,9 @@ public:
 			    const std::string& parent="",
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
+
 protected:
     const std::string _name;
     ast* _target;
@@ -174,6 +202,12 @@ public:
 			    std::ostream& out=std::cout) const;
     virtual void invalidate() const;
     virtual bool calls_and_returns( const std::string& fname) const;
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
+
+    virtual ast* args() const { return _arg_list; }
+    virtual const std::string& name() const { return _name; }
+
 protected:
     const std::string _name;
     ast* _arg_list;
@@ -192,8 +226,13 @@ public:
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
 
-    virtual bool is_tail_recursive() const;
+    virtual bool is_tail_recursive(const std::string& name) const;
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
 
+    virtual list_node* args() const { return dynamic_cast<list_node*>(_arglist); }
+    virtual ast* def() const { return _definition; }
+    virtual void replace_definition(ast* pNewDef) { _definition = pNewDef; }
 protected:
     ast* _arglist;
     ast* _definition;
@@ -210,6 +249,9 @@ public:
 			    const std::string& parent="",
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
+
 private:
     ast* _lvalue;
     ast* _rvalue;
@@ -226,6 +268,9 @@ public:
 			    const std::string& parent="",
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
+
+    virtual asttype type() const;
+    virtual void direct_subordinates( std::list<ast*>& ) const;
 
 private:
 

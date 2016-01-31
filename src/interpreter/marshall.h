@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <functional>
 
 class ast;
 class context;
@@ -26,5 +27,32 @@ typedef std::shared_ptr<void_object> voidref;
 
 typedef objref (marshall_fn_t)(context*,std::vector<ast*>&);
 typedef objref (marshall_mthd_t)(context*,objref pThis,std::vector<ast*>&);
+
+class rawfn
+{
+ public:
+
+    rawfn(ast* def, std::function<marshall_fn_t> const& fn )
+	: _def(def),_fn(fn) {}
+
+    virtual objref operator()(context* pCtx, std::vector<ast*>& args)
+    {
+	return _fn(pCtx,args);
+    }
+
+    virtual ast* def() const
+    {
+	return _def;
+    }
+
+    virtual bool is_builtin() const
+    {
+	return (!_def);
+    }
+
+ protected:
+    ast* _def;
+    std::function<marshall_fn_t> _fn;
+};
 
 #endif

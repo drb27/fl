@@ -137,7 +137,7 @@ public:
 
     fn_object(context*, 
 	      fclass&, 
-	      std::function<marshall_fn_t> impl, 
+	      rawfn impl, 
 	      std::deque<std::string> fullArgs,
 	      collection&& appliedArgs );
 
@@ -150,17 +150,21 @@ public:
     virtual const std::deque<std::string>& arglist() const;
     virtual void dump(std::ostream& out = std::cout ) const;
     virtual bool is_tail_recursive() const;
+    virtual bool is_anonymous() const;
 
-    virtual void set_name(std::string& fname);
+    virtual void set_name(const std::string& fname);
     virtual const std::string& name() const;
+    virtual const rawfn& raw() const;
+    virtual void optimise_tail_recursion(context*);
 
 protected:
 
-    std::function<marshall_fn_t> _fn;
+    rawfn _fn;
     collection _applied_arguments;
     std::deque<std::string> _expected_args;
     std::deque<std::string> _full_args;
     std::string _name{"(anonymous)"};
+    bool _is_anon;
 };
 
 #endif

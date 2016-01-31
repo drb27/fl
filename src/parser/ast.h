@@ -11,6 +11,23 @@
 
 class fclass;
 
+enum class asttype
+{
+    symbol,
+	literal,
+	pair,
+	selector,
+	sequence,
+	list,
+	_if,
+	attr,
+	methodcall,
+	funcall,
+	fundef,
+	assign,
+	_while
+	};
+
 class ast
 {
 
@@ -29,6 +46,8 @@ class ast
     virtual bool is_lvalue() const { return false; }
 
     virtual bool calls_and_returns( const std::string& fname) const;
+    virtual asttype type() const=0;
+    virtual void direct_subordinates( std::list<ast*>& ) const=0;
 
  protected:
     ast();
