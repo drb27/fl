@@ -21,6 +21,8 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+\[       { return OPEN_SQUARE; }
+\]       { return CLOSE_SQUARE; }
 ==       { return EQUALITY; }
 \?\?     { return SELECTOR; }
 \|       { return BAR; }

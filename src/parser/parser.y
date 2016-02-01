@@ -15,6 +15,8 @@ extern action_target* target;
  static std::string dec_str("dec");
 
 %}
+%token OPEN_SQUARE
+%token CLOSE_SQUARE
 %token EQUALITY
 %token BAR
 %token SELECTOR
@@ -81,6 +83,7 @@ extern action_target* target;
 %type <node_val> sequence
 %type <node_val> selector
 %type <node_val> selpair
+%type <node_val> index
 %start input
 
 %left SEMICOLON
@@ -99,6 +102,8 @@ extern action_target* target;
 %precedence OPEN_PAREN
 %precedence DOT
 %precedence QUOTE
+%left OPEN_SQUARE
+%left CLOSE_SQUARE
 %%
 
 /* INPUTS *****************************************************************/
@@ -136,6 +141,7 @@ expr:   literal
       | funcall
       | fundef
       | attr
+      | index
       | sequence
       | listbuild
       | methodcall
@@ -180,6 +186,8 @@ selector: expr SELECTOR {$<node_val>$=target->make_selector($1); } selset { $$=$
 selset: selpair | selset BAR selpair;
 selpair: expr COLON expr { target->selector_condition( target->make_pair($1,$3) ); }
        | DEFAULT COLON expr { target->selector_default($3); };
+
+index: expr OPEN_SQUARE expr CLOSE_SQUARE { $$=$1; }
 
 /* COMMANDS ***************************************************************/
 
