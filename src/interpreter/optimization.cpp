@@ -2,6 +2,7 @@
 #include <list>
 #include "optimization.h"
 #include <parser/ast_nodes.h>
+#include <logger/logger.h>
 
 using std::list;
 
@@ -123,6 +124,7 @@ namespace opt
 
     void if_tailcall::execute(ast* pHeadNode) const
     {
+	wlog_entry();
 	fundef_node* pFunDef = dynamic_cast<fundef_node*>(pHeadNode);
 	list_node* pArgs = pFunDef->args();
 	if_node* pIf = dynamic_cast<if_node*>(pFunDef->def());
@@ -142,7 +144,7 @@ namespace opt
 	    pReturn = pIf->false_expr();
 	    pFunCall = dynamic_cast<funcall_node*>(pIf->true_expr());
 	}
-	else if (( pIf->true_expr()->type() == asttype::funcall ) &&   
+	else if (( pIf->false_expr()->type() == asttype::funcall ) &&   
 		 ( dynamic_cast<funcall_node*>(pIf->false_expr())->name() == _name ) )
 	{
 	    callIsOnTrue = false;
@@ -190,7 +192,8 @@ namespace opt
 	pTopSequence->add_expr(pWhile);
 	pTopSequence->add_expr(pReturn);
 
-	// TODO: Update the definition of the function to the new tree
+	// Update the definition of the function to the new tree
 	pFunDef->replace_definition(pTopSequence);
+	wlog(level::info, "Successfully eliminated tail recursion");
     }
 }

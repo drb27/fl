@@ -322,18 +322,8 @@ function<void(objref)> symbol_node::setter(context* pContext)
 		opt::if_tailcall o(_name);
 		if ( head = o.search( pFn->raw().def() ) )
 		{
-		    std::cout << "Pattern detected" << std::endl;
 		    o.execute(head);
 		}
-		else
-		{
-		    std::cout << "Pattern not detected" << std::endl;
-		}
-		
-
-		// Now a function knows its own name, it can evalute whether or not
-		// it is tail recursive
-		pFn->optimise_tail_recursion(pContext);
 	    }
 	}
     };
