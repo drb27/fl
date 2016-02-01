@@ -107,6 +107,7 @@ public:
     virtual void render( std::ostream& os) const;
     objref first();
     void append(objref e);
+    void append(listref);
     void prepend(objref e);
     objref get_element(size_t index);
     int size() const;

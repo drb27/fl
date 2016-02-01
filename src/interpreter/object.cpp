@@ -255,6 +255,11 @@ void list_object::prepend(objref e)
     _pList->inplace_prefix(e);
 }
 
+void list_object::append(listref other )
+{
+    _pList->inplace_append(other->_pList.get());
+}
+
 objref list_object::first()
 {
     return get_element(0);

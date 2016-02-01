@@ -163,6 +163,33 @@ void smartlist::inplace_append(chunkref& c)
     }
 }
 
+void smartlist::inplace_append(smartlist* other)
+{
+    // Get the last chunk in this list
+    chunkref pAppendChunk = tail_chunk();
+
+    // Iterate through each of the chunks in the other list
+    chunkref pCurrentChunk = other->_chunk;
+
+    while (pCurrentChunk)
+    {
+	// Place a copy of the current chunk in the other list onto the
+	// end of the append chunk
+	if (pAppendChunk)
+	    pAppendChunk->_next = chunkref( new chunk(*pCurrentChunk) );
+	else
+	{
+	    _chunk = chunkref( new chunk(*pCurrentChunk) );
+	    pAppendChunk = _chunk;
+	}
+	   
+
+	// Update pointers for next iteration
+	pAppendChunk = pAppendChunk->_next;
+	pCurrentChunk = pCurrentChunk->_next;
+    }
+}
+
 void smartlist::inplace_append(blockref& b,size_t s)
 {
     auto n = chunkref(nullptr);

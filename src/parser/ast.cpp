@@ -305,7 +305,6 @@ function<void(objref)> symbol_node::setter(context* pContext)
 {
     return [pContext,this](objref pNewVal)
     {
-	pContext->assign(_name,pNewVal);
 
 	// Set function name, if this is a function
 	typespec ts("function",{});
@@ -326,6 +325,9 @@ function<void(objref)> symbol_node::setter(context* pContext)
 		}
 	    }
 	}
+
+	pContext->assign(_name,pNewVal);
+
     };
 }
 

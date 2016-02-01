@@ -25,7 +25,8 @@ sum=>accumulate(0,(a,b)->a+b)
 
 // Repeat an element in a list
 rep=>(e,n)-> n.eq(0)? () : rep(e,n.dec())::e
-repg=>(g,n) -> n.eq(0)? () : repg(g,n.dec())::g()
+repgr=>(g,n,l) -> n.eq(0)? l : repgr(g,n.dec(),l::g())
+repg=>(g,n)->repgr(g,n,())
 
 btoi=>(a)-> a? 1:0
 

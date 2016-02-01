@@ -126,6 +126,7 @@ namespace builtins
 	    pCls->add_method({"duplicate_and_append", make_marshall_mthd(&builtins::list_dup_and_append)});
 	    pCls->add_method({"optimise", make_marshall_mthd(&builtins::list_optimise)});
 	    pCls->add_method({"chunks", make_marshall_mthd(&builtins::list_chunks)});
+	    pCls->add_method({"join", make_marshall_mthd(&builtins::list_join)});
 	    return pCls;
 	}
 	else
@@ -271,6 +272,13 @@ namespace builtins
     {
 	list_object* pNewList = new list_object(pContext, *pThis);
 	pNewList->append(pElement);
+	return objref(pNewList);
+    }
+
+    objref list_join(context* pContext, listref pThis, listref pOther)
+    {
+	list_object* pNewList = new list_object(pContext, *pThis);
+	pNewList->append(pOther);
 	return objref(pNewList);
     }
 
