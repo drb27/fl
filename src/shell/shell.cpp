@@ -92,7 +92,7 @@ int main(int argc, char** argv)
     g_logger.enable( level::warning );
     g_logger.enable( level::error );
     g_logger.enable( level::fatal );
-    g_logger.enable( level::trace );
+    //g_logger.enable( level::trace );
     //g_logger.enable( level::debug );
 
     wlog(level::info,PACKAGE_STRING ": Application startup");
