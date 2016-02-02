@@ -127,7 +127,7 @@ namespace opt
 	p.matchedHead = nullptr;
     }
 
-    void if_tailcall::execute(ast* pHeadNode) const
+    bool if_tailcall::execute(ast* pHeadNode) const
     {
 	wlog_entry();
 	fundef_node* pFunDef = dynamic_cast<fundef_node*>(pHeadNode);
@@ -157,7 +157,7 @@ namespace opt
 	    pFunCall = dynamic_cast<funcall_node*>(pIf->false_expr());
 	}
 	else
-	    return;
+	    return false;
 
 	// Parameter list for subsequent calls
 	if (pFunCall->args()->type() == asttype::list )
@@ -200,5 +200,7 @@ namespace opt
 	// Update the definition of the function to the new tree
 	pFunDef->replace_definition(pTopSequence);
 	wlog(level::info, "Successfully eliminated tail recursion");
+
+	return true;
     }
 }

@@ -26,7 +26,7 @@ namespace opt
 	
 	
 	virtual ast* search( ast* pRootNode) const;
-	virtual void execute(ast* pHeadNode) const=0;
+	virtual bool execute(ast* pHeadNode) const=0;
 	virtual bool search_and_destroy(ast* pRootNode) const;
     protected:
 	virtual void get_pattern( pattern& p ) const=0;
@@ -41,7 +41,7 @@ namespace opt
     public:
 	if_tailcall(const std::string& name) : _name(name) {}
 	virtual void get_pattern( pattern& p ) const;
-	virtual void execute(ast* pHeadNode) const;
+	virtual bool execute(ast* pHeadNode) const;
 
     private:
 

@@ -321,8 +321,11 @@ function<void(objref)> symbol_node::setter(context* pContext)
 		opt::if_tailcall o(_name);
 		if ( head = o.search( pFn->raw().def() ) )
 		{
-		    o.execute(head);
-		    pFn->raw().regenerate_function(pFn->raw().def());
+		    if ( o.execute(head) )
+		    {
+			pFn->raw().regenerate_function(pFn->raw().def());
+			wlog(level::info,"Optmized " + _name);
+		    }
 		}
 	    }
 	}
