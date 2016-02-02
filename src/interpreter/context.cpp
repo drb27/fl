@@ -60,10 +60,17 @@ colref context::new_collection( colref pCol)
     return pCol;
 }
 
-void context::pop_collection()
+colref context::pop_collection()
 {
     wlog_entry();
+    auto r = _collections.front();
     _collections.pop_front();
+    return r;
+}
+
+colref context::current_collection()
+{
+    return _collections.front();
 }
 
 void context::stash_state()

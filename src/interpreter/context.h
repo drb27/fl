@@ -22,11 +22,12 @@ public:
 
     virtual colref new_collection();
     virtual colref new_collection(colref pCol);
-    virtual void pop_collection();
+    virtual colref pop_collection();
     virtual void stash_state();
     virtual void restore_state();
     virtual typemgr* types(); 
 
+    virtual colref current_collection();
     virtual objref resolve_symbol(const std::string&);
     virtual bool is_defined( const std::string&);
     virtual void assign(const std::string& name, objref value);

@@ -36,6 +36,7 @@ class ast
     virtual ~ast();
     virtual objref evaluate(context*)=0;
     virtual fclass* type(context*) const;
+    virtual void render() const { int i=0; render_dot(i,"","",std::cout); }
     virtual void render_dot(int& uuid, 
 			    const std::string& parent = "",
 			    const std::string& label = "",

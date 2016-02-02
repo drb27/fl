@@ -721,9 +721,33 @@ function<void(objref)> attr_node::setter(context* pContext)
     };
 }
 
-sequence_node::sequence_node()
+sequence_node::sequence_node(bool isolated)
+    :_isolated(isolated)
 {
 
+}
+
+void sequence_node::render_dot(int& uuid, 
+			     const string& parent,
+			     const string& label,
+			     std::ostream& out) const
+{
+    int myref=uuid++;
+    string labelString;
+
+    string myid = "seq_" + std::to_string(myref);
+    if (!parent.empty())
+    {
+	out << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+    out << myid << "[shape=box" << labelString << "];" << std::endl;
+
+    int iSeq=0;
+    for ( auto e : _sequence )
+    {
+	e->render_dot(uuid,myid," s" + std::to_string(iSeq++),out);
+    }
 }
 
 bool sequence_node::calls_and_returns( const std::string& fname) const
@@ -734,12 +758,47 @@ bool sequence_node::calls_and_returns( const std::string& fname) const
 
 objref sequence_node::evaluate(context* pContext)
 {
+    if (_isolated)
+	return evaluate_isolated(pContext);
+
     objref latestResult;
     for ( auto expr : _sequence )
     {
 	latestResult=expr->evaluate(pContext);
     }
 
+    return latestResult;
+}
+
+objref sequence_node::evaluate_isolated(context* pContext)
+{
+    // TODO: The following use of context is not exception-safe!
+
+    objref latestResult;
+    list<colref> callCollections;
+    for ( auto expr : _sequence )
+    {
+	// Create a new collection for this call only
+	pContext->new_collection();
+
+	// Execute the expression in this private context
+	latestResult = expr->evaluate(pContext);
+
+	// Pop the collection off the stack
+	callCollections.push_back( pContext->pop_collection() );
+    }
+
+    // Merge all of the new collections, in order from oldest to newest
+    colref currentCollection = pContext->current_collection();
+    for ( auto col : callCollections )
+    {
+	for ( auto p : *(col.get()) )
+	{
+	    (*currentCollection)[p.first] = p.second;
+	}
+    }
+
+    // Return the result of the last evaluation
     return latestResult;
 }
 
@@ -890,6 +949,25 @@ while_node::while_node(ast* pCond, ast* pAction)
 {
 
 }
+void while_node::render_dot(int& uuid, 
+			     const string& parent,
+			     const string& label,
+			     std::ostream& out) const
+{
+    int myref=uuid++;
+    string labelString;
+
+    string myid = "while_" + std::to_string(myref);
+    if (!parent.empty())
+    {
+	out << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+    out << myid << "[shape=box" << labelString << "];" << std::endl;
+
+    _cond->render_dot(uuid,myid," cond",out);
+    _action->render_dot(uuid,myid," action",out);
+}
 
 #define BOOL_CAST(x) (std::dynamic_pointer_cast<bool_object>(x))->internal_value()
 
@@ -913,25 +991,6 @@ void while_node::required_symbols(set<string>& s ) const
     _action->required_symbols(s);
 }
 
-void while_node::render_dot(int& uuid, 
-			     const string& parent,
-			     const string& label,
-			     std::ostream& out) const
-{
-    int myref=uuid++;
-    string labelString;
-
-    string myid = "tailrec_" + std::to_string(myref);
-    if (!parent.empty())
-    {
-	out << parent << " -> ";
-	labelString = ",label=\"" + label + "\"";
-    }
-    out << myid << "[shape=box" << labelString << "];" << std::endl;
-
-    _cond->render_dot(uuid,myid," cond",out);
-    _action->render_dot(uuid,myid," params",out);
-}
 
 asttype symbol_node::type() const
 {

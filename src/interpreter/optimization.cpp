@@ -2,6 +2,7 @@
 #include <list>
 #include "optimization.h"
 #include <parser/ast_nodes.h>
+#include <interpreter/eval_exception.h>
 #include <logger/logger.h>
 
 using std::list;
@@ -164,7 +165,7 @@ namespace opt
 	    pCallList = dynamic_cast<list_node*>(pFunCall->args());
 
 	// TODO: Construct the translated tree
-	sequence_node* pParamUpdates = new sequence_node();
+	sequence_node* pParamUpdates = new sequence_node(true);
 
 	if (pCallList)
 	{
@@ -180,6 +181,7 @@ namespace opt
 	}
 	else
 	{
+	    throw eval_exception(cerror::internal_error, "Unhandled condition in optimization::execute");
 	    // Just null
 	    // TODO
 	}
