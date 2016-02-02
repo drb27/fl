@@ -14,6 +14,7 @@ namespace opt
 	std::vector<asttype> typestack;
 	ast* matchedHead;
 	int index;
+	bool anchor;
     };
     
     class optimization

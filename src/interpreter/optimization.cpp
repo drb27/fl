@@ -25,6 +25,10 @@ namespace opt
 	ptn.index=0;
 	ptn.matchedHead = nullptr;
 
+	// Check the anchor
+	if (ptn.anchor && (pRootNode->type() != ptn.typestack[0]) )
+	    return nullptr;
+
 	return recursive_search(pRootNode, ptn);
     }
     
@@ -115,6 +119,7 @@ namespace opt
 
     void if_tailcall::get_pattern( pattern& p ) const
     {
+	p.anchor=true;
 	p.typestack.push_back( asttype::fundef );
 	p.typestack.push_back( asttype::_if );
 	p.typestack.push_back( asttype::funcall);
@@ -168,7 +173,7 @@ namespace opt
 	    auto basicParamIterator = pArgs->raw_elements().begin();
 	    for ( auto e : elements )
 	    {
-		assign_node* pAssign = new assign_node(*basicParamIterator,e);
+		assign_node* pAssign = new assign_node(*basicParamIterator,e,true);
 		basicParamIterator++;
 		pParamUpdates->add_expr(pAssign);
 	    }

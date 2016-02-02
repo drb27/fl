@@ -389,7 +389,7 @@ fnref fn_object::partial_application(context* pContext,const vector<argpair_t>& 
 
 }
 
-const rawfn& fn_object::raw() const
+rawfn& fn_object::raw()
 {
     return _fn;
 }
@@ -404,7 +404,7 @@ bool fn_object::is_anonymous() const
     return _is_anon;
 }
 
-bool fn_object::is_tail_recursive() const
+bool fn_object::is_tail_recursive()
 {
     // TODO
     return _fn.def()->calls_and_returns(_name);

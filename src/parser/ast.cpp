@@ -322,6 +322,7 @@ function<void(objref)> symbol_node::setter(context* pContext)
 		if ( head = o.search( pFn->raw().def() ) )
 		{
 		    o.execute(head);
+		    pFn->raw().regenerate_function(pFn->raw().def());
 		}
 	    }
 	}
@@ -520,7 +521,6 @@ objref fundef_node::evaluate(context* pContext)
 	wlog(level::debug, "Required symbol: " + s );
     }
 
-    ast* localDef = _definition;
     typespec ts("function",{});
     fclass& cls = pContext->types()->lookup(ts);
     
@@ -533,7 +533,6 @@ objref fundef_node::evaluate(context* pContext)
 	argnames.push_back(pSymNode->name());
     }
 
-    wlog(level::debug,"Creating a closure for required symbols...");
     colref pClosure( new collection );
     for ( auto s : requiredSymbols )
     {
@@ -541,26 +540,7 @@ objref fundef_node::evaluate(context* pContext)
 	    (*pClosure)[s] = pContext->resolve_symbol(s);
     }
 
-    wlog(level::debug,"Contructing lambda for function execution and embedding closure...");
-    // Construct a marshall_fn_t compatible lambda expression
-    function<marshall_fn_t> fn = [localDef,pClosure](context* pContext, vector<ast*>& arglist)
-	{
-	    state_guard g(pContext);
-	    wlog_entry();
-	    wlog(level::debug,"Executing lambda for fl function call...");
-	    wlog(level::debug,"Merging in the closure...");
-	    g.new_collection(pClosure);
-	    g.new_collection();
-	    wlog_trace("Final context",pContext->trace());
-	    wlog(level::debug,"Evaluating function definition...");
-	    auto retVal = localDef->evaluate(pContext);
-	    wlog(level::debug,"About to return result from fl function call lambda...");
-	    return retVal;
-	};
-
-    wlog(level::debug,"Creating new fn_object instance with embedded closure (leaving fundef_node::evaluate)");
-    return objref( new fn_object(pContext,cls,rawfn(this,fn),argnames,{}) );
-    
+    return objref( new fn_object(pContext,cls,rawfn(this,pClosure),argnames,{}) );
 }
 
 fclass* fundef_node::type(context* pContext) const

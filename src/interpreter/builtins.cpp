@@ -32,7 +32,7 @@ namespace builtins
 
 	pContext->assign("rnd", 
 			 fnref( new fn_object(pContext,fncls,
-					      rawfn(nullptr,make_marshall(&builtins::rnd)),
+					      rawfn(make_marshall(&builtins::rnd)),
 					      args,
 					      {}) 
 				) );

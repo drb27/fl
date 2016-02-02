@@ -14,6 +14,8 @@
 #include <interpreter/marshall.h>
 #include <interpreter/context.h>
 #include <interpreter/smartlist.h>
+#include <parser/rawfn.h>
+
 class ast;
 class typemgr;
 
@@ -150,12 +152,12 @@ public:
     virtual objref operator()(context*,std::vector<objref>&);
     virtual const std::deque<std::string>& arglist() const;
     virtual void dump(std::ostream& out = std::cout ) const;
-    virtual bool is_tail_recursive() const;
+    virtual bool is_tail_recursive();
     virtual bool is_anonymous() const;
 
     virtual void set_name(const std::string& fname);
     virtual const std::string& name() const;
-    virtual const rawfn& raw() const;
+    virtual rawfn& raw();
     virtual void optimise_tail_recursion(context*);
 
 protected:

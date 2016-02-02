@@ -11,9 +11,6 @@
 
 class symbol_node;
 
-typedef std::map<std::string,objref> collection;
-typedef std::shared_ptr<collection> colref;
-
 class context
 {
 public:
