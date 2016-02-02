@@ -76,6 +76,7 @@ public:
     objref list_join(context* pContext, listref pThis, listref pOther);
     objref list_prepend(context* pContext, listref pThis, objref e);
     objref list_tail(context* pContext, listref pThis);
+    objref list_index(context* pContext, listref pThis, objref i );
     objref int_equate(context* pContext, intref pThis, intref pOther);
     objref int_gt(context* pContext, intref pThis, intref pOther);
     objref int_lt(context* pContext, intref pThis, intref pOther);
@@ -88,6 +89,7 @@ public:
     objref class_derive(context* pContext, classref pThis, stringref name);
     objref class_new(context* pContext, classref pThis, listref params);
     objref class_addattr(context* pContext, classref pThis, stringref name, objref d);
+    objref class_equate(context* pContext, objref pThis,objref pOther);
     objref obj_assign(context* pContext, objref pThis, objref pOther);
     objref void_equate(context* pContext, objref pThis, objref pOther);
     objref rnd(context* pContext, intref a, intref b);

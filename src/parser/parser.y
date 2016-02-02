@@ -187,7 +187,7 @@ selset: selpair | selset BAR selpair;
 selpair: expr COLON expr { target->selector_condition( target->make_pair($1,$3) ); }
        | DEFAULT COLON expr { target->selector_default($3); };
 
-index: expr OPEN_SQUARE expr CLOSE_SQUARE { $$=$1; }
+index: expr OPEN_SQUARE expr CLOSE_SQUARE { $$=target->make_index($1,$3); }
 
 /* COMMANDS ***************************************************************/
 

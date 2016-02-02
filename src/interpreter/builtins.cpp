@@ -66,6 +66,7 @@ namespace builtins
 	pCls->add_method({"derive",make_marshall_mthd(&builtins::class_derive),true});
 	pCls->add_method({"new",make_marshall_mthd(&builtins::class_new),true});
 	pCls->add_method({"addattr",make_marshall_mthd(&builtins::class_addattr),true});
+	pCls->add_method({"eq", make_marshall_mthd(&builtins::class_equate),false} );
 	return pCls;
     }
 
@@ -127,6 +128,7 @@ namespace builtins
 	    pCls->add_method({"optimise", make_marshall_mthd(&builtins::list_optimise)});
 	    pCls->add_method({"chunks", make_marshall_mthd(&builtins::list_chunks)});
 	    pCls->add_method({"join", make_marshall_mthd(&builtins::list_join)});
+	    pCls->add_method({".index", make_marshall_mthd(&builtins::list_index)});
 	    return pCls;
 	}
 	else
@@ -290,6 +292,23 @@ namespace builtins
 	return objref(pResult);
     }
 
+    objref class_equate(context* pContext, objref pThis,objref pOther)
+    {
+	// Check they are both classes
+	typespec tsc("class",{});
+	fclass& cls = pContext->types()->lookup(tsc);
+	bool result;
+	if ( (&cls==&(pThis->get_class())) && (&cls==&(pOther->get_class())) )
+	{
+	    result = ( &(pThis->get_class()) == &(pOther->get_class()) );
+	}
+	else
+	    result = false;
+	// Calculate the result
+	typespec ts("boolean",{});
+	return boolref(new bool_object(pContext, result,pContext->types()->lookup(ts)));
+    }
+
     objref class_methods(context* pContext, classref pThis)
     {
 	// Typespecs
@@ -449,6 +468,26 @@ namespace builtins
     {
 	int_object* i = new int_object(pContext, pThis->chunks() );
 	return objref(i);
+    }
+
+    objref list_index(context* pContext, listref pThis, objref i )
+    {
+	typespec intspec("integer",{});
+	if ( &(i->get_class())!=&(pContext->types()->lookup(intspec)) )
+	{
+	    throw eval_exception( cerror::invalid_index, "Unsupported index type");
+	}
+
+	int index = N_INT(std::dynamic_pointer_cast<int_object>(i)); 
+	if (  index < pThis->size() )
+	{
+	    return pThis->get_element(index);
+	}
+	else
+	{
+	    throw eval_exception( cerror::index_out_of_bounds, "Index out of bounds" );
+	}
+
     }
     
     objref fn_itr(context* pContext, fnref pThis )

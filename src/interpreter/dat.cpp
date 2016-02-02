@@ -85,6 +85,14 @@ ast* dat::make_equality(ast* target, ast* other)
     return make_methodcall(target,method,args);
 }
 
+ast* dat::make_index(ast* target, ast* index)
+{
+    list_node* args = new list_node();
+    symbol_node* method = new symbol_node(".index");
+    args->push_element(index);
+    return make_methodcall(target,method,args);
+}
+
 ast* dat::make_methodcall( ast* target, ast* method,list_node* args)
 {
     symbol_node* pMethodNameNode = dynamic_cast<symbol_node*>(method);

@@ -125,3 +125,6 @@ set.addattr("store",null)
 set.addmethod( (t)-> t.store=>intmap.new(()), ".ctor")
 set.addmethod( (t,v) -> t.store.add(v,v), "insert" )
 set.addmethod( (t,v) -> t.store.find(v).eq(null).not(), "contains" )
+
+ti=>(l,t,a,b) -> empty(l)? (a,b) : ti(l.tail(),t,{{l.head()}.gt(t)}? a : a+1, {l.head()}.lt(t)? b : b+1)
+threshold=>(l,t) -> { a=>0; b=>0; ti(l,t,0,0) }

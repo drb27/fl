@@ -32,6 +32,7 @@ class dat : public action_target
     virtual ast* make_attr( ast* target, std::string* selector);
     virtual ast* make_seq();
     virtual ast* make_equality(ast*,ast*);
+    virtual ast* make_index(ast* target, ast* index);
     virtual void add_expr(ast* expr);
     virtual void finish_seq();
     virtual ast* start_list();
