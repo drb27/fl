@@ -36,6 +36,12 @@ namespace builtins
 					      args,
 					      {}) 
 				) );
+
+	pContext->assign("foreach",
+			 fnref( new fn_object(pContext,fncls,
+					      rawfn(make_marshall(&builtins::foreach)),
+					      args,
+					      {} ) ));
     }
 
     std::shared_ptr<fclass> object::build_class()
@@ -132,6 +138,7 @@ namespace builtins
 	    pCls->add_method({"chunks", make_marshall_mthd(&builtins::list_chunks)});
 	    pCls->add_method({"join", make_marshall_mthd(&builtins::list_join)});
 	    pCls->add_method({".index", make_marshall_mthd(&builtins::list_index)});
+	    pCls->add_method({".iter", make_marshall_mthd(&builtins::list_iter)});
 	    return pCls;
 	}
 	else
@@ -170,6 +177,7 @@ namespace builtins
 
 	typespec spec("enum",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	pCls->add_class_method( {".iter", make_marshall_mthd(&builtins::enum_iter), false});
 	return pCls;
     }
 
@@ -233,6 +241,11 @@ namespace builtins
     objref list_tail(context* pContext, listref pThis)
     {
 	return pThis->tail(pContext);
+    }
+
+    objref list_iter(context* pContext, listref pThis )
+    {
+	return pThis;
     }
 
     objref int_gt(context* pContext, intref pThis, intref pOther )
@@ -480,6 +493,45 @@ namespace builtins
 	return objref( new int_object(pContext, distribution(generator)));
     }
 
+    objref foreach(context* pContext, fnref pFn, objref pObj )
+    {
+	// Call .iter on the object to yield a list object
+	auto m = methodcall_node(".iter");
+	ast* t = new literal_node(pObj);
+	m.add_target(t);
+	listref l = std::dynamic_pointer_cast<list_object>( m.evaluate(pContext) );
+	delete t;
+
+	// We now have a list of things to apply the function to.
+	typespec tso("object",{});
+	typespec tsl("list", { tso} );
+	auto& list_cls = pContext->types()->lookup(tsl);
+	listref returnList = listref( new list_object(pContext,list_cls) );
+
+	for ( int index=0; index<l->size(); index++ )
+	{
+	    objref currentObject = l->get_element(index);
+	    
+	    // Apply the function
+	    list_node* pArgList = new list_node();
+	    literal_node* pArg = new literal_node(currentObject);
+	    pArgList->push_element( pArg );
+	    funcall_node* pFnCall = new funcall_node("(anonymous)", pArgList);
+
+	    auto result = pFnCall->evaluate(pContext,pFn);
+
+	    // Add the result of the function to the result list
+	    returnList->append(result);
+
+	    delete pFnCall;
+	    delete pArg;
+	    delete pArgList;
+	    
+	}
+
+	return returnList;
+    }
+
     objref obj_is(context* pContext,objref pThis, objref pOther)
     {
 	bool result = pThis.get()==pOther.get();
@@ -547,4 +599,19 @@ namespace builtins
 
 	return stringref(pString);
     }
+
+    objref enum_iter(context* pContext, classref pThis )
+    {
+	typespec tsl("list", {pThis->internal_value()->get_spec()} );
+	auto& list_cls = pContext->types()->lookup(tsl);
+	listref returnList = listref( new list_object(pContext,list_cls) );
+	
+	for( auto e : pThis->class_attributes() )
+	{
+	    returnList->append(e.second);
+	}
+
+	return returnList;
+    }
+
 }

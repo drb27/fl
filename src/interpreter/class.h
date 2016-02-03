@@ -62,10 +62,12 @@ class fclass
     virtual const std::map<std::string,objref>& attributes() const;
     virtual const std::map<std::string,objref>& class_attributes();
     virtual void add_method(const methodinfo&);
+    virtual void add_class_method(const methodinfo&);
     virtual std::list<std::string> methods() const;
     virtual bool is_abstract() const { return _is_abstract; }
 
     virtual const methodinfo& lookup_method(const std::string& name) const;
+    virtual const methodinfo& lookup_class_method(const std::string& name) const;
     virtual fclass* base(void) const { return _base; }
     virtual bool is_root() const { return _base==nullptr; }
     virtual std::deque<fclass*> hierarchy();
@@ -83,6 +85,7 @@ class fclass
     std::map<std::string,objref> _attributes;
     std::map<std::string,methodinfo> _methods;
 
+    std::map<std::string,methodinfo> _class_methods;
     std::map<std::string,objref> _class_attributes;
 };
 

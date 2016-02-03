@@ -150,6 +150,35 @@ void fclass::add_method(const methodinfo& m)
 
 }
 
+void fclass::add_class_method(const methodinfo& m)
+{
+    auto i = _class_methods.find(m.name);
+    bool found = i!=_class_methods.end();
+
+    if( !found || ( found && !((*i).second.sealed) ) )
+    {
+	_class_methods[m.name] = m;
+    }
+    else
+    {
+	throw eval_exception(cerror::override_sealed, "Cannot override sealed method "+m.name);
+    }
+
+}
+
+const methodinfo& fclass::lookup_class_method(const std::string& name) const
+{
+    auto methodIndex = _class_methods.find(name);
+
+    if (methodIndex!=_class_methods.end())
+	return (*methodIndex).second;
+    else
+	if ( !is_root())
+	    return base()->lookup_class_method(name);
+	else
+	    throw eval_exception(cerror::undefined_method,"Undefined method " + name);
+}
+
 const methodinfo& fclass::lookup_method(const std::string& name) const
 {
     auto methodIndex = _methods.find(name);

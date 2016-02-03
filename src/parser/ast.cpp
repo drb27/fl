@@ -15,6 +15,7 @@
 #include <interpreter/marshall.h>
 #include <interpreter/eval_exception.h>
 #include <interpreter/optimization.h>
+#include <interpreter/builtins.h>
 
 using std::ostream;
 using std::endl;
@@ -208,8 +209,23 @@ objref methodcall_node::evaluate(context* pContext)
     objref target = _target->evaluate(pContext);
 
     // Look up the method on the class
-    function<marshall_mthd_t> m = target->get_class().lookup_method(_name).fn;
-    
+    function<marshall_mthd_t> m; 
+
+    typespec tsc("class",{});
+
+    try
+    {
+	m = target->get_class().lookup_method(_name).fn;	
+    }
+    catch ( eval_exception& )
+    {
+	if ( &(target->get_class()) == &(pContext->types()->lookup(tsc)) )
+	{
+	    classref targetCls = std::dynamic_pointer_cast<class_object>(target);
+	    m = targetCls->internal_value()->lookup_class_method(_name).fn;
+	}
+    }
+
     // Prepare the parameter vector
     auto params = vector<ast*>(_params.size()+2);
 
@@ -1008,6 +1024,7 @@ objref enum_node::evaluate(context* pContext)
 
     typespec tsn(_name,{});
     fclass* pNewClass = new fclass(tsn,&enum_cls);
+    //pNewClass->add_class_method( {".iter", make_marshall_mthd(&builtins::enum_iter), false});
 
     // Create class attributes
     int index=0;

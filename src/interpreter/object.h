@@ -100,7 +100,7 @@ public:
     fclass* internal_value() const { return _value; }
     virtual bool has_attribute(const std::string&) const;
     virtual objref get_attribute(const std::string&);
-
+    virtual std::map<std::string,objref> class_attributes() { return _value->class_attributes(); }
 protected:
     fclass* const _value;
 };
