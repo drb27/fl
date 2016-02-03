@@ -3,6 +3,7 @@
 #include <deque>
 #include <string>
 #include <vector>
+#include <map>
 #include "object.h"
 #include <cassert>
 #include <interpreter/eval_exception.h>
@@ -15,6 +16,7 @@ using std::function;
 using std::deque;
 using std::vector;
 using std::endl;
+using std::map;
 
 object::object(context* pContext, fclass& c, vector<objref> params) : _class(c)
 {
@@ -135,6 +137,18 @@ void class_object::render(std::ostream& os ) const
     os << "(class " << _value->name() << ") ";
     object::render(os);
 }
+
+bool class_object::has_attribute(const std::string& name) const
+{
+    const map<string,objref>& ca = _value->class_attributes();
+    return ca.find(name)!=ca.end();
+}
+
+objref class_object::get_attribute(const std::string& name)
+{
+    return (*(_value->class_attributes().find(name))).second;
+}
+
 namespace
 {
     inline fclass& get_int_cls(context* pContext)
@@ -148,6 +162,10 @@ int_object::int_object(context* pContext, int value)
 {
 }
 
+int_object::int_object(context* pContext,int value,fclass& cls)
+    : object(pContext,cls), _value(value)
+{
+}
 
 bool int_object::operator==( const objref other ) const
 {
@@ -480,3 +498,8 @@ fn_object::fn_object(context* pContext, const fn_object& other)
     _is_anon=other._is_anon;
 }
 
+void enum_object::render( std::ostream& os) const
+{
+    os << _name << " ";
+    object::render(os);
+}

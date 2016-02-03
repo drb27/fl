@@ -119,9 +119,19 @@ void fclass::add_attribute(const string& name, objref pDefault)
     _attributes[name] = pDefault;
 }
 
+void fclass::add_class_attribute(const string& name, objref pDefault)
+{
+    _class_attributes[name] = pDefault;
+}
+
 const map<string,objref>& fclass::attributes() const
 {
     return _attributes;
+}
+
+const map<string,objref>& fclass::class_attributes()
+{
+    return _class_attributes;
 }
 
 void fclass::add_method(const methodinfo& m)

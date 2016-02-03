@@ -160,6 +160,16 @@ namespace builtins
 	return pCls;
     }
 
+    std::shared_ptr<fclass> flenum::build_class(typemgr* pTm)
+    {
+	typespec base_spec("object",{});
+	fclass& base_cls = pTm->lookup(base_spec);
+
+	typespec spec("enum",{});
+	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	return pCls;
+    }
+
     objref add_integers(context* pContext, intref a,intref b)
     {
 	const int result = a->internal_value() + b->internal_value();

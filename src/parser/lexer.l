@@ -21,6 +21,7 @@ WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+enum     { return ENUM; }
 \[       { return OPEN_SQUARE; }
 \]       { return CLOSE_SQUARE; }
 ==       { return EQUALITY; }

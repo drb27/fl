@@ -60,6 +60,12 @@ public:
     static std::shared_ptr<fclass> build_class(typemgr*);
 };
 
+class flenum
+{
+public:
+    static std::shared_ptr<fclass> build_class(typemgr*);
+};
+
     void build_globals(context*);
     objref obj_dump(context*, objref pThis);
     objref obj_equate(context*, objref pThis,objref pOther);

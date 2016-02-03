@@ -51,6 +51,7 @@ extern action_target* target;
 %token FALSE
 %token NULLVAL
 %token SEMICOLON
+%token ENUM
 
 %union
 {
@@ -68,6 +69,7 @@ extern action_target* target;
 %type <node_val> symbol
 %type <node_val> fundef
 %type <node_val> expr
+%type <node_val> enumdef
 %type <node_val> alias
 %type <node_val> funcall
 %type <node_val> methodcall
@@ -145,6 +147,7 @@ expr:   literal
       | sequence
       | listbuild
       | methodcall
+      | enumdef
       | alias
       | assign
       | selector
@@ -188,6 +191,8 @@ selpair: expr COLON expr { target->selector_condition( target->make_pair($1,$3) 
        | DEFAULT COLON expr { target->selector_default($3); };
 
 index: expr OPEN_SQUARE expr CLOSE_SQUARE { $$=target->make_index($1,$3); }
+
+enumdef: ENUM SYMBOL list { $$=target->make_enum_class($2,$3); }
 
 /* COMMANDS ***************************************************************/
 

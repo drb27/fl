@@ -991,7 +991,68 @@ void while_node::required_symbols(set<string>& s ) const
     _action->required_symbols(s);
 }
 
+enum_node::enum_node(const string& name, ast* pDefList)
+    :_def_list(pDefList), _name(name)
+{
+}
 
+objref enum_node::evaluate(context* pContext)
+{
+    // Create a new class that derives from enum
+    
+    typespec tse("enum",{});
+    auto& enum_cls = pContext->types()->lookup(tse);
+    
+    typespec tsc("class",{});
+    auto& class_cls = pContext->types()->lookup(tsc);
+
+    typespec tsn(_name,{});
+    fclass* pNewClass = new fclass(tsn,&enum_cls);
+
+    // Create class attributes
+    int index=0;
+    auto pList = dynamic_cast<list_node*>(_def_list);
+
+    for ( auto e : pList->raw_elements() )
+    {
+	auto pSym = dynamic_cast<symbol_node*>(e);
+	enumref i = enumref( new enum_object(pContext,index++,pSym->name(),*pNewClass) );
+	pNewClass->add_class_attribute(pSym->name(),i);
+    }
+
+    // Register the new class with the type manager and return a class_object
+    pContext->types()->add(*pNewClass);
+    return objref( new class_object(pContext,pNewClass,class_cls) );
+}
+
+void enum_node::required_symbols(std::set<std::string>& s) const
+{
+    _def_list->required_symbols(s);
+}
+
+void enum_node::render_dot(int& uuid,
+			   const std::string& parent, 
+			   const std::string& label,
+			   std::ostream& out) const
+{
+    int myref=uuid++;
+    string labelString;
+
+    string myid = "enumdef_" + _name + "_" + std::to_string(myref);
+    if (!parent.empty())
+    {
+	out << parent << " -> ";
+	labelString = ",label=\"" + label + "\"";
+    }
+    out << myid << "[shape=box" << labelString << "];" << std::endl;
+
+    _def_list->render_dot(uuid,myid," cond",out);
+}
+
+asttype enum_node::type() const
+{
+    return asttype::_enum;
+}
 asttype symbol_node::type() const
 {
     return asttype::symbol;
@@ -1137,4 +1198,9 @@ void while_node::direct_subordinates( list<ast*>& subs ) const
 {
     subs.push_back(_cond);
     subs.push_back(_action);
+}
+
+void enum_node::direct_subordinates( std::list<ast*>& s) const
+{
+    s.push_back(_def_list);
 }

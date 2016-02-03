@@ -29,8 +29,8 @@ class object
     virtual ~object();
 
     fclass& get_class() const { return _class; }
-    bool has_attribute(const std::string&) const;
-    objref get_attribute(const std::string&);
+    virtual bool has_attribute(const std::string&) const;
+    virtual objref get_attribute(const std::string&);
     virtual void set_attribute(const std::string&,objref);
     virtual void render( std::ostream& os ) const;
     virtual void dump( std::ostream& out = std::cout) const;
@@ -60,8 +60,21 @@ public:
     virtual bool operator==(const objref other) const; 
 
 protected:
+    int_object(context*,int value,fclass& cls);
     const int _value;
 };
+
+class enum_object : public int_object
+{
+public:
+    enum_object(context* pContext, int value, const std::string& name, fclass& cls) 
+	: int_object(pContext,value,cls),_name(name) {}
+    virtual void render( std::ostream& os) const;
+
+private:
+    const std::string _name;
+};
+
 
 class string_object : public object
 {
@@ -82,6 +95,9 @@ public:
     class_object(context*,fclass* pCls,fclass&);
     virtual void render( std::ostream& os) const;
     fclass* internal_value() const { return _value; }
+    virtual bool has_attribute(const std::string&) const;
+    virtual objref get_attribute(const std::string&);
+
 protected:
     fclass* const _value;
 };

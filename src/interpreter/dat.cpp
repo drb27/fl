@@ -123,6 +123,13 @@ ast* dat::make_assign_node(ast* lvalue, ast* rvalue,bool alias)
     return new assign_node(lvalue,rvalue,alias);
 }
 
+ast* dat::make_enum_class(string* name,ast* pDefList)
+{
+    auto r = new enum_node(*name,pDefList);
+    delete name;
+    return r;
+}
+
 ast* dat::start_list()
 {
     auto n = new list_node();

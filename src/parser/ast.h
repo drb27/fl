@@ -25,7 +25,8 @@ enum class asttype
 	funcall,
 	fundef,
 	assign,
-	_while
+	_while,
+	_enum
 	};
 
 class ast

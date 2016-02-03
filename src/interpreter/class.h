@@ -58,7 +58,9 @@ class fclass
     std::string name() const;
     const typespec& get_spec() const;
     virtual void add_attribute(const std::string&,objref d);
+    virtual void add_class_attribute(const std::string&,objref d);
     virtual const std::map<std::string,objref>& attributes() const;
+    virtual const std::map<std::string,objref>& class_attributes();
     virtual void add_method(const methodinfo&);
     virtual std::list<std::string> methods() const;
     virtual bool is_abstract() const { return _is_abstract; }
@@ -80,6 +82,8 @@ class fclass
     const typespec _ts;
     std::map<std::string,objref> _attributes;
     std::map<std::string,methodinfo> _methods;
+
+    std::map<std::string,objref> _class_attributes;
 };
 
 #endif

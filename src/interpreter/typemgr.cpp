@@ -56,6 +56,9 @@ void typemgr::init_builtins()
     c= builtins::string::build_class(this);
     _typeMap[c->get_spec()] = c;
 
+    c= builtins::flenum::build_class(this);
+    _typeMap[c->get_spec()] = c;
+
     typespec ts3=typespec("list",{ts});
     c = builtins::list::build_class(ts3,this);
     _typeMap[c->get_spec()] = c;
