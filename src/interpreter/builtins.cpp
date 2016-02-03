@@ -67,6 +67,8 @@ namespace builtins
 	pCls->add_method({"new",make_marshall_mthd(&builtins::class_new),true});
 	pCls->add_method({"addattr",make_marshall_mthd(&builtins::class_addattr),true});
 	pCls->add_method({"eq", make_marshall_mthd(&builtins::class_equate),false} );
+	pCls->add_method({"clsattrs", make_marshall_mthd(&builtins::class_attrlist)});
+
 	return pCls;
     }
 
@@ -343,6 +345,29 @@ namespace builtins
 	// return a managed reference
 	return objref(pList);
 
+    }
+
+    objref class_attrlist(context* pContext, classref pThis )
+    {
+	// Typespecs
+	typespec list_ts("list",{pThis->internal_value()->get_spec()});
+
+	// Create a native list of string_objects
+	std::list<objref> nativeList;
+
+	// Add all the methods of the given class
+	for ( auto m : pThis->internal_value()->class_attributes() )
+	{
+	    nativeList.push_back( m.second );
+	}
+
+	// Create a new list
+	list_object* pList = new list_object( pContext, pContext->types()->lookup(list_ts),
+					      nativeList);
+
+	// return a managed reference
+	return objref(pList);
+	
     }
 
     objref class_base(context* pContext, classref pThis)

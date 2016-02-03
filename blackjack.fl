@@ -1,0 +1,13 @@
+suit=>enum suit (hearts,diamonds,clubs,spades)
+object=>null.class().base()
+card=>object.derive("card")
+card.addattr( "suit", suit.hearts )
+card.addattr( "value", 1 )
+card.addmethod( (c)->(c.value,c.suit), "pair")
+c=>card.new(())
+
+deck=>(c)
+
+
+
+

@@ -503,3 +503,4 @@ void enum_object::render( std::ostream& os) const
     os << _name << " ";
     object::render(os);
 }
+

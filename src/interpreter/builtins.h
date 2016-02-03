@@ -96,6 +96,7 @@ public:
     objref class_new(context* pContext, classref pThis, listref params);
     objref class_addattr(context* pContext, classref pThis, stringref name, objref d);
     objref class_equate(context* pContext, objref pThis,objref pOther);
+    objref class_attrlist(context* pContext, classref pThis );
     objref obj_assign(context* pContext, objref pThis, objref pOther);
     objref void_equate(context* pContext, objref pThis, objref pOther);
     objref rnd(context* pContext, intref a, intref b);
