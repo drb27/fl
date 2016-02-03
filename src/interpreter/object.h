@@ -29,6 +29,7 @@ class object
     virtual ~object();
 
     fclass& get_class() const { return _class; }
+    context* get_context() const { return _context; }
     virtual bool has_attribute(const std::string&) const;
     virtual objref get_attribute(const std::string&);
     virtual void set_attribute(const std::string&,objref);
@@ -46,6 +47,7 @@ class object
     std::map<std::string,objref> _attributes;
 
  private:
+    context* _context;
     fclass& _class;
     std::map<std::string,std::function<marshall_fn_t>> _methods;
 };
@@ -83,6 +85,7 @@ public:
     virtual void render( std::ostream& os ) const;
     const std::string& internal_value() const { return _value; }
 
+    virtual stringref operator[](intref index) const;
     virtual bool operator==(const objref other) const; 
 
 protected:

@@ -89,6 +89,7 @@ public:
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
     objref string_length(context* pContext, stringref pThis);
+    objref string_index(context* pContext, stringref pThis, intref index );
     objref class_methods(context* pContext, classref pThis);
     objref class_base(context* pContext, classref pThis);
     objref obj_ctor(context* pContext, objref pThis);

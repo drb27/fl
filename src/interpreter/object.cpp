@@ -18,7 +18,8 @@ using std::vector;
 using std::endl;
 using std::map;
 
-object::object(context* pContext, fclass& c, vector<objref> params) : _class(c)
+object::object(context* pContext, fclass& c, vector<objref> params) 
+    : _class(c),_context(pContext)
 {
     if ( c.is_abstract() )
 	throw eval_exception(cerror::instantiate_abstract,
@@ -196,6 +197,15 @@ bool string_object::operator==( const objref other ) const
 
     stringref otherRef = std::dynamic_pointer_cast<string_object>(other);
     return (internal_value()==otherRef->internal_value());
+}
+
+stringref string_object::operator[](intref index) const
+{
+    string substr(_value.substr(index->internal_value(),1));
+    stringref result = stringref(new string_object(get_context(),
+						   substr,
+						   get_class()) );
+    return result;
 }
 
 void string_object::render( std::ostream& os) const

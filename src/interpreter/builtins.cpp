@@ -80,6 +80,7 @@ namespace builtins
 	typespec spec("string",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method({"size",make_marshall_mthd(&builtins::string_length)});
+	pCls->add_method({".index",make_marshall_mthd(&builtins::string_index)});
 	return pCls;
     }
 
@@ -302,6 +303,11 @@ namespace builtins
 	int_object* pResult = new int_object( pContext, pThis->internal_value().length() );
 
 	return objref(pResult);
+    }
+
+    objref string_index(context* pContext, stringref pThis, intref index )
+    {
+	return (*pThis)[index];
     }
 
     objref class_equate(context* pContext, objref pThis,objref pOther)
