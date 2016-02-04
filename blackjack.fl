@@ -3,7 +3,8 @@ I=>(x)->x
 reverse=>(l)-> l.size()==0? () : reverse(l.tail())::l.head()
 combiner=>(e,l)-> l.size()==0? () : combine(e,l.tail())::(e,l.head())
 combine=>(e,l)-> reverse(combiner(e,l))
-flatten=>(l,o)-> l.size()==0? o : { o=>o.join(l.head()); flatten(l.tail(),o) }
+flatten=>(l,o)-> l.size()==0? o : flatten(l.tail(),o.join(l.head()))
+//flatten=>(l,o)-> l.size()==0? o : flatten(l.tail(),o)
 
 btoi=>(b)-> b? 1 : 0
 
@@ -29,7 +30,7 @@ make_suit_pairs=>(s)-> combine(s,foreach(rank,I))
 make_suit=>(s)-> foreach( make_suit_pairs(s), (p)->make_card(p) )
 make_deck=>()-> foreach( foreach(suit,I), (s)->make_suit(s))
 
-
+rep=>(x,y)-> y.size()==0? x: rep(x.join(y.head()),y.tail())
 
 
 

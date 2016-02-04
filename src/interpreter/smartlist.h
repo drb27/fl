@@ -58,6 +58,8 @@ class smartlist final
     bool unique() const;
     void detach();
 
+    void dump_chunks();
+
  protected:
 
     inline chunkref tail_chunk() const;

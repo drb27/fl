@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <cassert>
 #include <interpreter/eval_exception.h>
@@ -151,6 +152,8 @@ chunkref smartlist::tail_chunk() const
 
 void smartlist::inplace_append(chunkref& c)
 {
+    size_t oldSize = size();
+
     auto tailchunk = tail_chunk();
  
     if ( !tailchunk )
@@ -161,10 +164,14 @@ void smartlist::inplace_append(chunkref& c)
     {
 	tailchunk->_next = c;
     }
+
+    assert( size()==(oldSize+c->_size));
 }
 
 void smartlist::inplace_append(smartlist* other)
 {
+    size_t oldSize = size();
+
     // Get the last chunk in this list
     chunkref pAppendChunk = tail_chunk();
 
@@ -188,14 +195,18 @@ void smartlist::inplace_append(smartlist* other)
 	pAppendChunk = pAppendChunk->_next;
 	pCurrentChunk = pCurrentChunk->_next;
     }
+
+    assert( size() == (oldSize+other->size()));
 }
 
 void smartlist::inplace_append(blockref& b,size_t s)
 {
+    size_t oldSize = size();
     auto n = chunkref(nullptr);
     auto newChunk = chunkref( new chunk(s,0,b,n) );
     inplace_append( newChunk );
     
+    assert(size()==(s+oldSize));
 }
 
 void smartlist::inplace_append(objref& o )
@@ -394,5 +405,17 @@ size_t smartlist::chunks() const
     return count;
 }
 
+void smartlist::dump_chunks()
+{
+    auto pCurrentChunk = _chunk;
+
+    while(pCurrentChunk)
+    {
+	std::cout << pCurrentChunk->_size << "->";
+	pCurrentChunk = pCurrentChunk->_next;
+    }
+
+    std::cout << "NULL" << std::endl;
+}
 
 
