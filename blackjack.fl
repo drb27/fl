@@ -1,12 +1,35 @@
+// Useful Functions
+I=>(x)->x
+reverse=>(l)-> l.size()==0? () : reverse(l.tail())::l.head()
+combiner=>(e,l)-> l.size()==0? () : combine(e,l.tail())::(e,l.head())
+combine=>(e,l)-> reverse(combiner(e,l))
+flatten=>(l,o)-> l.size()==0? o : { o=>o.join(l.head()); flatten(l.tail(),o) }
+
+btoi=>(b)-> b? 1 : 0
+
+and=>(a,b)-> btoi(a).add(btoi(b))==2
+true.class().addmethod( (t,o)->and(t,o), "and" )
+
+
+// Suit Enumeration
 suit=>enum suit (hearts,diamonds,clubs,spades)
+rank=>enum rank (two,three,four,five,six,seven,eight,nine,ten,jack,queen,king,ace)
+
+// Card Class
 object=>null.class().base()
 card=>object.derive("card")
 card.addattr( "suit", suit.hearts )
-card.addattr( "value", 1 )
-card.addmethod( (c)->(c.value,c.suit), "pair")
-c=>card.new(())
+card.addattr( "rank", rank.ace )
+card.addmethod( (t,s,r)-> {t.suit=>s; t.rank=>r; t}, ".ctor" )
+card.addmethod( (t,o)-> {t.rank==o.rank}.and(t.suit==o.suit) , "eq" )
+card.addmethod( (t,o)-> { t.suit=>o.suit; t.rank=>o.rank; t }, ".assign" )
 
-deck=>(c)
+make_card=>(l)-> { c=>card.new(()); c.suit=>l[0]; c.rank=>l[1]; c }
+make_suit_pairs=>(s)-> combine(s,foreach(rank,I))
+make_suit=>(s)-> foreach( make_suit_pairs(s), (p)->make_card(p) )
+make_deck=>()-> foreach( foreach(suit,I), (s)->make_suit(s))
+
+
 
 
 

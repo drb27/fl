@@ -493,7 +493,7 @@ namespace builtins
 	return objref( new int_object(pContext, distribution(generator)));
     }
 
-    objref foreach(context* pContext, fnref pFn, objref pObj )
+    objref foreach(context* pContext, objref pObj, fnref pFn )
     {
 	// Call .iter on the object to yield a list object
 	auto m = methodcall_node(".iter");

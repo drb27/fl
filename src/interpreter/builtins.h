@@ -102,7 +102,7 @@ public:
     objref obj_assign(context* pContext, objref pThis, objref pOther);
     objref void_equate(context* pContext, objref pThis, objref pOther);
     objref rnd(context* pContext, intref a, intref b);
-    objref foreach(context* pContext, fnref pFn, objref pObj );
+    objref foreach(context* pContext, objref pObj, fnref pFn );
     objref obj_is(context*,objref,objref);
     objref obj_invoke(context*,objref,stringref,listref params);
     objref list_optimise(context*,listref);
