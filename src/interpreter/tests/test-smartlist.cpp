@@ -354,3 +354,24 @@ void smartlistTestFixture::testChunkedTail()
 
     delete pNewList;
 }
+
+void smartlistTestFixture::reproduceHighlyChunkedJoin()
+{
+    typespec tsv("void",{});
+    objref null = objref( new void_object(g_pContext, g_pContext->types()->lookup(tsv)) );
+    smartlist a;
+    a.inplace_append(null);
+    a.inplace_append(null);
+    a.inplace_append(null);
+
+    smartlist b;
+    b.inplace_append(null);    
+    b.inplace_append(null);
+    b.inplace_append(null);
+    
+    smartlist c(a);
+    
+    c.inplace_append(&b);
+
+    CPPUNIT_ASSERT(c.size()==6);
+}
