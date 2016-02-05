@@ -8,7 +8,7 @@ class ftlist;
 #include <list>
 #include <common.h>
 #include <parser/ast.h>
-#include "parser.h"
+#include <parser/bison.h>
 
 
 #define STR(x) new std::string(x)
@@ -16,11 +16,15 @@ class ftlist;
 
 %}
 
+%option reentrant
+%option bison-bridge
+
 DIGIT [0-9]
 WS    [ \t]+
 LETTER [A-Za-z_]
 %%
 
+<<EOF>>  { return EOFF; }
 enum     { return ENUM; }
 \[       { return OPEN_SQUARE; }
 \]       { return CLOSE_SQUARE; }
@@ -31,7 +35,7 @@ default  { return DEFAULT; }
 \;       { return SEMICOLON; }
 \{       { return OPEN_CURLY; }
 \}       { return CLOSE_CURLY; }
-\"[^\"]*\" { yylval.string_val =STR(yytext); return STRING; } 
+\"[^\"]*\" { yylval->string_val =STR(yytext); return STRING; } 
 trace    { return TRACE; }
 debug    { return DEBUG; }
 ::       { return BUILDER; }
@@ -54,11 +58,11 @@ typedef  { return TYPEDEF; }
 \)       { return CLOSE_PAREN; }
 \<       { return OPEN_ANGLED; }
 \>       { return CLOSE_ANGLED; }
-{DIGIT}+            { yylval.int_val = atoi(yytext); return INTEGER; }
+{DIGIT}+            { yylval->int_val = atoi(yytext); return INTEGER; }
 {WS}     
-{LETTER}+ { yylval.string_val = STR(yytext); return SYMBOL; }
+{LETTER}+ { yylval->string_val = STR(yytext); return SYMBOL; }
 \/\/[^\n]*
 =        { return EQ; }
-\n       { return NEWLINE; }
+\n
 
 %%

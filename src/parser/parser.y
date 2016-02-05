@@ -15,6 +15,11 @@ extern action_target* target;
  static std::string dec_str("dec");
 
 %}
+
+%define api.pure full
+%define api.push-pull push
+
+%token EOFF
 %token OPEN_SQUARE
 %token CLOSE_SQUARE
 %token EQUALITY
@@ -208,8 +213,8 @@ quit_cmd: QUIT { target->done(); };
 
 /* STATEMENTS *************************************************************/
 
-stmt : expr NEWLINE {target->respond($1);}
-     | command NEWLINE {}
-     | NEWLINE {};
+stmt : expr SEMICOLON {target->respond($1); YYACCEPT; }
+| command SEMICOLON {};
+//     | {};
 
 assign: expr EQ expr { $$=target->make_assign_node($1,$3); };

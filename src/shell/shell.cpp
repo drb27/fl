@@ -22,6 +22,9 @@
 #include <interpreter/eval_exception.h>
 #include <parser/ast_nodes.h>
 
+#include <parser/bison.h>
+#include <parser/flex.h>
+
 using std::list;
 using std::shared_ptr;
 using std::deque;
@@ -31,37 +34,43 @@ using std::map;
 action_target* target;
 
 logger g_logger(std::cout);
-
-struct yy_buffer_state;
-typedef struct yy_buffer_state *YY_BUFFER_STATE;
-
-int yyparse(void);
-extern YY_BUFFER_STATE yy_scan_string(const char*);
-extern void yy_delete_buffer(YY_BUFFER_STATE);
+yypstate* g_ps;
 
 extern "C" void yyerror(char const* c)
 {
     throw eval_exception(cerror::syntax_error,"Syntax error");
 }
 
-
-void parse_string(const std::string& inputString)
+yypstate* reset_parser_state()
 {
-    string str = inputString + "\n";
-    auto newBuffer = yy_scan_string(str.c_str());
+    yypstate_delete(g_ps);
+    g_ps = yypstate_new();
+    return g_ps;
+}
+
+void parse_string(const std::string& inputString,yyscan_t scanner,yypstate* ps)
+{
+    string str = inputString;
+    auto newBuffer = yy_scan_string(str.c_str(),scanner);
     try
     {
-	yyparse();
+	YYSTYPE t;
+	int c;
+	while ( (c=yylex(&t,scanner)) != EOFF )
+	{
+	    yypush_parse(ps,c,&t);
+	}
     }
     catch ( eval_exception& e )
     {
 	std::cout << e.what() << std::endl;
+	ps = reset_parser_state();
     }
 
-    yy_delete_buffer(newBuffer);
+    yy_delete_buffer(newBuffer,scanner);
 }
 
-void read_file(const std::string& fname)
+void read_file(const std::string& fname,yyscan_t scanner,yypstate* ps)
 {
     // Library file
     std::ifstream infile(fname);
@@ -73,7 +82,7 @@ void read_file(const std::string& fname)
 	    {
 		string inputString;
 		std::getline(infile,inputString);
-		parse_string(inputString);
+		parse_string(inputString,scanner,ps);
 		if (infile.eof())
 		    throw std::exception();
 	    }
@@ -102,11 +111,16 @@ int main(int argc, char** argv)
     builtins::build_globals(shell_context);
     target = new dat(shell_context);
 
+    // Reentrant scanner/parser init
+    yyscan_t scanner;
+    yylex_init(&scanner);
+    g_ps = yypstate_new();
+
     string fname="my.fl";
     if (argc>1)
 	fname=argv[1];
     // File input
-    read_file(fname);
+    read_file(fname,scanner,g_ps);
     
     // User input
     bool more=true;
@@ -114,16 +128,19 @@ int main(int argc, char** argv)
     {
 	string inputString;
 	std::getline(std::cin,inputString);
-	inputString = inputString + "\n";
+	inputString = inputString;
 	try
 	{
-	    parse_string(inputString);
+	    parse_string(inputString,scanner,g_ps);
 	}
 	catch( terminate_exception& )
 	{
 	    more=false;
 	}
     }
+
+    yypstate_delete(g_ps);
+    yylex_destroy(scanner);
 
     return 0;
 }

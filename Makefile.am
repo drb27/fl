@@ -42,8 +42,7 @@ interpreter_tests_SOURCES=src/interpreter/tests/tests.cpp \
 interpreter_tests_LDADD=liblang.a
 
 src/parser/parser.cpp : src/parser/parser.y
-	$(YACC) $(AM_YFLAGS) src/parser/parser.y -o src/parser/parser.cpp
-	mv src/parser/parser.hpp src/parser/parser.h
+	$(YACC) $(AM_YFLAGS) src/parser/parser.y -o src/parser/parser.cpp --defines=src/parser/bison.h
 
 src/parser/lexer.cpp : src/parser/lexer.l src/parser/parser.cpp
-	$(LEX) $(AM_LFLAGS) -o src/parser/lexer.cpp src/parser/lexer.l
+	$(LEX) $(AM_LFLAGS) --header-file=src/parser/flex.h -o src/parser/lexer.cpp src/parser/lexer.l
