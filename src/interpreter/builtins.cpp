@@ -87,6 +87,8 @@ namespace builtins
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method({"size",make_marshall_mthd(&builtins::string_length)});
 	pCls->add_method({".index",make_marshall_mthd(&builtins::string_index)});
+	pCls->add_method({"add",make_marshall_mthd(&builtins::string_add)});
+	pCls->add_method({"join",make_marshall_mthd(&builtins::string_join)});
 	return pCls;
     }
 
@@ -321,6 +323,17 @@ namespace builtins
     objref string_index(context* pContext, stringref pThis, intref index )
     {
 	return (*pThis)[index];
+    }
+
+    objref string_add(context* pContext, stringref pThis, stringref pOther)
+    {
+	return stringref( (*pThis)+pOther );
+    }
+
+    objref string_join(context* pContext, stringref pThis, stringref pOther)
+    {
+	pThis->inplace_join(pOther);
+	return pThis;
     }
 
     objref class_equate(context* pContext, objref pThis,objref pOther)

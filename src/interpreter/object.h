@@ -82,14 +82,18 @@ class string_object : public object
 {
 public:
     string_object(context*,const std::string& value, fclass&);
+    string_object( const string_object& );
     virtual void render( std::ostream& os ) const;
     const std::string& internal_value() const { return _value; }
 
     virtual stringref operator[](intref index) const;
     virtual bool operator==(const objref other) const; 
 
+    virtual stringref operator+(const stringref other) const;
+    virtual void inplace_join(const stringref other);
+
 protected:
-    const std::string _value;
+    std::string _value;
 };
 
 class class_object : public object
