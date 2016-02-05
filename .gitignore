@@ -17,4 +17,10 @@ interpreter_tests
 *.a
 *.log
 *.trs
+*.png
+*.dot
+*.ps
+analysis.txt
+.bookmarks
 *~
+\#*

@@ -2,4 +2,8 @@
 .dirstamp
 lexer.cpp
 parser.cpp
-parser.h
+bison.h
+flex.h
+parser.output
+parser.tab.c
+\#*
