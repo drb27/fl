@@ -187,12 +187,15 @@ void smartlist::inplace_append(smartlist* other)
 	else
 	{
 	    _chunk = chunkref( new chunk(*pCurrentChunk) );
-	    pAppendChunk = _chunk;
 	}
 	   
 
 	// Update pointers for next iteration
-	pAppendChunk = pAppendChunk->_next;
+	if (pAppendChunk)
+	    pAppendChunk = pAppendChunk->_next;
+	else
+	    pAppendChunk = _chunk;
+
 	pCurrentChunk = pCurrentChunk->_next;
     }
 
