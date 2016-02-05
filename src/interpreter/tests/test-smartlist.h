@@ -46,6 +46,7 @@ public:
     void testInplaceChunkify();
     void testChunkedTail();
     void testJoinChunkedToEmpty();
+    void testInplacePop();
     // @}
 
     /** \cond internal */
@@ -69,6 +70,7 @@ public:
     CPPUNIT_TEST( testInplaceChunkify );
     CPPUNIT_TEST( testChunkedTail );
     CPPUNIT_TEST( testJoinChunkedToEmpty );
+    CPPUNIT_TEST( testInplacePop );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

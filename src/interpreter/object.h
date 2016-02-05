@@ -134,6 +134,7 @@ public:
     void append(objref e);
     void append(listref);
     void prepend(objref e);
+    objref pop();
     objref get_element(size_t index);
     int size() const;
     int chunks() const;

@@ -84,6 +84,7 @@ public:
     objref list_tail(context* pContext, listref pThis);
     objref list_index(context* pContext, listref pThis, objref i );
     objref list_iter(context* pContext, listref pThis );
+    objref list_pop(context* pContext, listref pThis );
     objref int_equate(context* pContext, intref pThis, intref pOther);
     objref int_gt(context* pContext, intref pThis, intref pOther);
     objref int_lt(context* pContext, intref pThis, intref pOther);

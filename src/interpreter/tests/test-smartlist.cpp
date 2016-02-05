@@ -372,3 +372,39 @@ void smartlistTestFixture::testJoinChunkedToEmpty()
 
     CPPUNIT_ASSERT(c.size()==3);
 }
+
+void smartlistTestFixture::testInplacePop()
+{
+    smartlist a,b,c;
+    configure_shared_lists(a,b);
+    
+    objref retVal;
+    retVal = c.inplace_pop();
+    CPPUNIT_ASSERT(!retVal);
+
+    CPPUNIT_ASSERT(b.size()==6);
+    retVal = b.inplace_pop();
+    CPPUNIT_ASSERT( std::dynamic_pointer_cast<int_object>(retVal)->internal_value()==6);
+    CPPUNIT_ASSERT( b.size()==5);
+
+    retVal = b.inplace_pop();
+    CPPUNIT_ASSERT( std::dynamic_pointer_cast<int_object>(retVal)->internal_value()==5);
+    CPPUNIT_ASSERT( b.size()==4);
+
+    retVal = b.inplace_pop();
+    CPPUNIT_ASSERT( std::dynamic_pointer_cast<int_object>(retVal)->internal_value()==4);
+    CPPUNIT_ASSERT( b.size()==3);
+
+    retVal = b.inplace_pop();
+    CPPUNIT_ASSERT( std::dynamic_pointer_cast<int_object>(retVal)->internal_value()==12);
+    CPPUNIT_ASSERT( b.size()==2);
+
+    retVal = b.inplace_pop();
+    CPPUNIT_ASSERT( std::dynamic_pointer_cast<int_object>(retVal)->internal_value()==11);
+    CPPUNIT_ASSERT( b.size()==1);
+
+    retVal = b.inplace_pop();
+    CPPUNIT_ASSERT( std::dynamic_pointer_cast<int_object>(retVal)->internal_value()==10);
+    CPPUNIT_ASSERT( b.size()==0);
+    
+}

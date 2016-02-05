@@ -141,6 +141,7 @@ namespace builtins
 	    pCls->add_method({"join", make_marshall_mthd(&builtins::list_join)});
 	    pCls->add_method({".index", make_marshall_mthd(&builtins::list_index)});
 	    pCls->add_method({".iter", make_marshall_mthd(&builtins::list_iter)});
+	    pCls->add_method({"pop", make_marshall_mthd(&builtins::list_pop)});
 	    return pCls;
 	}
 	else
@@ -213,6 +214,11 @@ namespace builtins
     {
 	objref pObject(new int_object(pContext,pThis->size()));
 	return pObject;
+    }
+
+    objref list_pop(context* pContext, listref pThis )
+    {
+	return pThis->pop();
     }
 
     objref list_head(context* pContext, listref pThis)

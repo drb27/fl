@@ -316,6 +316,18 @@ void list_object::append(objref e)
     _pList->inplace_append(e);
 }
 
+objref list_object::pop()
+{
+    objref pObject = _pList->inplace_pop();
+    if (!pObject)
+    {
+	typespec tsv("void",{});
+	pObject = objref( new void_object(get_context(),get_context()->types()->lookup(tsv)) );
+    }
+
+    return pObject;
+}
+
 void list_object::prepend(objref e)
 {
     _pList->inplace_prefix(e);

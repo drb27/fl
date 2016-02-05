@@ -150,6 +150,25 @@ chunkref smartlist::tail_chunk() const
 	return chunkref(nullptr);
 }
 
+chunkref smartlist::penultimate_chunk() const
+{
+    if (_chunk)
+    {
+	chunkref pCurrentChunk = _chunk;
+	chunkref pPreviousChunk;
+
+	while( pCurrentChunk->_next )
+	{
+	    pPreviousChunk = pCurrentChunk;
+	    pCurrentChunk = pCurrentChunk->_next;
+	}
+
+	return pPreviousChunk;
+    }
+    else
+	return chunkref(nullptr);
+}
+
 void smartlist::inplace_append(chunkref& c)
 {
     size_t oldSize = size();
@@ -406,6 +425,32 @@ size_t smartlist::chunks() const
     }
 
     return count;
+}
+
+objref smartlist::inplace_pop()
+{
+    chunkref pTailChunk;
+    objref pReturnObject;
+
+    if (_chunk && (_chunk->_size>0))
+    {
+	pTailChunk = tail_chunk();
+	if ( !pTailChunk->_size)
+	{
+	    chunkref pPenultimateChunk = penultimate_chunk();
+	    pPenultimateChunk->_next = chunkref(nullptr);
+	    pTailChunk = pPenultimateChunk;
+	}
+    }
+
+    if (pTailChunk)
+    {
+	int correctedIndex = pTailChunk->_idx_head + pTailChunk->_size - 1;
+	pReturnObject = pTailChunk->_block.get()[correctedIndex];
+	pTailChunk->_size--;
+    }
+
+    return pReturnObject;
 }
 
 void smartlist::dump_chunks()

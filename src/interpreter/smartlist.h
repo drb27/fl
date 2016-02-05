@@ -50,6 +50,8 @@ class smartlist final
     void inplace_prefix(chunkref&);
     void inplace_prefix(objref&);
 
+    objref inplace_pop();
+
     objref get_element(size_t) const;
     smartlist* tail() const;
 
@@ -63,6 +65,7 @@ class smartlist final
  protected:
 
     inline chunkref tail_chunk() const;
+    inline chunkref penultimate_chunk() const;
 
 
  private:
