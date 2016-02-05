@@ -134,6 +134,14 @@ const map<string,objref>& fclass::class_attributes()
     return _class_attributes;
 }
 
+bool fclass::has_method(const string& name )
+{
+    if ( _methods.find(name)!=_methods.end() )
+	return true;
+    else
+	return false;
+}
+
 void fclass::add_method(const methodinfo& m)
 {
     auto i = _methods.find(m.name);

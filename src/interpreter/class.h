@@ -62,6 +62,7 @@ class fclass
     virtual const std::map<std::string,objref>& attributes() const;
     virtual const std::map<std::string,objref>& class_attributes();
     virtual void add_method(const methodinfo&);
+    virtual bool has_method(const std::string& );
     virtual void add_class_method(const methodinfo&);
     virtual std::list<std::string> methods() const;
     virtual bool is_abstract() const { return _is_abstract; }

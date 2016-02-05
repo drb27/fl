@@ -33,8 +33,9 @@ class object
     virtual bool has_attribute(const std::string&) const;
     virtual objref get_attribute(const std::string&);
     virtual void set_attribute(const std::string&,objref);
-    virtual void render( std::ostream& os ) const;
-    virtual void dump( std::ostream& out = std::cout) const;
+    virtual bool has_method(const std::string&) const;
+    virtual void render( std::ostream& os );
+    virtual void dump( std::ostream& out = std::cout);
 
     virtual void optimise() {}
     virtual objref invoke( const std::string& mthdName, context* pCtx, std::vector<objref>& params);
@@ -49,14 +50,13 @@ class object
  private:
     context* _context;
     fclass& _class;
-    std::map<std::string,std::function<marshall_fn_t>> _methods;
 };
 
 class int_object : public object
 {
 public:
     int_object(context*,int value);
-    virtual void render( std::ostream& os ) const;
+    virtual void render( std::ostream& os );
     int internal_value() const { return _value; }
 
     virtual bool operator==(const objref other) const; 
@@ -71,7 +71,7 @@ class enum_object : public int_object
 public:
     enum_object(context* pContext, int value, const std::string& name, fclass& cls) 
 	: int_object(pContext,value,cls),_name(name) {}
-    virtual void render( std::ostream& os) const;
+    virtual void render( std::ostream& os);
 
 private:
     const std::string _name;
@@ -83,7 +83,7 @@ class string_object : public object
 public:
     string_object(context*,const std::string& value, fclass&);
     string_object( const string_object& );
-    virtual void render( std::ostream& os ) const;
+    virtual void render( std::ostream& os );
     const std::string& internal_value() const { return _value; }
 
     virtual stringref operator[](intref index) const;
@@ -100,7 +100,7 @@ class class_object : public object
 {
 public:
     class_object(context*,fclass* pCls,fclass&);
-    virtual void render( std::ostream& os) const;
+    virtual void render( std::ostream& os);
     fclass* internal_value() const { return _value; }
     virtual bool has_attribute(const std::string&) const;
     virtual objref get_attribute(const std::string&);
@@ -113,7 +113,7 @@ class bool_object : public object
 {
 public:
     bool_object(context*,bool b, fclass&);
-    virtual void render( std::ostream& os) const;
+    virtual void render( std::ostream& os);
     bool internal_value() const { return _value; }
 
     virtual bool operator==(const objref other) const; 
@@ -129,7 +129,7 @@ public:
     list_object(context*,fclass&,std::list<objref> startingList);
     list_object(context*,fclass&,smartlist*);
     list_object(context*,const list_object&);
-    virtual void render( std::ostream& os) const;
+    virtual void render( std::ostream& os);
     objref first();
     void append(objref e);
     void append(listref);
@@ -147,7 +147,7 @@ class void_object : public object
 {
 public:
     void_object(context* pContext,fclass& cls) : object(pContext,cls) {}
-    virtual void render( std::ostream& os) const;
+    virtual void render( std::ostream& os);
     
     virtual bool operator==( const objref other) const;
 };
@@ -168,13 +168,13 @@ public:
 	      collection&& appliedArgs );
 
     fn_object( context*, const fn_object&);
-    virtual void render( std::ostream& os) const;
+    virtual void render( std::ostream& os);
     
     virtual fnref partial_application( context*,const std::vector<argpair_t>& args ) const;
     virtual objref operator()(context*,std::vector<argpair_t>&);
     virtual objref operator()(context*,std::vector<objref>&);
     virtual const std::deque<std::string>& arglist() const;
-    virtual void dump(std::ostream& out = std::cout ) const;
+    virtual void dump(std::ostream& out = std::cout );
     virtual bool is_tail_recursive();
     virtual bool is_anonymous() const;
 

@@ -10,6 +10,8 @@
 #include <parser/ast_nodes.h>
 #include <logger/logger.h>
 #include <interpreter/smartlist.h>
+#include <parser/ast.h>
+#include <parser/ast_nodes.h>
 
 using std::string;
 using std::function;
@@ -100,6 +102,11 @@ bool object::has_attribute(const std::string& name) const
 {
     return _attributes.find(name)!=_attributes.end();
 }
+
+bool object::has_method(const std::string& name ) const
+{
+    return get_class().has_method(name);
+}
     
 objref object::get_attribute(const std::string& selector)
 {
@@ -116,12 +123,24 @@ void object::set_attribute(const std::string& selector, objref newValue)
 	throw eval_exception( cerror::missing_attribute, "Missing attribute " + selector);
 }
 
-void object::render( std::ostream& os ) const
+void object::render( std::ostream& os )
 {
+    if ( has_method(".str") )
+    {
+    	// Call the .str() method to render the object
+    	objref pThis(this, [](object* o) {} );
+    	literal_node* pThisLiteral = new literal_node(pThis);
+    	methodcall_node* pMethodCall = new methodcall_node(".str");
+    	pMethodCall->add_target(pThisLiteral);
+    	stringref pRendered = std::dynamic_pointer_cast<string_object>(pMethodCall->evaluate(get_context()));
+    	os << pRendered->internal_value() << " ";
+    	delete pThisLiteral;
+    	delete pMethodCall;
+    }
     os << "[" << _class.name() << "]"; 
 }
 
-void object::dump( std::ostream& out) const
+void object::dump( std::ostream& out)
 {
     out << this << " ";
     render(out);
@@ -133,7 +152,7 @@ class_object::class_object(context* pContext, fclass* pCls, fclass& cls)
 {
 }
 
-void class_object::render(std::ostream& os ) const
+void class_object::render(std::ostream& os )
 {
     os << "(class " << _value->name() << ") ";
     object::render(os);
@@ -178,7 +197,7 @@ bool int_object::operator==( const objref other ) const
     return (internal_value()==other_int->internal_value());
 }
 
-void int_object::render( std::ostream& os) const
+void int_object::render( std::ostream& os)
 {
     os << _value << " ";
     object::render(os);
@@ -227,7 +246,7 @@ void string_object::inplace_join(const stringref other)
     _value.append(other->_value);
 }
 
-void string_object::render( std::ostream& os) const
+void string_object::render( std::ostream& os)
 {
     os << _value << " ";
     object::render(os);
@@ -248,7 +267,7 @@ bool bool_object::operator==( const objref other ) const
     return (internal_value()==other_bool->internal_value());
 }
 
-void bool_object::render( std::ostream& os) const
+void bool_object::render( std::ostream& os)
 {
     os << ((_value)?"true":"false") << " ";
     object::render(os);
@@ -338,7 +357,7 @@ listref list_object::tail(context* pContext) const
     return listref( new list_object(pContext,get_class(),pNewList) );
 }
 
-void list_object::render( std::ostream& os) const
+void list_object::render( std::ostream& os)
 {
     os << "(";
     int maxindex = (_pList->size()>5)?5:_pList->size(); 
@@ -353,7 +372,7 @@ void list_object::render( std::ostream& os) const
     object::render(os);
 }
 
-void void_object::render( std::ostream& os) const
+void void_object::render( std::ostream& os)
 {
     os << "(null) ";
     object::render(os);
@@ -390,12 +409,12 @@ const string& fn_object::name() const
     return _name;
 }
 
-void fn_object::render(std::ostream& os) const
+void fn_object::render(std::ostream& os)
 {
     object::render(os);
 }
 
-void fn_object::dump( std::ostream& out) const
+void fn_object::dump( std::ostream& out)
 {
     object::dump(out);
 
@@ -530,7 +549,7 @@ fn_object::fn_object(context* pContext, const fn_object& other)
     _is_anon=other._is_anon;
 }
 
-void enum_object::render( std::ostream& os) const
+void enum_object::render( std::ostream& os)
 {
     os << _name << " ";
     object::render(os);
