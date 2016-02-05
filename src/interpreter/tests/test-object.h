@@ -10,6 +10,8 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+class list_object;
+
 class ObjectTestFixture : public CppUnit::TestFixture
 {
 public:
@@ -18,15 +20,18 @@ public:
 
     void setUp();
     void tearDown();
+    list_object* empty_list();
 
     /** @name Test Cases */
     // @{
     void testConstruction();
+    void testHighlyChunkedAppend();
     // @}
 
     /** \cond internal */
     CPPUNIT_TEST_SUITE( ObjectTestFixture );
     CPPUNIT_TEST( testConstruction );
+    CPPUNIT_TEST( testHighlyChunkedAppend );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

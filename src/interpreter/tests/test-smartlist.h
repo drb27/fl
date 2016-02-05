@@ -45,7 +45,7 @@ public:
     void testCopyBlockSub();
     void testInplaceChunkify();
     void testChunkedTail();
-    void reproduceHighlyChunkedJoin();
+    void testJoinChunkedToEmpty();
     // @}
 
     /** \cond internal */
@@ -68,7 +68,7 @@ public:
     CPPUNIT_TEST( testCopyBlockSub );
     CPPUNIT_TEST( testInplaceChunkify );
     CPPUNIT_TEST( testChunkedTail );
-    CPPUNIT_TEST( reproduceHighlyChunkedJoin );
+    CPPUNIT_TEST( testJoinChunkedToEmpty );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

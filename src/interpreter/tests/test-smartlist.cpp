@@ -355,14 +355,11 @@ void smartlistTestFixture::testChunkedTail()
     delete pNewList;
 }
 
-void smartlistTestFixture::reproduceHighlyChunkedJoin()
+void smartlistTestFixture::testJoinChunkedToEmpty()
 {
     typespec tsv("void",{});
     objref null = objref( new void_object(g_pContext, g_pContext->types()->lookup(tsv)) );
     smartlist a;
-    a.inplace_append(null);
-    a.inplace_append(null);
-    a.inplace_append(null);
 
     smartlist b;
     b.inplace_append(null);    
@@ -373,5 +370,5 @@ void smartlistTestFixture::reproduceHighlyChunkedJoin()
     
     c.inplace_append(&b);
 
-    CPPUNIT_ASSERT(c.size()==6);
+    CPPUNIT_ASSERT(c.size()==3);
 }

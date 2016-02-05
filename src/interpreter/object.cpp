@@ -118,7 +118,7 @@ void object::set_attribute(const std::string& selector, objref newValue)
 
 void object::render( std::ostream& os ) const
 {
-    os << "[" << _class.name() << " object]"; 
+    os << "[" << _class.name() << "]"; 
 }
 
 void object::dump( std::ostream& out) const
@@ -322,12 +322,15 @@ listref list_object::tail(context* pContext) const
 void list_object::render( std::ostream& os) const
 {
     os << "(";
-    for ( int index = 0 ; index < _pList->size() ; index ++ )
+    int maxindex = (_pList->size()>5)?5:_pList->size(); 
+    for ( int index = 0 ; index < maxindex ; index ++ )
     {
 	_pList->get_element(index)->render(os); 
 	os << " ";
     }
-    os << ") ";
+    if (_pList->size()>5) 
+	os << "...";
+    os << ") <" << size() << "> ";
     object::render(os);
 }
 
