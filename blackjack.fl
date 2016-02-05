@@ -4,7 +4,7 @@ reverse=>(l)-> l.size()==0? () : reverse(l.tail())::l.head()
 combiner=>(e,l)-> l.size()==0? () : combine(e,l.tail())::(e,l.head())
 combine=>(e,l)-> reverse(combiner(e,l))
 flatten=>(l,o)-> l.size()==0? o : flatten(l.tail(),o.join(l.head()))
-//flatten=>(l,o)-> l.size()==0? o : flatten(l.tail(),o)
+countif=>(p,l) -> l.size()==0? 0 : { p(l.head())? 1 : 0 } + countif(p,l.tail())
 
 btoi=>(b)-> b? 1 : 0
 
@@ -24,13 +24,22 @@ card.addattr( "rank", rank.ace )
 card.addmethod( (t,s,r)-> {t.suit=>s; t.rank=>r; t}, ".ctor" )
 card.addmethod( (t,o)-> {t.rank==o.rank}.and(t.suit==o.suit) , "eq" )
 card.addmethod( (t,o)-> { t.suit=>o.suit; t.rank=>o.rank; t }, ".assign" )
+card.addmethod( (t) -> t.rank?? rank.two: 2 | rank.three: 3 | rank.four: 4 | default: 10 , "value" )
+
 
 make_card=>(l)-> { c=>card.new(()); c.suit=>l[0]; c.rank=>l[1]; c }
 make_suit_pairs=>(s)-> combine(s,foreach(rank,I))
 make_suit=>(s)-> foreach( make_suit_pairs(s), (p)->make_card(p) )
-make_deck=>()-> foreach( foreach(suit,I), (s)->make_suit(s))
+make_deck=>()-> flatten( foreach( foreach(suit,I), (s)->make_suit(s)), () )
 
 rep=>(x,y)-> y.size()==0? x: rep(x.join(y.head()),y.tail())
+
+deck=>object.derive("deck")
+deck.addattr("cards", () )
+deck.addmethod( (t)-> { t.cards=>make_deck(); t }, ".ctor" )
+deck.addmethod( (t) -> { rval=>t.cards.head(); t.cards=>t.cards.tail(); rval }, "deal" )
+deck.addmethod( (t,i) -> t.cards[i], ".index" )
+deck.addmethod( (t) -> t.cards, ".iter" )
 
 
 
