@@ -72,7 +72,7 @@ public:
     enum_object(context* pContext, int value, const std::string& name, fclass& cls) 
 	: int_object(pContext,value,cls),_name(name) {}
     virtual void render( std::ostream& os);
-
+    virtual stringref str();
 private:
     const std::string _name;
 };

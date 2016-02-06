@@ -113,6 +113,7 @@ public:
     objref fn_itr(context* pContext, fnref pThis );
     objref fn_name(context* pContext, fnref pThis );
     objref enum_iter(context* pContext, classref pThis );
+    objref enum_str(context* pContext, enumref pThis );
 }
 
 #endif

@@ -43,6 +43,7 @@ card.addmethod( (t) -> t.rank??   rank.two: 2
 		, "value" 
 	      );
 
+card.addmethod( (t)->  t.rank.str() + ":" + t.suit.str()[0], ".str" );
 
 make_card=>(l)-> { c=>card.new(()); c.suit=>l[0]; c.rank=>l[1]; c };
 make_suit_pairs=>(s)-> combine(s,foreach(rank,I));

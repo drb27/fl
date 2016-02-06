@@ -567,3 +567,10 @@ void enum_object::render( std::ostream& os)
     object::render(os);
 }
 
+stringref enum_object::str()
+{
+    typespec tss("string",{});
+    auto& str_class = get_context()->types()->lookup(tss);
+    return stringref( new string_object(get_context(),_name,str_class) );
+}
+
