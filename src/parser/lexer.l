@@ -25,6 +25,7 @@ LETTER [A-Za-z_]
 %%
 
 <<EOF>>  { return EOFF; }
+while    { return WHILE; }
 enum     { return ENUM; }
 \[       { return OPEN_SQUARE; }
 \]       { return CLOSE_SQUARE; }

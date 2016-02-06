@@ -257,3 +257,8 @@ ast* dat::finish_selector()
 {
     _sel_stack.pop_front();
 }
+
+ast* dat::make_while(ast* pCond,ast* pAction)
+{
+    return new while_node(pCond,pAction);
+}

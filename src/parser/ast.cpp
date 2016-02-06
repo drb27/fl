@@ -990,7 +990,8 @@ void while_node::render_dot(int& uuid,
 objref while_node::evaluate(context* pContext )
 {
 
-    objref result(nullptr);
+    typespec tsv("void",{});
+    objref result( new void_object(pContext,pContext->types()->lookup(tsv)) );
 
     // Loop around executing the function until the condition is true
     while ( BOOL_CAST( _cond->evaluate(pContext) ) )

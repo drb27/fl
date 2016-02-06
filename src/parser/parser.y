@@ -19,6 +19,7 @@ extern action_target* target;
 %define api.pure full
 %define api.push-pull push
 
+%token WHILE
 %token EOFF
 %token OPEN_SQUARE
 %token CLOSE_SQUARE
@@ -91,6 +92,7 @@ extern action_target* target;
 %type <node_val> selector
 %type <node_val> selpair
 %type <node_val> index
+%type <node_val> flwhile
 %start input
 
 %left SEMICOLON
@@ -156,6 +158,7 @@ expr:   literal
       | alias
       | assign
       | selector
+      | flwhile
       | symbol %prec LOWEST 
       | expr EQUALITY expr { $$=target->make_equality($1,$3); }
       | expr ADD expr  { auto as = new std::string(add_str); 
@@ -198,6 +201,8 @@ selpair: expr COLON expr { target->selector_condition( target->make_pair($1,$3) 
 index: expr OPEN_SQUARE expr CLOSE_SQUARE { $$=target->make_index($1,$3); }
 
 enumdef: ENUM SYMBOL list { $$=target->make_enum_class($2,$3); }
+
+flwhile: WHILE OPEN_CURLY expr CLOSE_CURLY expr { $$=target->make_while($3,$5); }
 
 /* COMMANDS ***************************************************************/
 
