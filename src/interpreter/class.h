@@ -64,6 +64,7 @@ class fclass
     virtual void add_method(const methodinfo&);
     virtual bool has_method(const std::string& );
     virtual void add_class_method(const methodinfo&);
+    virtual bool has_class_method(const std::string& );
     virtual std::list<std::string> methods() const;
     virtual bool is_abstract() const { return _is_abstract; }
 

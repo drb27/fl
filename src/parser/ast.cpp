@@ -211,20 +211,21 @@ objref methodcall_node::evaluate(context* pContext)
     // Look up the method on the class
     function<marshall_mthd_t> m; 
 
-    typespec tsc("class",{});
-
-    try
+    if (target->get_class().has_method(_name) )
+	m = target->get_class().lookup_method(_name).fn;
+    else
     {
-	m = target->get_class().lookup_method(_name).fn;	
-    }
-    catch ( eval_exception& )
-    {
+	typespec tsc("class",{});
 	if ( &(target->get_class()) == &(pContext->types()->lookup(tsc)) )
-	{
-	    classref targetCls = std::dynamic_pointer_cast<class_object>(target);
-	    m = targetCls->internal_value()->lookup_class_method(_name).fn;
-	}
+    	{
+    	    classref targetCls = std::dynamic_pointer_cast<class_object>(target);
+    	    if ( targetCls->internal_value()->has_class_method(_name) )
+		m = targetCls->internal_value()->lookup_class_method(_name).fn;
+    	}
     }
+    
+    if (!m)
+	throw eval_exception(cerror::undefined_method,"Undefined method " + _name);
 
     // Prepare the parameter vector
     auto params = vector<ast*>(_params.size()+2);

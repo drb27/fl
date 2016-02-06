@@ -138,6 +138,22 @@ bool fclass::has_method(const string& name )
 {
     if ( _methods.find(name)!=_methods.end() )
 	return true;
+    else if ( !is_root() )
+    {
+	return base()->has_method(name);
+    }
+    else
+	return false;
+}
+
+bool fclass::has_class_method(const string& name )
+{
+    if ( _class_methods.find(name)!=_class_methods.end() )
+	return true;
+    else if (!is_root() )
+    {
+	return base()->has_class_method(name);
+    }
     else
 	return false;
 }
