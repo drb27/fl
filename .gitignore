@@ -9,6 +9,7 @@ configure
 libtool
 src/inc/stamp-h1
 m4/
+doc/
 shell
 interpreter_tests
 .deps
