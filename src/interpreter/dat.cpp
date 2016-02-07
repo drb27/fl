@@ -56,18 +56,21 @@ ast* dat::make_fundef( ast* arglist,  ast* def) const
     return new fundef_node(arglist,def);
 }
 
-void dat::respond( ast* def, std::ostream& os) const
+void dat::respond( ast* def, bool abbrev, std::ostream& os) const
 {
     try
     {
-	def->evaluate(_context)->render(os);
+	def->evaluate(_context)->render(os,abbrev);
 	os << "OK" << std::endl;
     }
     catch( eval_exception& e )
     {
-	//wlog(level::error,e.what());
 	throw e;
     }
+}
+void dat::show_cmd( ast* def, std::ostream& os)
+{
+    respond(def,false,os);
 }
 
 ast* dat::make_attr( ast* target, std::string* selector)

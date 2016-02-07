@@ -19,6 +19,7 @@ extern action_target* target;
 %define api.pure full
 %define api.push-pull push
 
+%token SHOW
 %token WHILE
 %token EOFF
 %token OPEN_SQUARE
@@ -206,7 +207,7 @@ flwhile: WHILE OPEN_CURLY expr CLOSE_CURLY expr { $$=target->make_while($3,$5); 
 
 /* COMMANDS ***************************************************************/
 
-command: trace_cmd | debug_cmd | render_cmd | quit_cmd;
+command: trace_cmd | debug_cmd | render_cmd | quit_cmd | show_cmd;
 
 render_cmd: RENDER expr {target->render($2); };
 
@@ -215,6 +216,8 @@ debug_cmd: DEBUG expr { target->enable_debug(); target->respond($2); target->ena
 trace_cmd: TRACE expr { target->enable_trace(); target->respond($2); target->enable_trace(false); };
 
 quit_cmd: QUIT { target->done(); };
+
+show_cmd: SHOW expr { target->show_cmd($2); };
 
 /* STATEMENTS *************************************************************/
 

@@ -26,7 +26,8 @@ class dat : public action_target
     virtual ast* make_funcall( ast* fn,  ast* args) const;
     virtual ast* make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const;
     virtual ast* make_symbol( std::string* name) const;
-    virtual void respond( ast* def, std::ostream& os = std::cout ) const;
+    virtual void respond( ast* def, bool abbrv = true, std::ostream& os = std::cout ) const;
+    virtual void show_cmd( ast* def, std::ostream& os = std::cout );
     virtual ast* make_methodcall( ast* target, ast* method, list_node* args);
     virtual ast* make_assign_node(ast* lvalue, ast* rvalue,bool);
     virtual ast* make_attr( ast* target, std::string* selector);

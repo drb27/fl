@@ -40,7 +40,8 @@ class action_target
     virtual ast* finish_list()=0;
     virtual ast* make_empty_list()=0;
     virtual ast* make_single_list(ast*)=0;
-    virtual void respond( ast* def, std::ostream& os = std::cout ) const=0;
+    virtual void respond( ast* def, bool abbrev=true, std::ostream& os = std::cout ) const=0;
+    virtual void show_cmd( ast* def, std::ostream& os = std::cout )=0;
     virtual ast* make_bool(bool b)=0;
     virtual ast* build_list( ast* list, ast* element)=0;
     virtual void render(ast* node)=0;

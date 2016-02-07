@@ -123,7 +123,7 @@ void object::set_attribute(const std::string& selector, objref newValue)
 	throw eval_exception( cerror::missing_attribute, "Missing attribute " + selector);
 }
 
-void object::render( std::ostream& os )
+void object::render( std::ostream& os, bool abbrev )
 {
     if ( has_method(".str") )
     {
@@ -152,10 +152,10 @@ class_object::class_object(context* pContext, fclass* pCls, fclass& cls)
 {
 }
 
-void class_object::render(std::ostream& os )
+void class_object::render(std::ostream& os, bool abbrev )
 {
     os << "(class " << _value->name() << ") ";
-    object::render(os);
+    object::render(os,abbrev);
 }
 
 bool class_object::has_attribute(const std::string& name) const
@@ -197,10 +197,10 @@ bool int_object::operator==( const objref other ) const
     return (internal_value()==other_int->internal_value());
 }
 
-void int_object::render( std::ostream& os)
+void int_object::render( std::ostream& os, bool abbrev)
 {
     os << _value << " ";
-    object::render(os);
+    object::render(os,abbrev);
 }
 
 string_object::string_object(context* pContext, const std::string& value, fclass& cls) 
@@ -246,10 +246,10 @@ void string_object::inplace_join(const stringref other)
     _value.append(other->_value);
 }
 
-void string_object::render( std::ostream& os)
+void string_object::render( std::ostream& os, bool abbrev)
 {
     os << _value << " ";
-    object::render(os);
+    object::render(os,abbrev);
 }
 
 bool_object::bool_object(context* pContext,bool b, fclass& cls)
@@ -267,10 +267,10 @@ bool bool_object::operator==( const objref other ) const
     return (internal_value()==other_bool->internal_value());
 }
 
-void bool_object::render( std::ostream& os)
+void bool_object::render( std::ostream& os, bool abbrev)
 {
     os << ((_value)?"true":"false") << " ";
-    object::render(os);
+    object::render(os,abbrev);
 }
 
 list_object::list_object(context* pContext,fclass& cls)
@@ -369,25 +369,25 @@ listref list_object::tail(context* pContext) const
     return listref( new list_object(pContext,get_class(),pNewList) );
 }
 
-void list_object::render( std::ostream& os)
+void list_object::render( std::ostream& os, bool abbrev)
 {
     os << "(";
-    int maxindex = (_pList->size()>5)?5:_pList->size(); 
+    int maxindex = abbrev? (_pList->size()>5)?5:_pList->size() : _pList->size(); 
     for ( int index = 0 ; index < maxindex ; index ++ )
     {
 	_pList->get_element(index)->render(os); 
 	os << " ";
     }
-    if (_pList->size()>5) 
+    if (_pList->size()>maxindex) 
 	os << "...";
     os << ") <" << size() << "> ";
-    object::render(os);
+    object::render(os,abbrev);
 }
 
-void void_object::render( std::ostream& os)
+void void_object::render( std::ostream& os,bool abbrev)
 {
     os << "(null) ";
-    object::render(os);
+    object::render(os,abbrev);
 }
 
 bool void_object::operator==( const objref other ) const
@@ -421,9 +421,9 @@ const string& fn_object::name() const
     return _name;
 }
 
-void fn_object::render(std::ostream& os)
+void fn_object::render(std::ostream& os, bool abbrev)
 {
-    object::render(os);
+    object::render(os,abbrev);
 }
 
 void fn_object::dump( std::ostream& out)
@@ -561,10 +561,10 @@ fn_object::fn_object(context* pContext, const fn_object& other)
     _is_anon=other._is_anon;
 }
 
-void enum_object::render( std::ostream& os)
+void enum_object::render( std::ostream& os, bool abbrev)
 {
     os << _name << " ";
-    object::render(os);
+    object::render(os,abbrev);
 }
 
 stringref enum_object::str()
