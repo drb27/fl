@@ -106,6 +106,18 @@ namespace builtins
 	pCls->add_method({"dec", make_marshall_mthd(&builtins::int_dec)});
 	pCls->add_method({"div", make_marshall_mthd(&builtins::int_div)});
 	pCls->add_method({"mod", make_marshall_mthd(&builtins::int_mod)});
+	pCls->add_method({".float", make_marshall_mthd(&builtins::int_tofloat)});
+	return pCls;
+    }
+
+    std::shared_ptr<fclass> flfloat::build_class(typemgr* pTm)
+    {
+	typespec base_spec("object",{});
+	fclass& base_cls = pTm->lookup(base_spec);
+
+	typespec spec("float",{});
+	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	pCls->add_method({"add", make_marshall_mthd(&builtins::float_add)});
 	return pCls;
     }
 
@@ -185,9 +197,16 @@ namespace builtins
 	return pCls;
     }
 
-    objref add_integers(context* pContext, intref a,intref b)
+    objref add_integers(context* pContext, intref a, objref b)
     {
-	const int result = a->internal_value() + b->internal_value();
+	// Check the type of b
+	if ( &(b->get_class())!=&(a->get_class()) )
+	    throw eval_exception(cerror::unsupported_argument,"Can't add this type to an integer");
+
+	// Cast
+	intref pB = std::dynamic_pointer_cast<int_object>(b);
+
+	const int result = a->internal_value() + pB->internal_value();
 	objref pObject(new int_object(pContext,result));
     
 	return pObject;
@@ -289,6 +308,11 @@ namespace builtins
     objref int_mod(context* pContext, intref pThis, intref modulus)
     {
 	return intref( new int_object(pContext, N_INT(pThis)%N_INT(modulus)));
+    }
+
+    objref int_tofloat(context* pContext, intref pThis)
+    {
+	return floatref( new float_object(pContext, (double)N_INT(pThis)));
     }
 
     objref obj_dump(context*, objref pThis)
@@ -637,6 +661,21 @@ namespace builtins
     objref enum_str(context* pContext, enumref pThis )
     {
 	return pThis->str();
+    }
+
+    objref float_add(context* pContext, floatref a, objref b)
+    {
+	// Check the type of b
+	if ( &(b->get_class())!=&(a->get_class()) )
+	    throw eval_exception(cerror::unsupported_argument,"Can't add this type to a float");
+
+	// Cast
+	floatref pB = std::dynamic_pointer_cast<float_object>(b);
+
+	const double result = a->internal_value() + pB->internal_value();
+	objref pObject(new float_object(pContext,result));
+    
+	return pObject;
     }
 
 }

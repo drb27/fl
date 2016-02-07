@@ -30,6 +30,12 @@ public:
     static std::shared_ptr<fclass> build_class(typemgr*);
 };
 
+class flfloat
+{
+ public:
+    static std::shared_ptr<fclass> build_class(typemgr*);
+};
+
 class list
 {
 public:
@@ -70,10 +76,11 @@ public:
     objref obj_dump(context*, objref pThis);
     objref obj_equate(context*, objref pThis,objref pOther);
     objref obj_class(context*, objref pThis);
-    objref add_integers(context*,intref a, intref b);
+    objref add_integers(context*,intref a, objref b);
     objref int_dec(context*,intref pThis);
     objref int_div(context*,intref,intref);
     objref int_mod(context*,intref,intref);
+    objref int_tofloat(context* pContext, intref pThis);
     objref in_range_integers(context* pContext, intref pThis, intref min, intref max);
     objref logical_not(context* pContext,boolref a);
     objref list_size(context* pContext, listref pThis);
@@ -114,6 +121,7 @@ public:
     objref fn_name(context* pContext, fnref pThis );
     objref enum_iter(context* pContext, classref pThis );
     objref enum_str(context* pContext, enumref pThis );
+    objref float_add(context* pContext, floatref a, objref b);
 }
 
 #endif

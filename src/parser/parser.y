@@ -20,6 +20,7 @@ extern action_target* target;
 %define api.push-pull push
 
 %token SHOW
+%token FLOAT
 %token WHILE
 %token EOFF
 %token OPEN_SQUARE
@@ -63,14 +64,17 @@ extern action_target* target;
 %union
 {
     int int_val;
+    double float_val;
     std::string* string_val;
     ast* node_val;
 }
 
 %type <int_val> INTEGER
+%type <float_val> FLOAT
 %type <string_val> SYMBOL
 %type <string_val> STRING
 %type <node_val> integer
+%type <node_val> flfloat
 %type <node_val> if
 %type <node_val> null
 %type <node_val> symbol
@@ -123,6 +127,7 @@ input: stmt { YYACCEPT; };
 /* CONSTRUCTORS ***********************************************************/
 
 integer: INTEGER { $$=target->make_int($1); }
+flfloat: FLOAT { $$=target->make_float($1); }
 symbol:  SYMBOL  { $$=target->make_symbol($1);  }
 str: STRING { $$=target->make_string($1); }
 
@@ -170,7 +175,7 @@ expr:   literal
 				       (list_node*)(target->make_empty_list())); }
       ;
 
-literal: null | bool | integer | str | list_literal;
+literal: null | bool | integer | flfloat | str | list_literal;
 funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
 
 methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 

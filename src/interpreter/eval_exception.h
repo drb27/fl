@@ -18,7 +18,9 @@ enum class cerror
 	invalid_lvalue=9,
 	selector_nomatch=10,
 	invalid_index=11,
-	index_out_of_bounds=12
+	index_out_of_bounds=12,
+	unsupported_argument=13,
+	equate_float=14
 };
 
 class eval_exception : public std::runtime_error

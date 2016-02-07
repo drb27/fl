@@ -31,6 +31,12 @@ ast* dat::make_int(int x) const
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
+ast* dat::make_float(double v)
+{
+    objref pObject(new float_object(_context,v));
+    literal_node* pNode = new literal_node(pObject);
+    return pNode;
+}
 
 ast* dat::make_string(std::string* x) const
 {

@@ -21,6 +21,7 @@ class dat : public action_target
     virtual ast* make_int(int x) const;
     virtual ast* make_string(std::string* x) const;
     virtual ast* make_null() const;
+    virtual ast* make_float(double);
     virtual ast* make_alias(ast* alias, ast* existing) const;
     virtual ast* make_fundef( ast* arglist,  ast* def) const;
     virtual ast* make_funcall( ast* fn,  ast* args) const;

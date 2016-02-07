@@ -66,6 +66,20 @@ protected:
     const int _value;
 };
 
+class float_object : public object
+{
+public:
+    float_object(context*,double value);
+    virtual void render( std::ostream& os );
+    double internal_value() const { return _value; }
+
+    virtual bool operator==(const objref other) const; 
+
+protected:
+    float_object(context*,double value,fclass& cls);
+    const double _value;
+};
+
 class enum_object : public int_object
 {
 public:

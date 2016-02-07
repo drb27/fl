@@ -176,7 +176,14 @@ namespace
 	typespec ts("integer",{});
 	return pContext->types()->lookup(ts);
     }
+
+    inline fclass& get_float_cls(context* pContext)
+    {
+	typespec ts("float",{});
+	return pContext->types()->lookup(ts);
+    }
 }
+
 int_object::int_object(context* pContext, int value)
     : object(pContext,get_int_cls(pContext)), _value(value)
 {
@@ -574,3 +581,23 @@ stringref enum_object::str()
     return stringref( new string_object(get_context(),_name,str_class) );
 }
 
+float_object::float_object(context* pContext, double value)
+    : object(pContext,get_float_cls(pContext)), _value(value)
+{
+}
+
+float_object::float_object(context* pContext,double value,fclass& cls)
+    : object(pContext,cls), _value(value)
+{
+}
+
+bool float_object::operator==( const objref other ) const
+{
+    throw eval_exception(cerror::equate_float, "Can't equate to floats");
+}
+
+void float_object::render( std::ostream& os)
+{
+    os << _value << " ";
+    object::render(os);
+}

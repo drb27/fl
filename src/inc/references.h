@@ -16,9 +16,11 @@ class class_object;
 class string_object;
 class void_object;
 class enum_object;
+class float_object;
 
 typedef std::shared_ptr<object> objref; 
 typedef std::shared_ptr<int_object> intref;
+typedef std::shared_ptr<float_object> floatref;
 typedef std::shared_ptr<bool_object> boolref;
 typedef std::shared_ptr<list_object> listref;
 typedef std::shared_ptr<fn_object> fnref;

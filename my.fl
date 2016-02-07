@@ -22,6 +22,7 @@ filter=>(p,l)->reverse(rfilter(p,l));
 // Accumulate a list
 accumulate=>(a,f,l) -> empty(l)? a : accumulate(f(a,l.head()),f,l.tail());
 sum=>accumulate(0,(a,b)->a+b);
+sumf=>accumulate(0.0,(a,b)->a+b);
 
 // Repeat an element in a list
 rep=>(e,n)-> n.eq(0)? () : rep(e,n.dec())::e;

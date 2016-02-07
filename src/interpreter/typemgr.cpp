@@ -40,6 +40,9 @@ void typemgr::init_builtins()
     c = builtins::integer::build_class(this);
     _typeMap[c->get_spec()] = c;
 
+    c = builtins::flfloat::build_class(this);
+    _typeMap[c->get_spec()] = c;
+
     c = builtins::flvoid::build_class(this);
     _typeMap[c->get_spec()] = c;
 

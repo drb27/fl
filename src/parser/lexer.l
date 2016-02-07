@@ -4,15 +4,15 @@
 class object;
 class ftlist;
 
+#include <stdlib.h>
 #include <string>
 #include <list>
 #include <common.h>
 #include <parser/ast.h>
 #include <parser/bison.h>
 
-
 #define STR(x) new std::string(x)
-
+#define FLT(x) atof(x)
 
 %}
 
@@ -22,8 +22,11 @@ class ftlist;
 DIGIT [0-9]
 WS    [ \t]+
 LETTER [A-Za-z_]
+BANANA ({DIGIT}+[.]{DIGIT}+)
+
 %%
 
+{BANANA} { yylval->float_val = FLT(yytext); return FLOAT; }
 <<EOF>>  { return EOFF; }
 while    { return WHILE; }
 enum     { return ENUM; }
