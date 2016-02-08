@@ -203,7 +203,7 @@ namespace builtins
 	typespec spec("enum",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_class_method( {".iter", make_marshall_mthd(&builtins::enum_iter), false});
-	pCls->add_method( {"str", make_marshall_mthd(&builtins::enum_str), false});
+	pCls->add_method( {"->string", make_marshall_mthd(&builtins::enum_str), false});
 	return pCls;
     }
 

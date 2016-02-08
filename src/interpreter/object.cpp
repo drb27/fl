@@ -185,12 +185,12 @@ void object::set_attribute(const std::string& selector, objref newValue)
 
 void object::render( std::ostream& os, bool abbrev )
 {
-    if ( has_method(".str") )
+    if ( has_method(".render") )
     {
-    	// Call the .str() method to render the object
+    	// Call the .render() method to render the object
     	objref pThis(this, [](object* o) {} );
     	literal_node* pThisLiteral = new literal_node(pThis);
-    	methodcall_node* pMethodCall = new methodcall_node(".str");
+    	methodcall_node* pMethodCall = new methodcall_node(".render");
     	pMethodCall->add_target(pThisLiteral);
     	stringref pRendered = std::dynamic_pointer_cast<string_object>(pMethodCall->evaluate(get_context()));
     	os << pRendered->internal_value() << " ";
