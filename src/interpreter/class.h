@@ -63,6 +63,14 @@ struct conversion_tree_node
     fclass* cls;
     ctnoderef parent;
     std::set<ctnoderef> subordinates;
+
+    int length()
+    {
+	if (is_root())
+	    return 1;
+	else
+	    return 1 + parent->length();
+    }
 };
 
 class fclass
@@ -92,11 +100,11 @@ class fclass
     virtual bool is_in_hierarchy( const fclass& other);
     virtual const methodinfo& instantiator() { return lookup_method(".ctor"); }
     virtual bool can_convert_to(fclass* pOther);
+    virtual bool build_conversion_tree(fclass* pGoal,std::set<ctnoderef>& solutionSet);
 
     static typemgr* types;
  protected:
 
-    void build_conversion_tree(fclass* pGoal,std::set<ctnoderef>& solutionSet);
     ctnoderef get_all_conversions(std::set<fclass*>& inclusionSet, 
 				  std::set<ctnoderef>& solutionSet,
 				  fclass* pGoal);

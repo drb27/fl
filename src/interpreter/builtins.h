@@ -126,6 +126,7 @@ public:
     objref float_add(context* pContext, floatref a, objref b);
     objref float_to_int(context* pContext, floatref pThis);
     objref obj_convertible_to(context* pContet, objref pThis, classref pTargetClass);
+    objref obj_convert(context* pContext, objref pThis, classref pTargetClass );
 }
 
 #endif

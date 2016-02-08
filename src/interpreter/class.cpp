@@ -257,29 +257,29 @@ bool fclass::is_in_hierarchy( const fclass& other)
     return false;
 }
 
-void fclass::build_conversion_tree(fclass* pGoal,set<ctnoderef>& solutionSet)
+bool fclass::build_conversion_tree(fclass* pGoal,set<ctnoderef>& solutionSet)
 {
+    // First check the obvious
+    if (pGoal==this)
+	return true;
+
+    // Is this class a decendant of pOther?
+    if ( is_in_hierarchy(*pGoal) )
+	return true;
+
     // A set of classes already in the tree
     set<fclass*> inclusionSet;
 
     // Root of the conversion tree
     ctnoderef root = get_all_conversions(inclusionSet,solutionSet,pGoal);
+
+    return solutionSet.size()>0;
 }
 
 bool fclass::can_convert_to(fclass* pOther)
 {
-    // First check the obvious
-    if (pOther==this)
-	return true;
-
-    // Is this class a decendant of pOther?
-    if ( is_in_hierarchy(*pOther) )
-	return true;
-
     set<ctnoderef> solutionSet;
-    build_conversion_tree(pOther,solutionSet);
-
-    return solutionSet.size()>0;
+    return build_conversion_tree(pOther,solutionSet);
 }
 
 ctnoderef fclass::get_all_conversions(set<fclass*>& inclusionSet, 

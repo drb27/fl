@@ -60,7 +60,8 @@ namespace builtins
 	pCls->add_method( {"eq", make_marshall_mthd(&builtins::obj_equate),false} );
 	pCls->add_method( {"is", make_marshall_mthd(&builtins::obj_is),true } );
 	pCls->add_method( {"invoke", make_marshall_mthd(&builtins::obj_invoke),true} );
-	pCls->add_method( {"conv_to", make_marshall_mthd(&builtins::obj_convertible_to),true} );
+	pCls->add_method( {"can_convert", make_marshall_mthd(&builtins::obj_convertible_to),true} );	
+	pCls->add_method( {"convert", make_marshall_mthd(&builtins::obj_convert),true} );
 	return pCls;
     }
 
@@ -718,6 +719,11 @@ namespace builtins
     {
 	intref pReturn = intref( new int_object(pContext,std::round(N_FLOAT(pThis))) );
 	return pReturn;
+    }
+
+    objref obj_convert(context* pContext, objref pThis, classref pTargetClass )
+    {
+	return pThis->convert_to( N_CLASS(pTargetClass) );
     }
 
 }

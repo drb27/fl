@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include "object.h"
 #include <cassert>
 #include <interpreter/eval_exception.h>
@@ -19,6 +20,7 @@ using std::deque;
 using std::vector;
 using std::endl;
 using std::map;
+using std::set;
 
 object::object(context* pContext, fclass& c, vector<objref> params) 
     : _class(c),_context(pContext)
@@ -43,6 +45,64 @@ object::object(context* pContext, fclass& c, vector<objref> params)
 
 
     construct(pContext,params);
+}
+
+objref object::convert_to(fclass* pOther)
+{
+    set<ctnoderef> solutionSet;
+    bool canConvert = get_class().build_conversion_tree(pOther,solutionSet);
+
+    if (!canConvert)
+    {
+	throw eval_exception(cerror::unsupported_conversion,"Conversion from class " 
+			     + get_class().name() + " to class " 
+			     + pOther->name() + " is not supported");
+    }
+
+    // Select the shortest solution (fewest number of conversion calls)
+    int shortest=0;
+    ctnoderef solution;
+
+    for ( auto sln : solutionSet )
+    {
+	if (!shortest)
+	{
+	    shortest=sln->length();
+	    solution = sln;
+	}
+	else
+	{
+	    int thisLength = sln->length();
+	    if ( thisLength<shortest)
+	    {
+		shortest = thisLength;
+		solution = sln;
+	    }
+	}
+    }
+
+    // Now solution points to the shortest solution. Built a list of method
+    // names to call
+
+    deque<string> methodChain;
+    while (solution)
+    {
+	methodChain.push_front( "->" + solution->cls->name() );
+	solution = solution->parent;
+    }
+
+    // Remove the first call, it is unnecessary
+    methodChain.pop_front();
+
+    // Call each method on ourselves
+    objref currentObject(this);
+    vector<objref> params;
+    for (auto mth : methodChain)
+    {
+	currentObject = currentObject->invoke(mth,get_context(),params);
+    }
+
+    return currentObject;
 }
 
 bool object::operator==(const objref other) const
