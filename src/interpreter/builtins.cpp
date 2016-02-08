@@ -3,6 +3,7 @@
 #include <cassert>
 #include <random>
 #include <deque>
+#include <set>
 #include "builtins.h"
 #include <interpreter/class.h>
 #include <interpreter/context.h>
@@ -15,8 +16,12 @@
 using std::string;
 using std::vector;
 using std::deque;
+using std::set;
 
 #define N_INT(x) (x->internal_value())
+#define N_BOOL(x) (x->internal_value())
+#define N_CLASS(x) (x->internal_value())
+#define N_FLOAT(x) (x->internal_value())
 
 namespace builtins
 {
@@ -55,6 +60,7 @@ namespace builtins
 	pCls->add_method( {"eq", make_marshall_mthd(&builtins::obj_equate),false} );
 	pCls->add_method( {"is", make_marshall_mthd(&builtins::obj_is),true } );
 	pCls->add_method( {"invoke", make_marshall_mthd(&builtins::obj_invoke),true} );
+	pCls->add_method( {"conv_to", make_marshall_mthd(&builtins::obj_convertible_to),true} );
 	return pCls;
     }
 
@@ -106,7 +112,8 @@ namespace builtins
 	pCls->add_method({"dec", make_marshall_mthd(&builtins::int_dec)});
 	pCls->add_method({"div", make_marshall_mthd(&builtins::int_div)});
 	pCls->add_method({"mod", make_marshall_mthd(&builtins::int_mod)});
-	pCls->add_method({".float", make_marshall_mthd(&builtins::int_tofloat)});
+	pCls->add_method({"->float", make_marshall_mthd(&builtins::int_tofloat)});
+	pCls->add_method({"->boolean", make_marshall_mthd(&builtins::int_to_bool)});
 	return pCls;
     }
 
@@ -118,6 +125,7 @@ namespace builtins
 	typespec spec("float",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method({"add", make_marshall_mthd(&builtins::float_add)});
+	pCls->add_method({"->integer", make_marshall_mthd(&builtins::float_to_int)});
 	return pCls;
     }
 
@@ -182,6 +190,7 @@ namespace builtins
 	typespec spec("boolean",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method({"not", make_marshall_mthd(&builtins::logical_not)});
+	pCls->add_method({"->integer", make_marshall_mthd(&builtins::bool_to_int)});
 	return pCls;
     }
 
@@ -329,6 +338,17 @@ namespace builtins
 	return objref(pClass);
     }
 
+    objref obj_convertible_to(context* pContext, objref pThis, classref pTargetClass)
+    {
+	fclass& startClass = pThis->get_class();
+	fclass& targetClass = *(N_CLASS(pTargetClass));
+
+	bool returnVal = startClass.can_convert_to(&targetClass);
+	typespec tsb("boolean",{});
+	
+	return boolref( new bool_object(pContext,returnVal, pContext->types()->lookup(tsb)) );
+    }
+
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement)
     {
 	list_object* pNewList = new list_object(pContext, *pThis);
@@ -394,8 +414,10 @@ namespace builtins
 	// Create a native list of string_objects
 	std::list<objref> nativeList;
 
+	set<std::string> strMethods;
+	pThis->internal_value()->all_methods(strMethods);
 	// Add all the methods of the given class
-	for ( auto m : pThis->internal_value()->methods() )
+	for ( auto m : strMethods )
 	{
 	    string_object* pString = new string_object(pContext, m,string_cls);
 	    nativeList.push_back( objref(pString) );
@@ -676,6 +698,26 @@ namespace builtins
 	objref pObject(new float_object(pContext,result));
     
 	return pObject;
+    }
+
+    objref int_to_bool(context* pContext, intref pThis)
+    {
+	typespec tsb("boolean",{});
+	auto& bool_cls = pContext->types()->lookup(tsb);
+	boolref pReturn = boolref( new bool_object(pContext,N_INT(pThis)!=0,bool_cls) );
+	return pReturn;
+    }
+
+    objref bool_to_int(context* pContext, boolref pThis)
+    {
+	intref pReturn = intref( new int_object(pContext,N_BOOL(pThis)?1:0) );
+	return pReturn;
+    }
+
+    objref float_to_int(context* pContext, floatref pThis)
+    {
+	intref pReturn = intref( new int_object(pContext,std::round(N_FLOAT(pThis))) );
+	return pReturn;
     }
 
 }
