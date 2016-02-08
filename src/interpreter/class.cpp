@@ -268,6 +268,14 @@ void fclass::build_conversion_tree(fclass* pGoal,set<ctnoderef>& solutionSet)
 
 bool fclass::can_convert_to(fclass* pOther)
 {
+    // First check the obvious
+    if (pOther==this)
+	return true;
+
+    // Is this class a decendant of pOther?
+    if ( is_in_hierarchy(*pOther) )
+	return true;
+
     set<ctnoderef> solutionSet;
     build_conversion_tree(pOther,solutionSet);
 
