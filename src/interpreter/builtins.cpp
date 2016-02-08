@@ -723,7 +723,7 @@ namespace builtins
 
     objref obj_convert(context* pContext, objref pThis, classref pTargetClass )
     {
-	return pThis->convert_to( N_CLASS(pTargetClass) );
+	return ::object::convert_to( pThis, N_CLASS(pTargetClass) );
     }
 
 }

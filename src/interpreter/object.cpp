@@ -47,15 +47,23 @@ object::object(context* pContext, fclass& c, vector<objref> params)
     construct(pContext,params);
 }
 
-objref object::convert_to(fclass* pOther)
+objref object::convert_to(objref pThis, fclass* pOther)
 {
+    // Are we already the right type?
+    if (pOther==&(pThis->get_class()))
+	return pThis;
+
+    // ... or already a decendant of pOther?
+    if ( pThis->get_class().is_in_hierarchy(*pOther) )
+	return pThis;
+
     set<ctnoderef> solutionSet;
-    bool canConvert = get_class().build_conversion_tree(pOther,solutionSet);
+    bool canConvert = pThis->get_class().build_conversion_tree(pOther,solutionSet);
 
     if (!canConvert)
     {
 	throw eval_exception(cerror::unsupported_conversion,"Conversion from class " 
-			     + get_class().name() + " to class " 
+			     + pThis->get_class().name() + " to class " 
 			     + pOther->name() + " is not supported");
     }
 
@@ -95,11 +103,11 @@ objref object::convert_to(fclass* pOther)
     methodChain.pop_front();
 
     // Call each method on ourselves
-    objref currentObject(this);
+    objref currentObject = pThis;
     vector<objref> params;
     for (auto mth : methodChain)
     {
-	currentObject = currentObject->invoke(mth,get_context(),params);
+	currentObject = currentObject->invoke(mth,pThis->get_context(),params);
     }
 
     return currentObject;

@@ -36,12 +36,13 @@ class object
     virtual bool has_method(const std::string&) const;
     virtual void render( std::ostream& os, bool abbrev=true );
     virtual void dump( std::ostream& out = std::cout);
-    virtual objref convert_to(fclass* pOther);
     virtual void optimise() {}
     virtual objref invoke( const std::string& mthdName, context* pCtx, std::vector<objref>& params);
 
     virtual bool operator==(const objref other) const; 
     virtual object& operator=(const objref other);
+
+    static objref convert_to( objref pThis, fclass* pOther);
 
  protected:
     virtual void construct(context* pContext, std::vector<objref>&);
