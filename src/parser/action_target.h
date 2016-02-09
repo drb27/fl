@@ -38,6 +38,7 @@ class action_target
     virtual void add_expr(ast* expr)=0;
     virtual ast* start_list()=0;
     virtual void push_list_element(ast*)=0;
+    virtual void push_list_element_with_typehint(ast* n,ast* t)=0;
     virtual ast* finish_list()=0;
     virtual ast* make_empty_list()=0;
     virtual ast* make_single_list(ast*)=0;

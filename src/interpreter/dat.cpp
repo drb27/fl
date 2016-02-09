@@ -151,6 +151,12 @@ void dat::push_list_element(ast* n)
     (*_list_stack.begin())->push_element(n);
 }
 
+void dat::push_list_element_with_typehint(ast* n,ast* t)
+{
+    n->set_typehint(t);
+    (*_list_stack.begin())->push_element(n);
+}
+
 ast* dat::finish_list()
 {
     auto n = *(_list_stack.begin());

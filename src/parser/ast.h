@@ -51,9 +51,12 @@ class ast
     virtual asttype type() const=0;
     virtual void direct_subordinates( std::list<ast*>& ) const=0;
 
+    ast* get_typehint() const { return _typehint; }
+    void set_typehint(ast* v) { _typehint=v; }
+
  protected:
     ast();
-
+    ast* _typehint;
  private:
 
 };
