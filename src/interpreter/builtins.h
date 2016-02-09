@@ -97,6 +97,7 @@ public:
     objref int_equate(context* pContext, intref pThis, intref pOther);
     objref int_gt(context* pContext, intref pThis, intref pOther);
     objref int_lt(context* pContext, intref pThis, intref pOther);
+    objref int_divf(context* pContext, intref pThis, objref divisor);
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
     objref string_length(context* pContext, stringref pThis);

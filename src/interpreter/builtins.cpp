@@ -112,6 +112,7 @@ namespace builtins
 	pCls->add_method({"lt", make_marshall_mthd(&builtins::int_lt)});
 	pCls->add_method({"dec", make_marshall_mthd(&builtins::int_dec)});
 	pCls->add_method({"div", make_marshall_mthd(&builtins::int_div)});
+	pCls->add_method({"divf", make_marshall_mthd(&builtins::int_divf)});
 	pCls->add_method({"mod", make_marshall_mthd(&builtins::int_mod)});
 	pCls->add_method({"->float", make_marshall_mthd(&builtins::int_tofloat)});
 	pCls->add_method({"->boolean", make_marshall_mthd(&builtins::int_to_bool)});
@@ -209,8 +210,8 @@ namespace builtins
 
     objref add_integers(context* pContext, intref a, objref b)
     {
-	typespec tsf("integer",{});
-	b = ::object::convert_to(b,&(pContext->types()->lookup(tsf)));
+	typespec tsi("integer",{});
+	b = ::object::convert_to(b,&(pContext->types()->lookup(tsi)));
 
 	// Check the result of the conversion
 	if (!b)
@@ -315,6 +316,25 @@ namespace builtins
     objref int_div(context* pContext, intref pThis, intref divisor)
     {
 	return intref( new int_object(pContext, N_INT(pThis)/N_INT(divisor)));
+    }
+
+    objref int_divf(context* pContext, intref pThis, objref divisor)
+    {
+	typespec tsf("float",{});
+
+	// Try float first - if it is already a float, then good, if it is an int, 
+	// then conversion to float does not harm
+	divisor = ::object::convert_to(divisor,&(pContext->types()->lookup(tsf)));
+
+	if (!divisor)
+	    throw eval_exception(cerror::unsupported_argument,"Can't divf() this type");
+	else
+	{
+	    floatref fd = std::dynamic_pointer_cast<float_object>(divisor);
+	    return floatref( new float_object(pContext, 
+					      ((double)N_INT(pThis))/((double)N_FLOAT(fd))));	    
+	}
+
 
     }
     
