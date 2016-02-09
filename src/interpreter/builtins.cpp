@@ -209,8 +209,11 @@ namespace builtins
 
     objref add_integers(context* pContext, intref a, objref b)
     {
-	// Check the type of b
-	if ( &(b->get_class())!=&(a->get_class()) )
+	typespec tsf("integer",{});
+	b = ::object::convert_to(b,&(pContext->types()->lookup(tsf)));
+
+	// Check the result of the conversion
+	if (!b)
 	    throw eval_exception(cerror::unsupported_argument,"Can't add this type to an integer");
 
 	// Cast
@@ -688,8 +691,11 @@ namespace builtins
 
     objref float_add(context* pContext, floatref a, objref b)
     {
-	// Check the type of b
-	if ( &(b->get_class())!=&(a->get_class()) )
+	typespec tsf("float",{});
+	b = ::object::convert_to(b,&(pContext->types()->lookup(tsf)));
+ 
+	// Check the result of the conversion
+	if (!b)
 	    throw eval_exception(cerror::unsupported_argument,"Can't add this type to a float");
 
 	// Cast

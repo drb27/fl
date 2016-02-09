@@ -664,7 +664,7 @@ bool float_object::operator==( const objref other ) const
     throw eval_exception(cerror::equate_float, "Can't equate to floats");
 }
 
-void float_object::render( std::ostream& os)
+void float_object::render( std::ostream& os, bool abbrev)
 {
     os << _value << " ";
     object::render(os);

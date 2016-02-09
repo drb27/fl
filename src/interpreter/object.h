@@ -71,7 +71,7 @@ class float_object : public object
 {
 public:
     float_object(context*,double value);
-    virtual void render( std::ostream& os );
+    virtual void render( std::ostream& os, bool abbrev=true );
     double internal_value() const { return _value; }
 
     virtual bool operator==(const objref other) const; 
