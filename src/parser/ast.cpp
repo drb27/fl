@@ -629,26 +629,8 @@ objref funcall_node::evaluate(context* pContext, fnref fn)
     // Get a list of argument names expected by the function
     auto argnames(fn->arglist());
 
-    // map<string,string> p;
-    // p["_name"] = _name;
-    // for (auto n : argnames )
-    // {
-    // 	p[n] = n;
-    // }
-    // p["args->size()"] = std::to_string(args->internal_value().size());
-    // wlog_entry_params(p);
-
     // Construct the argpair vector (string,objref)
     vector<fn_object::argpair_t> argpairs;
-
-    // stringstream s;
-    // for (auto argval : args->internal_value() )
-    // {
-    // 	s.clear();
-    // 	s.str("");
-    // 	argval->render(s);
-    // 	wlog(level::debug,s.str());
-    // }
 
     for ( int index=0; index < args->size() ; index++ )
     {

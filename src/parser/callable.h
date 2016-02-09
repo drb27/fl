@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <interpreter/object.h>
+#include <interpreter/eval_exception.h>
 
 class context;
 class ast;
@@ -57,6 +58,28 @@ namespace
 	    std::vector<ast*> myArgs(p);
 	    myArgs.insert( myArgs.begin(),nullptr);
 	    v_eval_each<1>(pContext,myArgs,evaled_params);
+
+	    // At this point, we have all of the evaluated params in evaled_params[1]..[n].
+	    // The context is in evaled_params[0]. 
+	    // The actual function arguments are in myArgs[1]..[n].
+
+	    for ( int paramIndex=1; paramIndex<myArgs.size(); paramIndex++ )
+	    {
+		// Process type hints ...
+		ast* pTypeHintNode = myArgs[paramIndex];
+		if (pTypeHintNode)
+		{
+		    typespec tsc("class",{});
+		    objref evaledTypeHint = pTypeHintNode->evaluate(pContext);
+		    if ( &(evaledTypeHint->get_class())!=&(pContext->types()->lookup(tsc)))
+		    {
+			throw eval_exception(cerror::not_a_class,"Type hint does not evaluate to a class");
+		    }
+
+		    // TODO: Process the type hint!
+		}
+	    }
+
 	    return apply(*f,evaled_params);
 	};
     }

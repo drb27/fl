@@ -56,7 +56,7 @@ class ast
 
  protected:
     ast();
-    ast* _typehint;
+    ast* _typehint{nullptr};
  private:
 
 };
