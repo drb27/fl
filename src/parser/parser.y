@@ -137,19 +137,19 @@ fundef: list MAPSTO expr { $$ = target->make_fundef($1,$3); };
 
 /* LISTS ******************************************************************/
 
+list: list_literal | list_symbol;
+
 list_literal: OPEN_PAREN { target->start_list(); } items_empty CLOSE_PAREN { $$=target->finish_list();};
 
 list_symbol: QUOTE symbol { $$=$2; };
 
-list: list_literal | list_symbol;
-
 items_empty: | items;
 
  items:       expr { target->push_list_element($1); }
-| expr COLON SYMBOL { target->push_list_element($1); }
-     | items COMMA expr { target->push_list_element($3); }
-| items COMMA expr COLON symbol { target->push_list_element_with_typehint($3,$5); }
-           ;
+      | expr COLON symbol { target->push_list_element_with_typehint($1,$3); }
+      | items COMMA expr { target->push_list_element($3); }
+      | items COMMA expr COLON symbol { target->push_list_element_with_typehint($3,$5); }
+      ;
 
 /* EXPRESSIONS ************************************************************/
 

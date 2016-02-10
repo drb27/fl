@@ -118,9 +118,33 @@ objref list_node::evaluate(context* pContext)
     // Make a list of evaluated elements
     list<objref> items;
     
+    typespec tsc("class",{});
+    auto& class_cls = pContext->types()->lookup(tsc);
+
     for ( auto e : _elements )
     {
-	items.push_back(e->evaluate(pContext));
+	ast* pTypeHintNode = e->get_typehint();
+	if (pTypeHintNode)
+	{
+	    // Evaluate the type hint in the context
+	    objref pHintClass = pTypeHintNode->evaluate(pContext);
+	    // Ensure this is of type 'class'
+	    if ( &(pHintClass->get_class()) == &class_cls )
+	    {
+		classref pHintClassAsClass = std::dynamic_pointer_cast<class_object>(pHintClass);
+		items.push_back(object::convert_to(e->evaluate(pContext),
+						   pHintClassAsClass->internal_value() ));
+	    }
+	    else
+	    {
+		throw eval_exception(cerror::not_a_class,
+				     "Type hint does not evaluate to a class" );
+	    }
+	}
+	else
+	{
+	    items.push_back(e->evaluate(pContext));
+	}
     }
 
     auto l = new list_object(pContext,*(type(pContext)),items);
@@ -541,13 +565,13 @@ objref fundef_node::evaluate(context* pContext)
     typespec ts("function",{});
     fclass& cls = pContext->types()->lookup(ts);
     
-    deque<pair<string,fclass*>> argnames;
+    deque<pair<string,ast*>> argnames;
 
     list_node* pArgList = dynamic_cast<list_node*>(_arglist);
     for ( auto sn : pArgList->raw_elements() )
     {
 	symbol_node* pSymNode = dynamic_cast<symbol_node*>(sn);
-	argnames.push_back({pSymNode->name(),nullptr});
+	argnames.push_back({pSymNode->name(),pSymNode->get_typehint()});
     }
 
     colref pClosure( new collection );
@@ -615,6 +639,9 @@ objref funcall_node::evaluate(context* pContext)
 
 objref funcall_node::evaluate(context* pContext, fnref fn)
 {
+    typespec tsc("class",{});
+    auto& class_cls = pContext->types()->lookup(tsc);
+
     // Evaluate the argument list
     listref args = std::dynamic_pointer_cast<list_object>(_arg_list->evaluate(pContext));
 
@@ -628,8 +655,38 @@ objref funcall_node::evaluate(context* pContext, fnref fn)
     {
 	wlog(level::debug,argnames.front().first);
 	string argname = argnames.front().first;
+
+	// Does this argument have a type hint?
+	if ( argnames.front().second )
+	{
+	    // Yes. Evaluate it
+	    objref pTypeIntObj = argnames.front().second->evaluate(pContext);
+
+	    // Does it evaluate to a class object?
+	    if ( &(pTypeIntObj->get_class()) == &class_cls )
+	    {
+		// Yes - cast to a class object
+		classref pTypeHintCls = std::dynamic_pointer_cast<class_object>(pTypeIntObj);
+
+		// Convert to that class
+		argpairs.push_back( fn_object::argpair_t( argname,
+							  object::convert_to( args->get_element(0),
+									      pTypeHintCls->internal_value() )));
+		
+	    }
+	    else
+	    {
+		throw eval_exception(cerror::not_a_class,
+				     "Type hint does not evaluate to a class object" );
+	    }
+	}
+	else
+	{
+	    argpairs.push_back( fn_object::argpair_t(argname,args->get_element(index)));
+	}
+
 	argnames.pop_front();
-	argpairs.push_back( fn_object::argpair_t(argname,args->get_element(index)));
+
     }
 
     // Call the function and return the result!

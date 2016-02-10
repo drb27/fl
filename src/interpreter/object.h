@@ -179,11 +179,12 @@ class fn_object : public object
 public:
 
     typedef std::pair<std::string,objref> argpair_t;
+    typedef std::deque<std::pair<std::string,ast*>> hinted_args_t;
 
     fn_object(context*, 
 	      fclass&, 
 	      rawfn impl, 
-	      std::deque<std::pair<std::string,fclass*>> fullArgs,
+	      hinted_args_t fullArgs,
 	      collection&& appliedArgs );
 
     fn_object( context*, const fn_object&);
@@ -192,7 +193,7 @@ public:
     virtual fnref partial_application( context*,const std::vector<argpair_t>& args ) const;
     virtual objref operator()(context*,std::vector<argpair_t>&);
     virtual objref operator()(context*,std::vector<objref>&);
-    virtual const std::deque<std::pair<std::string,fclass*>>& arglist() const;
+    virtual const hinted_args_t& arglist() const;
     virtual void dump(std::ostream& out = std::cout );
     virtual bool is_tail_recursive();
     virtual bool is_anonymous() const;
@@ -206,8 +207,8 @@ protected:
 
     rawfn _fn;
     collection _applied_arguments;
-    std::deque<std::pair<std::string,fclass*>> _expected_args;
-    std::deque<std::pair<std::string,fclass*>> _full_args;
+    hinted_args_t _expected_args;
+    hinted_args_t _full_args;
     std::string _name{"(anonymous)"};
     bool _is_anon;
 };

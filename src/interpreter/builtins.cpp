@@ -32,7 +32,7 @@ namespace builtins
 	typespec fnspec("function",{});
 	fclass& fncls = pContext->types()->lookup(fnspec);
 
-	deque<pair<std::string,fclass*>> args;
+	fn_object::hinted_args_t args;
 	args.push_back({"a",nullptr}); 
 	args.push_back({"b",nullptr});
 
@@ -510,15 +510,43 @@ namespace builtins
 	// Construct a lambda which executes the method on the object
 	auto le = [fn](context* pContext, objref pThis, std::vector<ast*>& params)
 	    {
+		typespec tsc("class",{});
+		auto& class_cls = pContext->types()->lookup(tsc);
+
 		// Evaluate each parameter,ignoring the first two
 		vector<objref> evaled_params;
 		evaled_params.push_back(pThis);
 		int guard=0;
+		auto& argList = fn->arglist();
+		auto full_i = argList.begin();
+		full_i++; // Skip the first, it is the class
 		for ( auto arg : params )
 		{
 		    if (guard++>1)
-			evaled_params.push_back( arg->evaluate(pContext) );
+		    {
+			if ( (*full_i).second)
+			{
+			    objref pHintedObj = (*full_i).second->evaluate(pContext);
+			    if ( &(pHintedObj->get_class()) == &class_cls )
+			    {
+				classref pHintedCls = std::dynamic_pointer_cast<class_object>(pHintedObj);
+				evaled_params.push_back( ::object::convert_to( arg->evaluate(pContext),
+									       pHintedCls->internal_value() ));
+			    }
+			    else
+			    {
+				throw eval_exception( cerror::not_a_class,
+						      "Type hint does not evaluate to a class object" );
+			    }    
+			}
+			else
+			    evaled_params.push_back( arg->evaluate(pContext) );
+			
+			full_i++;
+		    }
+
 		}
+
 		return (*fn)(pContext,evaled_params);
 	    };
 
