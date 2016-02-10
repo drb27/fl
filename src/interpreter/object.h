@@ -168,9 +168,12 @@ public:
     virtual bool operator==( const objref other) const;
 };
 
-// A function which can only be evaluated when all of its arguments have been
-// supplied. Partial arguments can be supplied. If this happens, *another* function
-// object is returned which only needs the remaining arguments to be supplied. 
+/**
+ * A function which can only be evaluated when all of its arguments have been
+ * supplied. Partial arguments can be supplied. If this happens, *another* function
+ * object is returned which only needs the remaining arguments to be supplied.
+ * @note the fn_object can represet an fl function, or a builtin written in C++.  
+ **/
 class fn_object : public object
 {
 public:

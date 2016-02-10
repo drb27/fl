@@ -38,10 +38,6 @@ ast::~ast()
 
 }
 
-void ast::invalidate() const
-{
-}
-
 bool ast::calls_and_returns( const string& name) const
 {
     return false;
@@ -580,11 +576,6 @@ funcall_node::funcall_node(const string& name, ast* args)
 bool funcall_node::calls_and_returns( const std::string& fname) const
 {
     return _name==fname;
-}
-
-void funcall_node::invalidate() const
-{
-    _result = nullptr;
 }
 
 void funcall_node::render_dot(int& uuid, 
