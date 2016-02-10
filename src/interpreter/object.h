@@ -180,7 +180,7 @@ public:
     fn_object(context*, 
 	      fclass&, 
 	      rawfn impl, 
-	      std::deque<std::string> fullArgs,
+	      std::deque<std::pair<std::string,fclass*>> fullArgs,
 	      collection&& appliedArgs );
 
     fn_object( context*, const fn_object&);
@@ -189,7 +189,7 @@ public:
     virtual fnref partial_application( context*,const std::vector<argpair_t>& args ) const;
     virtual objref operator()(context*,std::vector<argpair_t>&);
     virtual objref operator()(context*,std::vector<objref>&);
-    virtual const std::deque<std::string>& arglist() const;
+    virtual const std::deque<std::pair<std::string,fclass*>>& arglist() const;
     virtual void dump(std::ostream& out = std::cout );
     virtual bool is_tail_recursive();
     virtual bool is_anonymous() const;
@@ -203,8 +203,8 @@ protected:
 
     rawfn _fn;
     collection _applied_arguments;
-    std::deque<std::string> _expected_args;
-    std::deque<std::string> _full_args;
+    std::deque<std::pair<std::string,fclass*>> _expected_args;
+    std::deque<std::pair<std::string,fclass*>> _full_args;
     std::string _name{"(anonymous)"};
     bool _is_anon;
 };

@@ -27,6 +27,7 @@ using std::vector;
 using std::deque;
 using std::map;
 using std::stringstream;
+using std::pair;
 
 ast::ast()
 {
@@ -544,13 +545,13 @@ objref fundef_node::evaluate(context* pContext)
     typespec ts("function",{});
     fclass& cls = pContext->types()->lookup(ts);
     
-    deque<string> argnames;
+    deque<pair<string,fclass*>> argnames;
 
     list_node* pArgList = dynamic_cast<list_node*>(_arglist);
     for ( auto sn : pArgList->raw_elements() )
     {
 	symbol_node* pSymNode = dynamic_cast<symbol_node*>(sn);
-	argnames.push_back(pSymNode->name());
+	argnames.push_back({pSymNode->name(),nullptr});
     }
 
     colref pClosure( new collection );
@@ -634,8 +635,8 @@ objref funcall_node::evaluate(context* pContext, fnref fn)
 
     for ( int index=0; index < args->size() ; index++ )
     {
-	wlog(level::debug,argnames.front());
-	string argname = argnames.front();
+	wlog(level::debug,argnames.front().first);
+	string argname = argnames.front().first;
 	argnames.pop_front();
 	argpairs.push_back( fn_object::argpair_t(argname,args->get_element(index)));
     }

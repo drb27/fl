@@ -21,6 +21,7 @@ using std::vector;
 using std::endl;
 using std::map;
 using std::set;
+using std::pair;
 
 object::object(context* pContext, fclass& c, vector<objref> params) 
     : _class(c),_context(pContext)
@@ -473,7 +474,7 @@ bool void_object::operator==( const objref other ) const
 fn_object::fn_object(context* pContext,
 		     fclass& cls, 
 		     rawfn impl, 
-		     deque<string> fullArgs,
+		     deque<pair<string,fclass*>> fullArgs,
 		     collection&& appliedArgs)
     : _full_args(fullArgs), _expected_args(fullArgs), object(pContext,cls), _fn(impl)
 {
@@ -508,25 +509,23 @@ void fn_object::dump( std::ostream& out)
     out << "Expected Args: ";
     for ( auto arg : _expected_args )
     {
-	out << arg << " ";
+	out << arg.first << " ";
     }
     out << endl;
 
     out << "Full Args: ";
     for ( auto arg : _full_args )
     {
-	out << arg << " ";
+	out << arg.first << " ";
     }
     out << endl;
-
-    //out << "Applied Args: " << _applied_arguments << endl;
 
 }
 
 fnref fn_object::partial_application(context* pContext,const vector<argpair_t>& args) const
 {
     wlog_entry();
-    deque<string> remainingArgs(_full_args);
+    deque<pair<string,fclass*>> remainingArgs(_full_args);
     collection appliedArgs;
 
     // For each partial application, add to the context and remove from
@@ -534,7 +533,8 @@ fnref fn_object::partial_application(context* pContext,const vector<argpair_t>& 
     for ( auto arg : args )
     {
 	appliedArgs[arg.first] = arg.second;
-	remainingArgs.erase(std::find(remainingArgs.begin(),remainingArgs.end(),arg.first));
+	remainingArgs.erase(std::find_if(remainingArgs.begin(),remainingArgs.end(),
+					 [&arg](pair<string,fclass*>& e){ return e.first==arg.first;}));
     }
     
     auto result = fnref( new fn_object(pContext,get_class(),_fn,
@@ -550,7 +550,7 @@ rawfn& fn_object::raw()
     return _fn;
 }
 
-const deque<string>& fn_object::arglist() const
+const deque<pair<string,fclass*>>& fn_object::arglist() const
 {
     return _full_args;
 }
@@ -581,7 +581,7 @@ objref fn_object::operator()(context* pContext, vector<objref>& args)
 	int index=0;
 	for ( auto a : _full_args )
 	{
-	    argpairs.push_back(argpair_t(a,args[index++]));
+	    argpairs.push_back(argpair_t(a.first,args[index++]));
 	}
     }
     else
@@ -590,7 +590,7 @@ objref fn_object::operator()(context* pContext, vector<objref>& args)
 	int index=0;
 	for ( auto a : args )
 	{
-	    argpairs.push_back(argpair_t(_expected_args[index++],a));
+	    argpairs.push_back(argpair_t(_expected_args[index++].first,a));
 	}
     }
 

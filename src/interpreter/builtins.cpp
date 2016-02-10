@@ -17,6 +17,7 @@ using std::string;
 using std::vector;
 using std::deque;
 using std::set;
+using std::pair;
 
 #define N_INT(x) (x->internal_value())
 #define N_BOOL(x) (x->internal_value())
@@ -31,9 +32,9 @@ namespace builtins
 	typespec fnspec("function",{});
 	fclass& fncls = pContext->types()->lookup(fnspec);
 
-	deque<std::string> args;
-	args.push_back("a"); 
-	args.push_back("b");
+	deque<pair<std::string,fclass*>> args;
+	args.push_back({"a",nullptr}); 
+	args.push_back({"b",nullptr});
 
 	pContext->assign("rnd", 
 			 fnref( new fn_object(pContext,fncls,
