@@ -4,7 +4,6 @@
 #include <list>
 #include <deque>
 #include <functional>
-#include "named.h"
 #include "class.h"
 #include <logger/logger.h>
 #include <interpreter/eval_exception.h>

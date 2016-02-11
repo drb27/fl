@@ -9,7 +9,6 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/parser/parser.cpp \
 			src/parser/ast.cpp \
 			src/interpreter/class.cpp \
-			src/interpreter/package.cpp \
 			src/interpreter/object.cpp \
 			src/interpreter/typemgr.cpp \
 			src/interpreter/context.cpp \
@@ -32,7 +31,6 @@ TESTS=interpreter_tests
 check_PROGRAMS=interpreter_tests
 interpreter_tests_SOURCES=src/interpreter/tests/tests.cpp \
 				src/interpreter/tests/test-fclass.cpp \
-				src/interpreter/tests/test-package.cpp \
 				src/interpreter/tests/test-object.cpp \
 				src/interpreter/tests/test-typemgr.cpp \
 				src/interpreter/tests/test-context.cpp \

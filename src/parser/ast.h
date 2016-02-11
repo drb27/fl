@@ -7,7 +7,6 @@
 #include <set>
 #include <memory>
 #include <interpreter/marshall.h>
-#include <inc/named.h>
 
 class fclass;
 

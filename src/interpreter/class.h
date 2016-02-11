@@ -6,7 +6,6 @@
 #include <map>
 #include <deque>
 #include <list>
-#include "named.h"
 #include <parser/ast.h>
 #include <interpreter/marshall.h>
 
