@@ -1,0 +1,4 @@
+#!/bin/bash
+make interpreter_tests || exit 125;
+./interpreter_tests
+exit $?
