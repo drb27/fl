@@ -375,7 +375,10 @@ namespace builtins
 	bool result;
 	if ( (&cls==&(pThis->get_class())) && (&cls==&(pOther->get_class())) )
 	{
-	    result = ( &(pThis->get_class()) == &(pOther->get_class()) );
+	    auto pThisCls = std::dynamic_pointer_cast<class_object>(pThis);
+	    auto pOtherCls = std::dynamic_pointer_cast<class_object>(pOther);
+
+	    result = ( (pThisCls->internal_value()) == (pOtherCls->internal_value()) );
 	}
 	else
 	    result = false;
