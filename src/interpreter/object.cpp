@@ -507,6 +507,9 @@ objref fn_object::operator()(context* pContext, vector<objref>& args)
 {
     vector<argpair_t> argpairs;
 
+    if ( args.size()>_full_args.size() )
+	throw eval_exception(cerror::too_many_arguments, "Too many argument supplied to function call");
+
     if ( args.size()==_full_args.size() )
     {
 	// Zip 'em all up
@@ -532,6 +535,10 @@ objref fn_object::operator()(context* pContext, vector<objref>& args)
 objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 {
     wlog_entry();
+
+    if ( args.size()>_full_args.size() )
+	throw eval_exception(cerror::too_many_arguments, "Too many argument supplied to function call");
+
     // Is this a full or partial application?
     if (args.size()==_full_args.size() )
     {
