@@ -3,6 +3,7 @@
 #include "test-object.h"
 #include <interpreter/object.h>
 #include <inc/references.h>
+#include <interpreter/builtins.h>
 
 extern context* g_pContext;
 
@@ -25,10 +26,7 @@ void ObjectTestFixture::tearDown()
 
 list_object* ObjectTestFixture::empty_list()
 {
-    typespec tso("object",{});
-    typespec tsl("list",{tso} );
-
-    return new list_object( g_pContext, g_pContext->types()->lookup(tsl));
+    return new list_object( g_pContext );
 }
 
 /**
@@ -43,8 +41,7 @@ void ObjectTestFixture::testHighlyChunkedAppend()
     listref a = listref(empty_list());
     listref b = listref(empty_list());
 
-    typespec tsv("void",{});
-    void_object* null = new void_object(g_pContext,g_pContext->types()->lookup(tsv));
+    void_object* null = new void_object(g_pContext);
     objref pNull(null);
 
     a->append(pNull);

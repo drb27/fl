@@ -13,6 +13,7 @@
 #include <interpreter/smartlist.h>
 #include <parser/ast.h>
 #include <parser/ast_nodes.h>
+#include <interpreter/builtins.h>
 
 using std::string;
 using std::function;
@@ -238,27 +239,7 @@ objref class_object::get_attribute(const std::string& name)
     return (*(_value->class_attributes().find(name))).second;
 }
 
-namespace
-{
-    inline fclass& get_int_cls(context* pContext)
-    {
-	typespec ts("integer",{});
-	return pContext->types()->lookup(ts);
-    }
-
-    inline fclass& get_float_cls(context* pContext)
-    {
-	typespec ts("float",{});
-	return pContext->types()->lookup(ts);
-    }
-}
-
-int_object::int_object(context* pContext, int value)
-    : object(pContext,get_int_cls(pContext)), _value(value)
-{
-}
-
-int_object::int_object(context* pContext,int value,fclass& cls)
+int_object::int_object(context* pContext, int value, fclass& cls)
     : object(pContext,cls), _value(value)
 {
 }
@@ -303,10 +284,7 @@ bool string_object::operator==( const objref other ) const
 stringref string_object::operator[](intref index) const
 {
     string substr(_value.substr(index->internal_value(),1));
-    stringref result = stringref(new string_object(get_context(),
-						   substr,
-						   get_class()) );
-    return result;
+    return stringref(new string_object(get_context(), substr ));
 }
 
 stringref string_object::operator+(const stringref other) const
@@ -361,13 +339,13 @@ list_object::list_object( context* pContext, const list_object& other)
     _pList.reset( new smartlist(*(other._pList.get())) );
 }
 
-list_object::list_object(context* pContext, fclass& cls, smartlist* l)
+list_object::list_object(context* pContext, smartlist* l, fclass& cls)
     : object(pContext,cls)
 {
     _pList.reset(l);
 }
 
-list_object::list_object(context* pContext,fclass& cls, std::list<objref> startList)
+list_object::list_object(context* pContext,std::list<objref> startList,fclass& cls)
     : object(pContext,cls)
 {
     if ( startList.size() )
@@ -397,8 +375,7 @@ objref list_object::pop()
     objref pObject = _pList->inplace_pop();
     if (!pObject)
     {
-	typespec tsv("void",{});
-	pObject = objref( new void_object(get_context(),get_context()->types()->lookup(tsv)) );
+	pObject = objref( new void_object(get_context()));
     }
 
     return pObject;
@@ -442,7 +419,7 @@ objref list_object::get_element(size_t index)
 listref list_object::tail(context* pContext) const
 {
     smartlist* pNewList = _pList->tail();
-    return listref( new list_object(pContext,get_class(),pNewList) );
+    return listref( new list_object(pContext,pNewList,get_class()) );
 }
 
 void list_object::render( std::ostream& os, bool abbrev)
@@ -472,10 +449,10 @@ bool void_object::operator==( const objref other ) const
 }
 
 fn_object::fn_object(context* pContext,
-		     fclass& cls, 
 		     rawfn impl, 
 		     hinted_args_t fullArgs,
-		     collection&& appliedArgs)
+		     collection&& appliedArgs,
+		     fclass& cls)
     : _full_args(fullArgs), _expected_args(fullArgs), object(pContext,cls), _fn(impl)
 {
     wlog_entry();
@@ -537,8 +514,8 @@ fnref fn_object::partial_application(context* pContext,const vector<argpair_t>& 
 					 [&arg](pair<string,ast*>& e){ return e.first==arg.first;}));
     }
     
-    auto result = fnref( new fn_object(pContext,get_class(),_fn,
-				       remainingArgs,std::move(appliedArgs)));
+    auto result = fnref( new fn_object(pContext,_fn, remainingArgs,
+				       std::move(appliedArgs), get_class() ));
     result->_is_anon = _is_anon;
     result->_name = _name;
     return result;
@@ -651,14 +628,8 @@ void enum_object::render( std::ostream& os, bool abbrev)
 
 stringref enum_object::str()
 {
-    typespec tss("string",{});
-    auto& str_class = get_context()->types()->lookup(tss);
-    return stringref( new string_object(get_context(),_name,str_class) );
-}
+    return stringref( new string_object(get_context(), _name ));
 
-float_object::float_object(context* pContext, double value)
-    : object(pContext,get_float_cls(pContext)), _value(value)
-{
 }
 
 float_object::float_object(context* pContext,double value,fclass& cls)

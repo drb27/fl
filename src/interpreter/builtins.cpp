@@ -26,34 +26,123 @@ using std::pair;
 
 namespace builtins
 {
+    fclass* object::_class{nullptr};
+    fclass* flclass::_class{nullptr};
+    fclass* integer::_class{nullptr};
+    fclass* flfloat::_class{nullptr};
+    fclass* function::_class{nullptr};
+    fclass* flvoid::_class{nullptr};
+    fclass* boolean::_class{nullptr};
+    fclass* string::_class{nullptr};
+    fclass* flenum::_class{nullptr};
+    fclass* list::_class{nullptr};
+
+    fclass* object::get_class()
+    {
+	if (!_class)
+	    _class = object::build_class();
+
+	return _class;
+    }
+
+    fclass* list::get_class()
+    {
+	if (!_class)
+	    _class = list::build_class();
+
+	return _class;
+    }
+
+    fclass* flclass::get_class()
+    {
+	if (!_class)
+	    _class = flclass::build_class();
+
+	return _class;
+    }
+
+    fclass* integer::get_class()
+    {
+	if (!_class)
+	    _class = integer::build_class();
+
+	return _class;
+    }
+
+    fclass* flfloat::get_class()
+    {
+	if (!_class)
+	    _class = flfloat::build_class();
+
+	return _class;
+    }
+
+    fclass* function::get_class()
+    {
+	if (!_class)
+	    _class = function::build_class();
+
+	return _class;
+    }
+
+    fclass* flvoid::get_class()
+    {
+	if (!_class)
+	    _class = flvoid::build_class();
+
+	return _class;
+    }
+
+    fclass* boolean::get_class()
+    {
+	if (!_class)
+	    _class = boolean::build_class();
+
+	return _class;
+    }
+
+    fclass* string::get_class()
+    {
+	if (!_class)
+	    _class = string::build_class();
+
+	return _class;
+    }
+
+    fclass* flenum::get_class()
+    {
+	if (!_class)
+	    _class = flenum::build_class();
+
+	return _class;
+    }
+
     void build_globals(context* pContext)
     {
 	wlog_entry();
-	typespec fnspec("function",{});
-	fclass& fncls = pContext->types()->lookup(fnspec);
 
 	fn_object::hinted_args_t args;
 	args.push_back({"a",nullptr}); 
 	args.push_back({"b",nullptr});
 
 	pContext->assign("rnd", 
-			 fnref( new fn_object(pContext,fncls,
+			 fnref( new fn_object(pContext,
 					      rawfn(make_marshall(&builtins::rnd)),
 					      args,
 					      {}) 
 				) );
 
 	pContext->assign("foreach",
-			 fnref( new fn_object(pContext,fncls,
+			 fnref( new fn_object(pContext,
 					      rawfn(make_marshall(&builtins::foreach)),
 					      args,
 					      {} ) ));
     }
 
-    std::shared_ptr<fclass> object::build_class()
+    fclass* object::build_class()
     {
-	typespec spec("object",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,nullptr));
+	typespec spec("object");
+	fclass* pCls = new fclass(spec,nullptr);
 	pCls->add_method( {"dump", make_marshall_mthd(&builtins::obj_dump),false});
 	pCls->add_method( {"class", make_marshall_mthd(&builtins::obj_class)} );
 	pCls->add_method( {".ctor", make_marshall_mthd(&builtins::obj_ctor),true});
@@ -66,14 +155,12 @@ namespace builtins
 	return pCls;
     }
 
-    std::shared_ptr<fclass> flclass::build_class(typemgr* pTm)
+    fclass* flclass::build_class()
     {
-	typespec base_spec("object",{});
-	fclass& base_cls = pTm->lookup(base_spec);
+	fclass* base_cls = object::get_class();
+	typespec spec("class");
 
-	typespec spec("class",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
-
+	fclass* pCls = new fclass(spec,base_cls);
 	pCls->add_method({"addmethod",make_marshall_mthd(&builtins::class_addmethod)});
 	pCls->add_method({"methods",make_marshall_mthd(&builtins::class_methods)});
 	pCls->add_method({"base",make_marshall_mthd(&builtins::class_base)});
@@ -86,13 +173,12 @@ namespace builtins
 	return pCls;
     }
 
-    std::shared_ptr<fclass> string::build_class(typemgr* pTm)
+    fclass* string::build_class()
     {
-	typespec base_spec("object",{});
-	fclass& base_cls = pTm->lookup(base_spec);
+	fclass* base_cls = object::get_class();
+	typespec spec("string");
 
-	typespec spec("string",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	fclass* pCls = new fclass(spec,base_cls);
 	pCls->add_method({"size",make_marshall_mthd(&builtins::string_length)});
 	pCls->add_method({".index",make_marshall_mthd(&builtins::string_index)});
 	pCls->add_method({"add",make_marshall_mthd(&builtins::string_add)});
@@ -100,13 +186,12 @@ namespace builtins
 	return pCls;
     }
 
-    std::shared_ptr<fclass> integer::build_class(typemgr* pTm)
+    fclass* integer::build_class()
     {
-	typespec base_spec("object",{});
-	fclass& base_cls = pTm->lookup(base_spec);
+	fclass* base_cls = object::get_class();
+	typespec spec("integer");
 
-	typespec spec("integer",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	fclass* pCls = new fclass(spec,base_cls);
 	pCls->add_method({"add", make_marshall_mthd(&builtins::add_integers)});
 	pCls->add_method({"in_range", make_marshall_mthd(&builtins::in_range_integers)});
 	pCls->add_method({"gt", make_marshall_mthd(&builtins::int_gt)});
@@ -120,90 +205,75 @@ namespace builtins
 	return pCls;
     }
 
-    std::shared_ptr<fclass> flfloat::build_class(typemgr* pTm)
+    fclass* flfloat::build_class()
     {
-	typespec base_spec("object",{});
-	fclass& base_cls = pTm->lookup(base_spec);
+	fclass* base_cls = object::get_class();
+	typespec spec("float");
 
-	typespec spec("float",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	fclass* pCls = new fclass(spec,base_cls);
 	pCls->add_method({"add", make_marshall_mthd(&builtins::float_add)});
 	pCls->add_method({"->integer", make_marshall_mthd(&builtins::float_to_int)});
 	return pCls;
     }
 
-    std::shared_ptr<fclass> flvoid::build_class(typemgr* pTm)
+    fclass* flvoid::build_class()
     {
-	typespec base_spec("object",{});
-	fclass& base_cls = pTm->lookup(base_spec);
+	fclass* base_cls = object::get_class();
+	typespec spec("void");
 
-	typespec spec("void",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	fclass* pCls = new fclass(spec,base_cls);
 	return pCls;
     }
 
-    std::shared_ptr<fclass> list::build_class(typespec spec, typemgr* pTm)
+    fclass* list::build_class()
     {
-	assert( spec.params().size()>0);
+	typespec spec("list");
+	fclass* base_cls = object::get_class();
 
-	typespec base_spec("object",{});
-	typespec listobj_spec("list",{base_spec});
-
-	if ( spec==listobj_spec)
-	{
-	    fclass& base_cls = pTm->lookup(base_spec);
-	    std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
-	    pCls->add_method({"size", make_marshall_mthd(&builtins::list_size)});
-	    pCls->add_method({"head", make_marshall_mthd(&builtins::list_head)});
-	    pCls->add_method({"append", make_marshall_mthd(&builtins::list_append)});
-	    pCls->add_method({"prepend", make_marshall_mthd(&builtins::list_prepend)});
-	    pCls->add_method({"tail", make_marshall_mthd(&builtins::list_tail)});
-	    pCls->add_method({"duplicate_and_append", make_marshall_mthd(&builtins::list_dup_and_append)});
-	    pCls->add_method({"optimise", make_marshall_mthd(&builtins::list_optimise)});
-	    pCls->add_method({"chunks", make_marshall_mthd(&builtins::list_chunks)});
-	    pCls->add_method({"join", make_marshall_mthd(&builtins::list_join)});
-	    pCls->add_method({".index", make_marshall_mthd(&builtins::list_index)});
-	    pCls->add_method({".iter", make_marshall_mthd(&builtins::list_iter)});
-	    pCls->add_method({"pop", make_marshall_mthd(&builtins::list_pop)});
-	    return pCls;
-	}
-	else
-	{
-	    fclass& base_cls = pTm->lookup(listobj_spec);
-	    std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
-	    return pCls;
-	}
+	fclass* pCls = new fclass(spec,base_cls);
+	pCls->add_method({"size", make_marshall_mthd(&builtins::list_size)});
+	pCls->add_method({"head", make_marshall_mthd(&builtins::list_head)});
+	pCls->add_method({"append", make_marshall_mthd(&builtins::list_append)});
+	pCls->add_method({"prepend", make_marshall_mthd(&builtins::list_prepend)});
+	pCls->add_method({"tail", make_marshall_mthd(&builtins::list_tail)});
+	pCls->add_method({"duplicate_and_append", make_marshall_mthd(&builtins::list_dup_and_append)});
+	pCls->add_method({"optimise", make_marshall_mthd(&builtins::list_optimise)});
+	pCls->add_method({"chunks", make_marshall_mthd(&builtins::list_chunks)});
+	pCls->add_method({"join", make_marshall_mthd(&builtins::list_join)});
+	pCls->add_method({".index", make_marshall_mthd(&builtins::list_index)});
+	pCls->add_method({".iter", make_marshall_mthd(&builtins::list_iter)});
+	pCls->add_method({"pop", make_marshall_mthd(&builtins::list_pop)});
+	return pCls;
     }
 
-    std::shared_ptr<fclass> function::build_class(typespec spec, typemgr* pTm)
+    fclass* function::build_class()
     {
-	typespec base_spec("object",{});
-	fclass& base_cls = pTm->lookup(base_spec);
-	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	typespec spec("function");
+	fclass* base_cls = object::get_class();
+
+	fclass* pCls = new fclass(spec,base_cls);
 	pCls->add_method({"itr", make_marshall_mthd(&builtins::fn_itr)});
 	pCls->add_method({"name", make_marshall_mthd(&builtins::fn_name)});
 	return pCls;
     }
 
-    std::shared_ptr<fclass> boolean::build_class(typemgr* pTm)
+    fclass* boolean::build_class()
     {
-	typespec base_spec("object",{});
-	fclass& base_cls = pTm->lookup(base_spec);
+	fclass* base_cls = object::get_class();
+	typespec spec("boolean");
 
-	typespec spec("boolean",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	fclass* pCls = new fclass(spec,base_cls);
 	pCls->add_method({"not", make_marshall_mthd(&builtins::logical_not)});
 	pCls->add_method({"->integer", make_marshall_mthd(&builtins::bool_to_int)});
 	return pCls;
     }
 
-    std::shared_ptr<fclass> flenum::build_class(typemgr* pTm)
+    fclass* flenum::build_class()
     {
-	typespec base_spec("object",{});
-	fclass& base_cls = pTm->lookup(base_spec);
+	fclass* base_cls = object::get_class();
+	typespec spec("enum");
 
-	typespec spec("enum",{});
-	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
+	fclass* pCls = new fclass(spec,base_cls);
 	pCls->add_class_method( {".iter", make_marshall_mthd(&builtins::enum_iter), false});
 	pCls->add_method( {"->string", make_marshall_mthd(&builtins::enum_str), false});
 	return pCls;
@@ -211,8 +281,7 @@ namespace builtins
 
     objref add_integers(context* pContext, intref a, objref b)
     {
-	typespec tsi("integer",{});
-	b = ::object::convert_to(b,&(pContext->types()->lookup(tsi)));
+	b = ::object::convert_to(b,builtins::integer::get_class());
 
 	// Check the result of the conversion
 	if (!b)
@@ -230,19 +299,12 @@ namespace builtins
     objref in_range_integers(context* pContext, intref pThis, intref min, intref max)
     {
 	bool in_range = (N_INT(pThis) >= N_INT(min)) && ( N_INT(pThis) <= N_INT(max));
-	typespec bool_spec = typespec("boolean",{});
-	fclass& bool_cls = pContext->types()->lookup(bool_spec);
-	objref pObject( new bool_object(pContext, (in_range)?true:false, bool_cls));
-	return pObject;
+	return objref( new bool_object(pContext, (in_range)?true:false));
     }
 
     objref logical_not(context* pContext,boolref a)
     {
-	typespec bool_spec = typespec("boolean",{});
-	fclass& bool_cls = pContext->types()->lookup(bool_spec);
-	objref pObject( new bool_object(pContext, !a->internal_value(), bool_cls ));
-	return pObject;
-
+	return objref( new bool_object(pContext, !a->internal_value() )); 
     }
     
     objref list_size(context* pContext, listref pThis)
@@ -263,9 +325,7 @@ namespace builtins
 	    return r;
 	else
 	{
-	    typespec ts("void",{});
-	    auto n = new void_object(pContext, pContext->types()->lookup(ts));
-	    return objref(n);
+	    return objref(new void_object(pContext));
 	}
     }
 
@@ -294,17 +354,13 @@ namespace builtins
     objref int_gt(context* pContext, intref pThis, intref pOther )
     {
 	bool result = pThis->internal_value() > pOther->internal_value();
-	typespec ts("boolean",{});
-	return boolref(new bool_object(pContext,result,pContext->types()->lookup(ts)));
-
+	return boolref(new bool_object(pContext, result));
     }
 
     objref int_lt(context* pContext, intref pThis, intref pOther )
     {
 	bool result = pThis->internal_value() < pOther->internal_value();
-	typespec ts("boolean",{});
-	return boolref(new bool_object(pContext,result,pContext->types()->lookup(ts)));
-
+	return boolref(new bool_object(pContext, result));
     }
 
     objref int_dec(context* pContext,intref pThis)
@@ -321,11 +377,10 @@ namespace builtins
 
     objref int_divf(context* pContext, intref pThis, objref divisor)
     {
-	typespec tsf("float",{});
 
 	// Try float first - if it is already a float, then good, if it is an int, 
 	// then conversion to float does not harm
-	divisor = ::object::convert_to(divisor,&(pContext->types()->lookup(tsf)));
+	divisor = ::object::convert_to(divisor,builtins::flfloat::get_class() );
 
 	if (!divisor)
 	    throw eval_exception(cerror::unsupported_argument,"Can't divf() this type");
@@ -357,10 +412,7 @@ namespace builtins
 
     objref obj_class(context* pContext, objref pThis)
     {
-	typespec ts("class",{});
-	class_object* pClass = 
-	    new class_object(pContext,&pThis->get_class(),pContext->types()->lookup(ts));
-	return objref(pClass);
+	return objref(new class_object(pContext, &pThis->get_class() ));
     }
 
     objref obj_convertible_to(context* pContext, objref pThis, classref pTargetClass)
@@ -369,9 +421,8 @@ namespace builtins
 	fclass& targetClass = *(N_CLASS(pTargetClass));
 
 	bool returnVal = startClass.can_convert_to(&targetClass);
-	typespec tsb("boolean",{});
-	
-	return boolref( new bool_object(pContext,returnVal, pContext->types()->lookup(tsb)) );
+	return boolref( new bool_object(pContext, returnVal ));
+
     }
 
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement)
@@ -415,10 +466,10 @@ namespace builtins
     objref class_equate(context* pContext, objref pThis,objref pOther)
     {
 	// Check they are both classes
-	typespec tsc("class",{});
-	fclass& cls = pContext->types()->lookup(tsc);
+	auto cls = builtins::flclass::get_class();
 	bool result;
-	if ( (&cls==&(pThis->get_class())) && (&cls==&(pOther->get_class())) )
+
+	if ( (cls==&(pThis->get_class())) && (cls==&(pOther->get_class())) )
 	{
 	    auto pThisCls = std::dynamic_pointer_cast<class_object>(pThis);
 	    auto pOtherCls = std::dynamic_pointer_cast<class_object>(pOther);
@@ -427,18 +478,13 @@ namespace builtins
 	}
 	else
 	    result = false;
+
 	// Calculate the result
-	typespec ts("boolean",{});
-	return boolref(new bool_object(pContext, result,pContext->types()->lookup(ts)));
+	return boolref(new bool_object(pContext, result ));
     }
 
     objref class_methods(context* pContext, classref pThis)
     {
-	// Typespecs
-	typespec string_ts("string",{});
-	typespec list_ts("list",{string_ts});
-	fclass& string_cls = pContext->types()->lookup(string_ts);
-
 	// Create a native list of string_objects
 	std::list<objref> nativeList;
 
@@ -447,23 +493,16 @@ namespace builtins
 	// Add all the methods of the given class
 	for ( auto m : strMethods )
 	{
-	    string_object* pString = new string_object(pContext, m,string_cls);
+	    string_object* pString = new string_object(pContext, m);
 	    nativeList.push_back( objref(pString) );
 	}
 
 	// Create a new list
-	list_object* pList = new list_object( pContext, pContext->types()->lookup(list_ts),
-					      nativeList);
-
-	// return a managed reference
-	return objref(pList);
-
+	return objref( new list_object(pContext, nativeList) );
     }
 
     objref class_attrlist(context* pContext, classref pThis )
     {
-	// Typespecs
-	typespec list_ts("list",{pThis->internal_value()->get_spec()});
 
 	// Create a native list of string_objects
 	std::list<objref> nativeList;
@@ -475,12 +514,7 @@ namespace builtins
 	}
 
 	// Create a new list
-	list_object* pList = new list_object( pContext, pContext->types()->lookup(list_ts),
-					      nativeList);
-
-	// return a managed reference
-	return objref(pList);
-	
+	return objref( new list_object(pContext, nativeList) );
     }
 
     objref class_base(context* pContext, classref pThis)
@@ -491,14 +525,12 @@ namespace builtins
 	if ( pInternalClass->is_root() )
 	{
 	    // There is no base, return void
-	    typespec ts("void",{});
-	    return objref( new void_object(pContext, pContext->types()->lookup(ts)));
+	    return objref(new void_object(pContext));
 	}
 	else
 	{
 	    // There is a base!
-	    typespec spec("class",{});
-	    return objref(new class_object(pContext, baseClass,pContext->types()->lookup(spec)));
+	    return objref(new class_object(pContext, baseClass));
 	}
 	
     }
@@ -513,8 +545,7 @@ namespace builtins
 	// Construct a lambda which executes the method on the object
 	auto le = [fn](context* pContext, objref pThis, std::vector<ast*>& params)
 	    {
-		typespec tsc("class",{});
-		auto& class_cls = pContext->types()->lookup(tsc);
+		auto class_cls = builtins::flclass::get_class();
 
 		// Evaluate each parameter,ignoring the first two
 		vector<objref> evaled_params;
@@ -530,7 +561,7 @@ namespace builtins
 			if ( (*full_i).second)
 			{
 			    objref pHintedObj = (*full_i).second->evaluate(pContext);
-			    if ( &(pHintedObj->get_class()) == &class_cls )
+			    if ( &(pHintedObj->get_class()) == class_cls )
 			    {
 				classref pHintedCls = std::dynamic_pointer_cast<class_object>(pHintedObj);
 				evaled_params.push_back( ::object::convert_to( arg->evaluate(pContext),
@@ -563,14 +594,11 @@ namespace builtins
 
     objref class_derive(context* pContext, classref pThis, stringref name)
     {
-	typespec ts(name->internal_value(),{});
-	typespec tsc("class",{});
+	typespec ts(name->internal_value());
+
 	fclass* pNewNativeClass = new fclass(ts,pThis->internal_value());
 	(pContext->types())->add(*pNewNativeClass);
-	class_object*  pNewClass = 
-	    new class_object(pContext, pNewNativeClass,(pContext->types())->lookup(tsc));
-
-	return objref(pNewClass,[](class_object*){});
+	return objref(new class_object(pContext, pNewNativeClass));
     }
 
     objref class_new(context* pContext, classref pThis, listref params)
@@ -600,8 +628,7 @@ namespace builtins
     objref obj_equate(context* pContext, objref pThis,objref pOther)
     {
 	bool result = (*pThis)==pOther;
-	typespec ts("boolean",{});
-	return boolref(new bool_object(pContext, result,pContext->types()->lookup(ts)));
+	return boolref(new bool_object(pContext, result));
     }
 
     objref rnd(context* pContext, intref a, intref b)
@@ -625,10 +652,7 @@ namespace builtins
 	delete t;
 
 	// We now have a list of things to apply the function to.
-	typespec tso("object",{});
-	typespec tsl("list", { tso} );
-	auto& list_cls = pContext->types()->lookup(tsl);
-	listref returnList = listref( new list_object(pContext,list_cls) );
+	listref returnList = listref( new list_object(pContext) );
 
 	for ( int index=0; index<l->size(); index++ )
 	{
@@ -657,8 +681,7 @@ namespace builtins
     objref obj_is(context* pContext,objref pThis, objref pOther)
     {
 	bool result = pThis.get()==pOther.get();
-	typespec ts("boolean",{});
-	return boolref(new bool_object(pContext,result,pContext->types()->lookup(ts)));
+	return boolref(new bool_object(pContext,result));
     }
 
     objref obj_invoke(context* pContext,objref pThis,stringref name, listref params)
@@ -687,8 +710,7 @@ namespace builtins
 
     objref list_index(context* pContext, listref pThis, objref i )
     {
-	typespec intspec("integer",{});
-	if ( &(i->get_class())!=&(pContext->types()->lookup(intspec)) )
+	if ( &(i->get_class())!= builtins::integer::get_class() )
 	{
 	    throw eval_exception( cerror::invalid_index, "Unsupported index type");
 	}
@@ -707,26 +729,17 @@ namespace builtins
     
     objref fn_itr(context* pContext, fnref pThis )
     {
-	typespec bs("boolean",{});
-	bool_object* r = new bool_object(pContext, pThis->is_tail_recursive(), pContext->types()->lookup(bs) );
-	return boolref(r);
+	return objref(new bool_object(pContext, pThis->is_tail_recursive()) );
     }
 
     objref fn_name(context* pContext, fnref pThis )
     {
-	typespec ts("string",{});
-	string_object* pString = new string_object(pContext, 
-						   pThis->name(),
-						   pContext->types()->lookup(ts) );
-
-	return stringref(pString);
+	return stringref(new string_object(pContext, pThis->name() ));
     }
 
     objref enum_iter(context* pContext, classref pThis )
     {
-	typespec tsl("list", {pThis->internal_value()->get_spec()} );
-	auto& list_cls = pContext->types()->lookup(tsl);
-	listref returnList = listref( new list_object(pContext,list_cls) );
+	listref returnList = listref( new list_object(pContext) );
 	
 	for( auto e : pThis->class_attributes() )
 	{
@@ -743,8 +756,7 @@ namespace builtins
 
     objref float_add(context* pContext, floatref a, objref b)
     {
-	typespec tsf("float",{});
-	b = ::object::convert_to(b,&(pContext->types()->lookup(tsf)));
+	b = ::object::convert_to(b, builtins::flfloat::get_class() );
  
 	// Check the result of the conversion
 	if (!b)
@@ -761,10 +773,8 @@ namespace builtins
 
     objref int_to_bool(context* pContext, intref pThis)
     {
-	typespec tsb("boolean",{});
-	auto& bool_cls = pContext->types()->lookup(tsb);
-	boolref pReturn = boolref( new bool_object(pContext,N_INT(pThis)!=0,bool_cls) );
-	return pReturn;
+	return boolref( new bool_object(pContext, N_INT(pThis)!=0) );
+
     }
 
     objref bool_to_int(context* pContext, boolref pThis)

@@ -2,6 +2,7 @@
 #include <list>
 #include "typemgr.h"
 #include "builtins.h"
+#include "context.h"
 #include <logger/logger.h>
 
 using std::string;
@@ -33,49 +34,46 @@ fclass& typemgr::lookup( const typespec& ts )
 void typemgr::init_builtins()
 {
     wlog_entry();
-    typespec ts("object",{});
-    auto c = builtins::object::build_class();
+
+    auto c = builtins::object::get_class();
     _typeMap[c->get_spec()] = c;
 
-    c = builtins::integer::build_class(this);
+    c = builtins::integer::get_class();
     _typeMap[c->get_spec()] = c;
 
-    c = builtins::flfloat::build_class(this);
+    c = builtins::flfloat::get_class();
     _typeMap[c->get_spec()] = c;
 
-    c = builtins::flvoid::build_class(this);
+    c = builtins::flvoid::get_class();
     _typeMap[c->get_spec()] = c;
 
-    typespec ts2=typespec("function",{});
-    c = builtins::function::build_class(ts2,this);
+    c = builtins::function::get_class();
     _typeMap[c->get_spec()] = c;
 
-    c = builtins::boolean::build_class(this);
+    c = builtins::boolean::get_class();
     _typeMap[c->get_spec()] = c;
 
-    c = builtins::flclass::build_class(this);
+    c = builtins::flclass::get_class();
     _typeMap[c->get_spec()] = c;
 
-    c= builtins::string::build_class(this);
+    c= builtins::string::get_class();
     _typeMap[c->get_spec()] = c;
 
-    c= builtins::flenum::build_class(this);
+    c= builtins::flenum::get_class();
     _typeMap[c->get_spec()] = c;
 
-    typespec ts3=typespec("list",{ts});
-    c = builtins::list::build_class(ts3,this);
+    c = builtins::list::get_class();
     _typeMap[c->get_spec()] = c;
 
 }
 
+void typemgr::register_builtins(context* pContext) const
+{
+}
+
 fclass& typemgr::check_builtin( const typespec& ts )
 {
-    std::shared_ptr<fclass> pTarget;
-
-    if (ts.template_name()=="list")
-    {
-	pTarget = builtins::list::build_class(ts,this);
-    }
+    fclass* pTarget;
 
     if (pTarget!=nullptr)
     {
@@ -95,7 +93,7 @@ bool typemgr::add(fclass& cls)
     }
     catch (...)
     {
-	_typeMap[cls.get_spec()] = std::shared_ptr<fclass>(&cls);
+	_typeMap[cls.get_spec()] = &cls;
 	return true;
     }
 }

@@ -23,66 +23,19 @@ class typemgr;
 
 typemgr* fclass::types{nullptr};
 
-typespec::typespec( const string& nm, const list<typespec>& prms )
+typespec::typespec( const string& nm)
     : _name(nm)
 {
     wlog_entry();
-    for (auto p : prms )
-    {
-	_params.push_back(p);
-    }
-    validate();
-    _full_name=calc_full_name();
 }
 
 typespec::~typespec()
 {
 }
 
-int typespec::param_count() const
-{
-    return _params.size();
-}
-
-const typespec& fclass::get_spec() const
-{
-    return _ts;
-}
-
-const string& typespec::template_name() const
-{
-    return _name;
-}
-
-string typespec::calc_full_name()
-{
-    stringstream s;
-    s << template_name();
-
-    if (param_count())
-    {
-	s << "<";
-	for ( auto v : _params )
-	{
-	    s << v.full_name() << ",";
-	}
-    }
-    
-    string result = s.str();
-    if (param_count())
-	return result.erase(result.length()-1) + ">";
-    else
-	return result;
-}
-
 const string& typespec::full_name() const
 {
-    return _full_name;
-}
-
-const list<typespec>& typespec::params() const
-{
-    return _params;
+    return _name;
 }
 
 bool typespec::operator==( const typespec& other) const
@@ -98,13 +51,6 @@ int typespec::operator<( const typespec& other) const
 int typespec::operator>( const typespec& other) const
 {
     return full_name()>other.full_name();
-}
-
-void typespec::validate() const
-{
-    if ( (template_name()=="list") && param_count()!=1 )
-	throw std::logic_error("Invalid typespec");
-
 }
 
 fclass::fclass( const typespec& ts, fclass* pBase, bool abstract) 
@@ -327,7 +273,7 @@ void fclass::get_direct_conversions(std::set<fclass*>& resultSet)
     for ( auto mthd : filteredSet )
     {
 	std::string trimmedName = mthd.substr(2);
-	typespec ts(trimmedName,{});
+	typespec ts(trimmedName);
 	
 	fclass* pCls = &(types->lookup(ts));
 	resultSet.insert(pCls);
@@ -346,4 +292,9 @@ void fclass::all_methods(set<string>& mset ) const
     if (!is_root() )
 	base()->all_methods(mset);
 
+}
+
+const typespec& fclass::get_spec() const
+{
+    return _ts;
 }

@@ -1,12 +1,9 @@
 #ifndef BUILTINS_H
 #define BUILTINS_H
 
-#include <memory>
-#include <interpreter/object.h>
 #include <parser/ast.h>
 
 class fclass;
-class typemgr;
 class fundef_node;
 
 namespace builtins
@@ -15,61 +12,92 @@ namespace builtins
 class object
 {
 public:
-    static std::shared_ptr<fclass> build_class();
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
 };
 
 class flclass
 {
 public:
-    static std::shared_ptr<fclass> build_class(typemgr*);
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
 };
 
 class integer
 {
 public:
-    static std::shared_ptr<fclass> build_class(typemgr*);
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
 };
 
 class flfloat
-{
- public:
-    static std::shared_ptr<fclass> build_class(typemgr*);
+{ 
+public:
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
+
 };
 
 class list
 {
-public:
-    static std::shared_ptr<fclass> build_class(typespec,typemgr*);
+ public:
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
 };
 
 class function
 {
 public:
-    static std::shared_ptr<fclass> build_class(typespec,typemgr*);
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
 };
 
 class flvoid
 {
 public:
-    static std::shared_ptr<fclass> build_class(typemgr*);
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
 };
 
 class boolean
 {
 public:
-    static std::shared_ptr<fclass> build_class(typemgr*);
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
 };
 
 class string
 {
 public:
-    static std::shared_ptr<fclass> build_class(typemgr*);
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
 };
 
 class flenum
 {
 public:
-    static std::shared_ptr<fclass> build_class(typemgr*);
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
 };
 
     void build_globals(context*);

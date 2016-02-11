@@ -15,6 +15,7 @@
 #include <interpreter/context.h>
 #include <interpreter/smartlist.h>
 #include <parser/rawfn.h>
+#include <interpreter/builtins.h>
 
 class ast;
 class typemgr;
@@ -56,28 +57,26 @@ class object
 class int_object : public object
 {
 public:
-    int_object(context*,int value);
+    int_object(context*,int value,fclass& = *builtins::integer::get_class());
     virtual void render( std::ostream& os, bool abbrev=true );
     int internal_value() const { return _value; }
 
     virtual bool operator==(const objref other) const; 
 
 protected:
-    int_object(context*,int value,fclass& cls);
     const int _value;
 };
 
 class float_object : public object
 {
 public:
-    float_object(context*,double value);
+    float_object(context*,double value,fclass& = *builtins::flfloat::get_class() );
     virtual void render( std::ostream& os, bool abbrev=true );
     double internal_value() const { return _value; }
 
     virtual bool operator==(const objref other) const; 
 
 protected:
-    float_object(context*,double value,fclass& cls);
     const double _value;
 };
 
@@ -96,7 +95,7 @@ private:
 class string_object : public object
 {
 public:
-    string_object(context*,const std::string& value, fclass&);
+    string_object(context*,const std::string& value, fclass& = *builtins::string::get_class() );
     string_object( const string_object& );
     virtual void render( std::ostream& os, bool abbrev=true );
     const std::string& internal_value() const { return _value; }
@@ -114,7 +113,7 @@ protected:
 class class_object : public object
 {
 public:
-    class_object(context*,fclass* pCls,fclass&);
+    class_object(context*,fclass* pCls,fclass& = *builtins::flclass::get_class() );
     virtual void render( std::ostream& os, bool abbrev=true);
     fclass* internal_value() const { return _value; }
     virtual bool has_attribute(const std::string&) const;
@@ -127,7 +126,7 @@ protected:
 class bool_object : public object
 {
 public:
-    bool_object(context*,bool b, fclass&);
+    bool_object(context*,bool b, fclass& = *builtins::boolean::get_class() );
     virtual void render( std::ostream& os, bool abbrev=true);
     bool internal_value() const { return _value; }
 
@@ -140,9 +139,9 @@ protected:
 class list_object : public object
 {
 public:
-    list_object(context*,fclass&);
-    list_object(context*,fclass&,std::list<objref> startingList);
-    list_object(context*,fclass&,smartlist*);
+    list_object(context*,fclass& = *builtins::list::get_class() );
+    list_object(context*,std::list<objref> startingList, fclass& = *builtins::list::get_class());
+    list_object(context*,smartlist*,fclass& = *builtins::list::get_class() );
     list_object(context*,const list_object&);
     virtual void render( std::ostream& os, bool abbrev=true);
     objref first();
@@ -162,7 +161,8 @@ protected:
 class void_object : public object
 {
 public:
-    void_object(context* pContext,fclass& cls) : object(pContext,cls) {}
+    void_object(context* pContext,fclass& cls = *builtins::flvoid::get_class() ) 
+	: object(pContext,cls) {}
     virtual void render( std::ostream& os, bool abbrev=true);
     
     virtual bool operator==( const objref other) const;
@@ -182,10 +182,10 @@ public:
     typedef std::deque<std::pair<std::string,ast*>> hinted_args_t;
 
     fn_object(context*, 
-	      fclass&, 
 	      rawfn impl, 
 	      hinted_args_t fullArgs,
-	      collection&& appliedArgs );
+	      collection&& appliedArgs,
+	      fclass& = *builtins::function::get_class() );
 
     fn_object( context*, const fn_object&);
     virtual void render( std::ostream& os, bool abbrev=true);

@@ -30,8 +30,8 @@ void TypemgrTestFixture::testConstruction()
 void TypemgrTestFixture::testSameClassReturnedBuiltin()
 {
     typemgr tm;
-    typespec int_spec("integer",{});
-    typespec int_spec2("integer",{});
+    typespec int_spec("integer");
+    typespec int_spec2("integer");
 
     const fclass& cls1 = tm.lookup(int_spec);
     const fclass& cls2 = tm.lookup(int_spec2);

@@ -10,6 +10,7 @@
 #include <interpreter/context.h>
 #include <interpreter/eval_exception.h>
 #include <logger/logger.h>
+#include <interpreter/builtins.h>
 
 using std::string;
 using std::deque;
@@ -40,19 +41,14 @@ ast* dat::make_float(double v)
 
 ast* dat::make_string(std::string* x) const
 {
-    typespec string_spec = typespec("string",{});
-    fclass& string_cls = _context->types()->lookup(string_spec);
-    objref pObject(new string_object(_context,(*x).substr(1,(*x).length()-2),string_cls));
+    objref pObject(new string_object(_context, (*x).substr(1,(*x).length()-2) ));
     delete x;
-    literal_node* pNode = new literal_node(pObject);
-    return pNode;
+    return new literal_node(pObject);
 }
 
 ast* dat::make_null() const
 {
-    typespec obj_spec = typespec("void",{});
-    fclass& obj_cls = _context->types()->lookup(obj_spec);
-    objref pObject(new void_object(_context,obj_cls));
+    objref pObject(new void_object(_context));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
@@ -186,9 +182,7 @@ ast* dat::make_single_list(ast* item)
 
 ast* dat::make_bool(bool b)
 {
-    typespec bool_spec = typespec("boolean",{});
-    fclass& bool_cls = _context->types()->lookup(bool_spec);
-    objref pObject(new bool_object(_context,b,bool_cls));
+    objref pObject(new bool_object(_context,b));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }

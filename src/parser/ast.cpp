@@ -61,8 +61,7 @@ void ast::render_dot(int& uuid,
 
 fclass* ast::type(context* pContext) const
 {
-    typespec os("object",{});
-    return &(pContext->types()->lookup(os));
+    return builtins::object::get_class();
 }
 
 literal_node::literal_node(objref pObj)
@@ -117,9 +116,7 @@ objref list_node::evaluate(context* pContext)
 {
     // Make a list of evaluated elements
     list<objref> items;
-    
-    typespec tsc("class",{});
-    auto& class_cls = pContext->types()->lookup(tsc);
+    auto class_cls = builtins::flclass::get_class();
 
     for ( auto e : _elements )
     {
@@ -129,7 +126,7 @@ objref list_node::evaluate(context* pContext)
 	    // Evaluate the type hint in the context
 	    objref pHintClass = pTypeHintNode->evaluate(pContext);
 	    // Ensure this is of type 'class'
-	    if ( &(pHintClass->get_class()) == &class_cls )
+	    if ( &(pHintClass->get_class()) == class_cls )
 	    {
 		classref pHintClassAsClass = std::dynamic_pointer_cast<class_object>(pHintClass);
 		items.push_back(object::convert_to(e->evaluate(pContext),
@@ -147,7 +144,7 @@ objref list_node::evaluate(context* pContext)
 	}
     }
 
-    auto l = new list_object(pContext,*(type(pContext)),items);
+    auto l = new list_object(pContext,items);
     return objref(l);
 }
 
@@ -166,30 +163,7 @@ std::list<ast*>& list_node::raw_elements()
 
 fclass* list_node::type(context* pContext) const
 {
-
-    // Get the types of all the child elements
-    set<fclass*> subtypes;
-
-    for ( auto e : _elements )
-    {
-	subtypes.insert( e->type(pContext) ); 
-    }
-
-    // If there is only one type, that's the type of the list
-    // Otherwise, it's a list of objects
-    if (subtypes.size()==1)
-    {
-	typespec subtypespec( (*subtypes.begin())->get_spec().full_name(), {} );
-	typespec listspec( "list", {subtypespec} );
-	return &(pContext->types()->lookup(listspec)); 
-    }
-    else
-    {
-	typespec objspec( "object", {} );
-	typespec listspec( "list", { pContext->types()->lookup(objspec).get_spec() } );
-	return &(pContext->types()->lookup(listspec)); 
-    }
-    
+    return builtins::list::get_class();    
 }
 
 methodcall_node::methodcall_node(const std::string& name)
@@ -236,8 +210,8 @@ objref methodcall_node::evaluate(context* pContext)
 	m = target->get_class().lookup_method(_name).fn;
     else
     {
-	typespec tsc("class",{});
-	if ( &(target->get_class()) == &(pContext->types()->lookup(tsc)) )
+
+	if ( &(target->get_class()) == builtins::flclass::get_class() )
     	{
     	    classref targetCls = std::dynamic_pointer_cast<class_object>(target);
     	    if ( targetCls->internal_value()->has_class_method(_name) )
@@ -345,8 +319,7 @@ function<void(objref)> symbol_node::setter(context* pContext)
     {
 
 	// Set function name, if this is a function
-	typespec ts("function",{});
-	if ( &(pContext->types()->lookup(ts))==&(pNewVal->get_class()) )
+	if ( builtins::function::get_class()==&(pNewVal->get_class()) )
 	{
 	    // Yep!
 	    fnref pFn = std::dynamic_pointer_cast<fn_object>(pNewVal);
@@ -562,9 +535,6 @@ objref fundef_node::evaluate(context* pContext)
 	wlog(level::debug, "Required symbol: " + s );
     }
 
-    typespec ts("function",{});
-    fclass& cls = pContext->types()->lookup(ts);
-    
     deque<pair<string,ast*>> argnames;
 
     list_node* pArgList = dynamic_cast<list_node*>(_arglist);
@@ -581,13 +551,12 @@ objref fundef_node::evaluate(context* pContext)
 	    (*pClosure)[s] = pContext->resolve_symbol(s);
     }
 
-    return objref( new fn_object(pContext,cls,rawfn(this,pClosure),argnames,{}) );
+    return objref( new fn_object(pContext,rawfn(this,pClosure),argnames,{}) );
 }
 
 fclass* fundef_node::type(context* pContext) const
 {
-    typespec ts("function",{});
-    return &(pContext->types()->lookup(ts));
+    return builtins::function::get_class();
 }
 
 funcall_node::funcall_node(const string& name, ast* args)
@@ -639,8 +608,7 @@ objref funcall_node::evaluate(context* pContext)
 
 objref funcall_node::evaluate(context* pContext, fnref fn)
 {
-    typespec tsc("class",{});
-    auto& class_cls = pContext->types()->lookup(tsc);
+    auto class_cls = builtins::flclass::get_class();
 
     // Evaluate the argument list
     listref args = std::dynamic_pointer_cast<list_object>(_arg_list->evaluate(pContext));
@@ -666,7 +634,7 @@ objref funcall_node::evaluate(context* pContext, fnref fn)
 	    objref pTypeIntObj = argnames.front().second->evaluate(pContext);
 
 	    // Does it evaluate to a class object?
-	    if ( &(pTypeIntObj->get_class()) == &class_cls )
+	    if ( &(pTypeIntObj->get_class()) == class_cls )
 	    {
 		// Yes - cast to a class object
 		classref pTypeHintCls = std::dynamic_pointer_cast<class_object>(pTypeIntObj);
@@ -702,11 +670,9 @@ objref funcall_node::evaluate(context* pContext, fnref fn)
 
 fclass* funcall_node::type(context* pContext) const
 {
-    // TODO
-    typespec obj_spec("object",{});
-    return &(pContext->types()->lookup(obj_spec));
-    //throw std::exception();
+    return builtins::object::get_class();
 }
+
 
 if_node::if_node(ast* pCondition, ast* trueExpression, ast* falseExpression)
     : _condition(pCondition), _trueExpr(trueExpression), _falseExpr(falseExpression)
@@ -759,8 +725,7 @@ objref if_node::evaluate(context* pContext)
 
 fclass* if_node::type(context* pContext) const
 {
-    typespec ts("object",{});
-    return &(pContext->types()->lookup(ts));
+    return builtins::object::get_class();
 }
 
 function<void(objref)> attr_node::setter(context* pContext)
@@ -918,10 +883,7 @@ objref selector_node::evaluate(context* pContext)
     objref selResult = _selector->evaluate(pContext);
 
     objref result=objref(nullptr);
-
-    typespec bts("boolean",{});
-    auto bool_cls = pContext->types()->lookup(bts);
-    boolref trueObj = boolref( new bool_object(pContext,true,bool_cls));
+    boolref trueObj = boolref( new bool_object(pContext,true));
 
     // Search the conditions in order
     for ( auto pair : _conditions )
@@ -967,8 +929,7 @@ objref selector_node::evaluate(context* pContext)
 
 fclass* selector_node::type(context* pContext) const
 {
-    typespec ts("object",{});
-    return &(pContext->types()->lookup(ts));    
+    return builtins::object::get_class();
 }
 
 void selector_node::required_symbols(set<string>& s ) const
@@ -1024,9 +985,7 @@ void while_node::render_dot(int& uuid,
 
 objref while_node::evaluate(context* pContext )
 {
-
-    typespec tsv("void",{});
-    objref result( new void_object(pContext,pContext->types()->lookup(tsv)) );
+    objref result( new void_object(pContext) );
 
     // Loop around executing the function until the condition is true
     while ( BOOL_CAST( _cond->evaluate(pContext) ) )
@@ -1052,15 +1011,10 @@ objref enum_node::evaluate(context* pContext)
 {
     // Create a new class that derives from enum
     
-    typespec tse("enum",{});
-    auto& enum_cls = pContext->types()->lookup(tse);
-    
-    typespec tsc("class",{});
-    auto& class_cls = pContext->types()->lookup(tsc);
+    auto enum_cls = builtins::flenum::get_class();
 
-    typespec tsn(_name,{});
-    fclass* pNewClass = new fclass(tsn,&enum_cls);
-    //pNewClass->add_class_method( {".iter", make_marshall_mthd(&builtins::enum_iter), false});
+    typespec tsn(_name);
+    fclass* pNewClass = new fclass(tsn,enum_cls);
 
     // Create class attributes
     int index=0;
@@ -1075,7 +1029,7 @@ objref enum_node::evaluate(context* pContext)
 
     // Register the new class with the type manager and return a class_object
     pContext->types()->add(*pNewClass);
-    return objref( new class_object(pContext,pNewClass,class_cls) );
+    return objref( new class_object(pContext,pNewClass) );
 }
 
 void enum_node::required_symbols(std::set<std::string>& s) const

@@ -24,7 +24,7 @@ void FclassTestFixture::tearDown()
  */
 void FclassTestFixture::testConstruction()
 {
-    typespec obj_spec("object",{});
+    typespec obj_spec("object");
     fclass root(obj_spec);
     CPPUNIT_ASSERT(root.name()=="object");
 }
@@ -34,8 +34,8 @@ void FclassTestFixture::testConstruction()
  */
 void FclassTestFixture::testNonRootConstruction()
 {
-    typespec obj_spec("object",{});
-    typespec child_spec("child",{});
+    typespec obj_spec("object");
+    typespec child_spec("child");
     
     fclass root(obj_spec);
     fclass child(child_spec,&root);
@@ -45,9 +45,9 @@ void FclassTestFixture::testNonRootConstruction()
 
 void FclassTestFixture::testTypeSpecEquality()
 {
-    typespec spec_a("integer",{});
-    typespec spec_b("integer",{});
-    typespec spec_c("object",{});
+    typespec spec_a("integer");
+    typespec spec_b("integer");
+    typespec spec_c("object");
 
     CPPUNIT_ASSERT( spec_a == spec_b );
     CPPUNIT_ASSERT( !(spec_a == spec_c) );

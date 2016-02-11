@@ -4,6 +4,7 @@
 #include <interpreter/context.h>
 #include <interpreter/object.h>
 #include <interpreter/smartlist.h>
+#include <interpreter/builtins.h>
 
 using std::vector;
 
@@ -357,8 +358,7 @@ void smartlistTestFixture::testChunkedTail()
 
 void smartlistTestFixture::testJoinChunkedToEmpty()
 {
-    typespec tsv("void",{});
-    objref null = objref( new void_object(g_pContext, g_pContext->types()->lookup(tsv)) );
+    objref null = objref(new void_object(g_pContext));
     smartlist a;
 
     smartlist b;

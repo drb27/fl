@@ -6,6 +6,8 @@
 #include "class.h"
 #include <memory>
 
+class context;
+
 class typemgr
 {
 
@@ -15,6 +17,7 @@ class typemgr
 
     fclass& lookup( const typespec& fqn );
     bool add(fclass& cls);
+    void register_builtins(context* pContext) const;
 
  protected:
 
@@ -22,7 +25,7 @@ class typemgr
     void init_builtins();
 
  private:
-    std::map<typespec,std::shared_ptr<fclass>> _typeMap;
+    std::map<typespec,fclass*> _typeMap;
 };
 
 #endif

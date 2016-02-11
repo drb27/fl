@@ -24,12 +24,9 @@ class typespec
 {
   public:
   
-    typespec(const std::string&, const std::list<typespec>&);
+    typespec(const std::string&);
     virtual ~typespec();
 
-    int param_count() const;
-    const std::list<typespec>& params() const;
-    const std::string& template_name() const;
     const std::string& full_name() const;
 
     bool operator==( const typespec& other) const;
@@ -41,13 +38,7 @@ class typespec
 
   private:
 
-    std::string calc_full_name();
-    void validate() const;
-
     const std::string _name;
-    std::string _full_name;
-    std::list<typespec> _params;
-    
 };
 
 
