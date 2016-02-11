@@ -81,7 +81,9 @@ public:
     objref int_div(context*,intref,intref);
     objref int_mod(context*,intref,intref);
     objref int_tofloat(context* pContext, intref pThis);
+    objref int_to_bool(context*, intref);
     objref in_range_integers(context* pContext, intref pThis, intref min, intref max);
+    objref bool_to_int(context* pContext, boolref pThis);
     objref logical_not(context* pContext,boolref a);
     objref list_size(context* pContext, listref pThis);
     objref list_head(context* pContext, listref pThis);
@@ -95,6 +97,7 @@ public:
     objref int_equate(context* pContext, intref pThis, intref pOther);
     objref int_gt(context* pContext, intref pThis, intref pOther);
     objref int_lt(context* pContext, intref pThis, intref pOther);
+    objref int_divf(context* pContext, intref pThis, objref divisor);
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
     objref string_length(context* pContext, stringref pThis);
@@ -122,6 +125,9 @@ public:
     objref enum_iter(context* pContext, classref pThis );
     objref enum_str(context* pContext, enumref pThis );
     objref float_add(context* pContext, floatref a, objref b);
+    objref float_to_int(context* pContext, floatref pThis);
+    objref obj_convertible_to(context* pContet, objref pThis, classref pTargetClass);
+    objref obj_convert(context* pContext, objref pThis, classref pTargetClass );
 }
 
 #endif

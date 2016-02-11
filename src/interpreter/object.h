@@ -36,12 +36,13 @@ class object
     virtual bool has_method(const std::string&) const;
     virtual void render( std::ostream& os, bool abbrev=true );
     virtual void dump( std::ostream& out = std::cout);
-
     virtual void optimise() {}
     virtual objref invoke( const std::string& mthdName, context* pCtx, std::vector<objref>& params);
 
     virtual bool operator==(const objref other) const; 
     virtual object& operator=(const objref other);
+
+    static objref convert_to( objref pThis, fclass* pOther);
 
  protected:
     virtual void construct(context* pContext, std::vector<objref>&);
@@ -70,7 +71,7 @@ class float_object : public object
 {
 public:
     float_object(context*,double value);
-    virtual void render( std::ostream& os );
+    virtual void render( std::ostream& os, bool abbrev=true );
     double internal_value() const { return _value; }
 
     virtual bool operator==(const objref other) const; 
@@ -167,19 +168,23 @@ public:
     virtual bool operator==( const objref other) const;
 };
 
-// A function which can only be evaluated when all of its arguments have been
-// supplied. Partial arguments can be supplied. If this happens, *another* function
-// object is returned which only needs the remaining arguments to be supplied. 
+/**
+ * A function which can only be evaluated when all of its arguments have been
+ * supplied. Partial arguments can be supplied. If this happens, *another* function
+ * object is returned which only needs the remaining arguments to be supplied.
+ * @note the fn_object can represet an fl function, or a builtin written in C++.  
+ **/
 class fn_object : public object
 {
 public:
 
     typedef std::pair<std::string,objref> argpair_t;
+    typedef std::deque<std::pair<std::string,ast*>> hinted_args_t;
 
     fn_object(context*, 
 	      fclass&, 
 	      rawfn impl, 
-	      std::deque<std::string> fullArgs,
+	      hinted_args_t fullArgs,
 	      collection&& appliedArgs );
 
     fn_object( context*, const fn_object&);
@@ -188,7 +193,7 @@ public:
     virtual fnref partial_application( context*,const std::vector<argpair_t>& args ) const;
     virtual objref operator()(context*,std::vector<argpair_t>&);
     virtual objref operator()(context*,std::vector<objref>&);
-    virtual const std::deque<std::string>& arglist() const;
+    virtual const hinted_args_t& arglist() const;
     virtual void dump(std::ostream& out = std::cout );
     virtual bool is_tail_recursive();
     virtual bool is_anonymous() const;
@@ -202,8 +207,8 @@ protected:
 
     rawfn _fn;
     collection _applied_arguments;
-    std::deque<std::string> _expected_args;
-    std::deque<std::string> _full_args;
+    hinted_args_t _expected_args;
+    hinted_args_t _full_args;
     std::string _name{"(anonymous)"};
     bool _is_anon;
 };

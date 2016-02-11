@@ -41,6 +41,7 @@ class dat : public action_target
     virtual void finish_seq();
     virtual ast* start_list();
     virtual void push_list_element(ast*);
+    virtual void push_list_element_with_typehint(ast* n,ast* t);
     virtual ast* finish_list();
     virtual ast* make_empty_list();
     virtual ast* make_single_list(ast*);

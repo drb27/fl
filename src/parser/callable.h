@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <interpreter/object.h>
+#include <interpreter/eval_exception.h>
 
 class context;
 class ast;

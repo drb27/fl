@@ -206,7 +206,6 @@ public:
 			    const std::string& parent="",
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
-    virtual void invalidate() const;
     virtual bool calls_and_returns( const std::string& fname) const;
     virtual asttype type() const;
     virtual void direct_subordinates( std::list<ast*>& ) const;

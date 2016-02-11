@@ -1,10 +1,13 @@
 #include <string>
 #include <map>
+#include <set>
 #include <sstream>
 #include <list>
 #include <deque>
 #include <functional>
+#include <algorithm>
 #include "class.h"
+#include <interpreter/typemgr.h>
 #include <logger/logger.h>
 #include <interpreter/eval_exception.h>
 
@@ -14,6 +17,7 @@ using std::stringstream;
 using std::function;
 using std::map;
 using std::deque;
+using std::set;
 
 class typemgr;
 
@@ -250,4 +254,96 @@ bool fclass::is_in_hierarchy( const fclass& other)
     }
 
     return false;
+}
+
+bool fclass::build_conversion_tree(fclass* pGoal,set<ctnoderef>& solutionSet)
+{
+    // First check the obvious
+    if (pGoal==this)
+	return true;
+
+    // Is this class a decendant of pOther?
+    if ( is_in_hierarchy(*pGoal) )
+	return true;
+
+    // A set of classes already in the tree
+    set<fclass*> inclusionSet;
+
+    // Root of the conversion tree
+    ctnoderef root = get_all_conversions(inclusionSet,solutionSet,pGoal);
+
+    return solutionSet.size()>0;
+}
+
+bool fclass::can_convert_to(fclass* pOther)
+{
+    set<ctnoderef> solutionSet;
+    return build_conversion_tree(pOther,solutionSet);
+}
+
+ctnoderef fclass::get_all_conversions(set<fclass*>& inclusionSet, 
+				      set<ctnoderef>& solutionSet,
+				      fclass* pGoal)
+{
+    // Create our root, insert ourselves into the inclusion set
+    ctnoderef root = ctnoderef( new conversion_tree_node(this) );
+    inclusionSet.insert(this);
+
+    // Add our children
+
+    set<fclass*> directConversions;
+    get_direct_conversions(directConversions);
+
+    /* foreach direct conversion */
+    for ( auto pCls : directConversions )
+    {
+	if ( inclusionSet.find(pCls)==inclusionSet.end())
+	{
+	    ctnoderef childNode = pCls->get_all_conversions(inclusionSet,solutionSet,pGoal);
+	    childNode->parent = root;
+	    root->subordinates.insert(childNode);
+
+	    // Have we found a solution?
+	    if (pCls==pGoal)
+		solutionSet.insert(childNode);
+	}
+    }
+
+    // Return our root
+    return root; 
+}
+
+void fclass::get_direct_conversions(std::set<fclass*>& resultSet)
+{
+    set<string> methodSet,filteredSet;
+    all_methods(methodSet);
+
+    for ( auto mthd : methodSet )
+    {
+	if (mthd.substr(0,2)=="->")
+	    filteredSet.insert(mthd);
+    }
+
+    for ( auto mthd : filteredSet )
+    {
+	std::string trimmedName = mthd.substr(2);
+	typespec ts(trimmedName,{});
+	
+	fclass* pCls = &(types->lookup(ts));
+	resultSet.insert(pCls);
+    }
+}
+
+void fclass::all_methods(set<string>& mset ) const
+{
+    // Add direct methods
+    for ( auto m : methods() )
+    {
+	mset.insert(m);
+    }
+
+    // Call up the class hierarchy
+    if (!is_root() )
+	base()->all_methods(mset);
+
 }

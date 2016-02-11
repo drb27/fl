@@ -3,6 +3,7 @@
 #include <cassert>
 #include <random>
 #include <deque>
+#include <set>
 #include "builtins.h"
 #include <interpreter/class.h>
 #include <interpreter/context.h>
@@ -15,8 +16,13 @@
 using std::string;
 using std::vector;
 using std::deque;
+using std::set;
+using std::pair;
 
 #define N_INT(x) (x->internal_value())
+#define N_BOOL(x) (x->internal_value())
+#define N_CLASS(x) (x->internal_value())
+#define N_FLOAT(x) (x->internal_value())
 
 namespace builtins
 {
@@ -26,9 +32,9 @@ namespace builtins
 	typespec fnspec("function",{});
 	fclass& fncls = pContext->types()->lookup(fnspec);
 
-	deque<std::string> args;
-	args.push_back("a"); 
-	args.push_back("b");
+	fn_object::hinted_args_t args;
+	args.push_back({"a",nullptr}); 
+	args.push_back({"b",nullptr});
 
 	pContext->assign("rnd", 
 			 fnref( new fn_object(pContext,fncls,
@@ -55,6 +61,8 @@ namespace builtins
 	pCls->add_method( {"eq", make_marshall_mthd(&builtins::obj_equate),false} );
 	pCls->add_method( {"is", make_marshall_mthd(&builtins::obj_is),true } );
 	pCls->add_method( {"invoke", make_marshall_mthd(&builtins::obj_invoke),true} );
+	pCls->add_method( {"can_convert", make_marshall_mthd(&builtins::obj_convertible_to),true} );	
+	pCls->add_method( {"convert", make_marshall_mthd(&builtins::obj_convert),true} );
 	return pCls;
     }
 
@@ -105,8 +113,10 @@ namespace builtins
 	pCls->add_method({"lt", make_marshall_mthd(&builtins::int_lt)});
 	pCls->add_method({"dec", make_marshall_mthd(&builtins::int_dec)});
 	pCls->add_method({"div", make_marshall_mthd(&builtins::int_div)});
+	pCls->add_method({"divf", make_marshall_mthd(&builtins::int_divf)});
 	pCls->add_method({"mod", make_marshall_mthd(&builtins::int_mod)});
-	pCls->add_method({".float", make_marshall_mthd(&builtins::int_tofloat)});
+	pCls->add_method({"->float", make_marshall_mthd(&builtins::int_tofloat)});
+	pCls->add_method({"->boolean", make_marshall_mthd(&builtins::int_to_bool)});
 	return pCls;
     }
 
@@ -118,6 +128,7 @@ namespace builtins
 	typespec spec("float",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method({"add", make_marshall_mthd(&builtins::float_add)});
+	pCls->add_method({"->integer", make_marshall_mthd(&builtins::float_to_int)});
 	return pCls;
     }
 
@@ -182,6 +193,7 @@ namespace builtins
 	typespec spec("boolean",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_method({"not", make_marshall_mthd(&builtins::logical_not)});
+	pCls->add_method({"->integer", make_marshall_mthd(&builtins::bool_to_int)});
 	return pCls;
     }
 
@@ -193,14 +205,17 @@ namespace builtins
 	typespec spec("enum",{});
 	std::shared_ptr<fclass> pCls(new fclass(spec,&base_cls));
 	pCls->add_class_method( {".iter", make_marshall_mthd(&builtins::enum_iter), false});
-	pCls->add_method( {"str", make_marshall_mthd(&builtins::enum_str), false});
+	pCls->add_method( {"->string", make_marshall_mthd(&builtins::enum_str), false});
 	return pCls;
     }
 
     objref add_integers(context* pContext, intref a, objref b)
     {
-	// Check the type of b
-	if ( &(b->get_class())!=&(a->get_class()) )
+	typespec tsi("integer",{});
+	b = ::object::convert_to(b,&(pContext->types()->lookup(tsi)));
+
+	// Check the result of the conversion
+	if (!b)
 	    throw eval_exception(cerror::unsupported_argument,"Can't add this type to an integer");
 
 	// Cast
@@ -302,6 +317,25 @@ namespace builtins
     objref int_div(context* pContext, intref pThis, intref divisor)
     {
 	return intref( new int_object(pContext, N_INT(pThis)/N_INT(divisor)));
+    }
+
+    objref int_divf(context* pContext, intref pThis, objref divisor)
+    {
+	typespec tsf("float",{});
+
+	// Try float first - if it is already a float, then good, if it is an int, 
+	// then conversion to float does not harm
+	divisor = ::object::convert_to(divisor,&(pContext->types()->lookup(tsf)));
+
+	if (!divisor)
+	    throw eval_exception(cerror::unsupported_argument,"Can't divf() this type");
+	else
+	{
+	    floatref fd = std::dynamic_pointer_cast<float_object>(divisor);
+	    return floatref( new float_object(pContext, 
+					      ((double)N_INT(pThis))/((double)N_FLOAT(fd))));	    
+	}
+
 
     }
     
@@ -327,6 +361,17 @@ namespace builtins
 	class_object* pClass = 
 	    new class_object(pContext,&pThis->get_class(),pContext->types()->lookup(ts));
 	return objref(pClass);
+    }
+
+    objref obj_convertible_to(context* pContext, objref pThis, classref pTargetClass)
+    {
+	fclass& startClass = pThis->get_class();
+	fclass& targetClass = *(N_CLASS(pTargetClass));
+
+	bool returnVal = startClass.can_convert_to(&targetClass);
+	typespec tsb("boolean",{});
+	
+	return boolref( new bool_object(pContext,returnVal, pContext->types()->lookup(tsb)) );
     }
 
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement)
@@ -397,8 +442,10 @@ namespace builtins
 	// Create a native list of string_objects
 	std::list<objref> nativeList;
 
+	set<std::string> strMethods;
+	pThis->internal_value()->all_methods(strMethods);
 	// Add all the methods of the given class
-	for ( auto m : pThis->internal_value()->methods() )
+	for ( auto m : strMethods )
 	{
 	    string_object* pString = new string_object(pContext, m,string_cls);
 	    nativeList.push_back( objref(pString) );
@@ -466,15 +513,43 @@ namespace builtins
 	// Construct a lambda which executes the method on the object
 	auto le = [fn](context* pContext, objref pThis, std::vector<ast*>& params)
 	    {
+		typespec tsc("class",{});
+		auto& class_cls = pContext->types()->lookup(tsc);
+
 		// Evaluate each parameter,ignoring the first two
 		vector<objref> evaled_params;
 		evaled_params.push_back(pThis);
 		int guard=0;
+		auto& argList = fn->arglist();
+		auto full_i = argList.begin();
+		full_i++; // Skip the first, it is the class
 		for ( auto arg : params )
 		{
 		    if (guard++>1)
-			evaled_params.push_back( arg->evaluate(pContext) );
+		    {
+			if ( (*full_i).second)
+			{
+			    objref pHintedObj = (*full_i).second->evaluate(pContext);
+			    if ( &(pHintedObj->get_class()) == &class_cls )
+			    {
+				classref pHintedCls = std::dynamic_pointer_cast<class_object>(pHintedObj);
+				evaled_params.push_back( ::object::convert_to( arg->evaluate(pContext),
+									       pHintedCls->internal_value() ));
+			    }
+			    else
+			    {
+				throw eval_exception( cerror::not_a_class,
+						      "Type hint does not evaluate to a class object" );
+			    }    
+			}
+			else
+			    evaled_params.push_back( arg->evaluate(pContext) );
+			
+			full_i++;
+		    }
+
 		}
+
 		return (*fn)(pContext,evaled_params);
 	    };
 
@@ -668,8 +743,11 @@ namespace builtins
 
     objref float_add(context* pContext, floatref a, objref b)
     {
-	// Check the type of b
-	if ( &(b->get_class())!=&(a->get_class()) )
+	typespec tsf("float",{});
+	b = ::object::convert_to(b,&(pContext->types()->lookup(tsf)));
+ 
+	// Check the result of the conversion
+	if (!b)
 	    throw eval_exception(cerror::unsupported_argument,"Can't add this type to a float");
 
 	// Cast
@@ -679,6 +757,31 @@ namespace builtins
 	objref pObject(new float_object(pContext,result));
     
 	return pObject;
+    }
+
+    objref int_to_bool(context* pContext, intref pThis)
+    {
+	typespec tsb("boolean",{});
+	auto& bool_cls = pContext->types()->lookup(tsb);
+	boolref pReturn = boolref( new bool_object(pContext,N_INT(pThis)!=0,bool_cls) );
+	return pReturn;
+    }
+
+    objref bool_to_int(context* pContext, boolref pThis)
+    {
+	intref pReturn = intref( new int_object(pContext,N_BOOL(pThis)?1:0) );
+	return pReturn;
+    }
+
+    objref float_to_int(context* pContext, floatref pThis)
+    {
+	intref pReturn = intref( new int_object(pContext,std::round(N_FLOAT(pThis))) );
+	return pReturn;
+    }
+
+    objref obj_convert(context* pContext, objref pThis, classref pTargetClass )
+    {
+	return ::object::convert_to( pThis, N_CLASS(pTargetClass) );
     }
 
 }

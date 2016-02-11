@@ -22,7 +22,7 @@ class ftlist;
 DIGIT [0-9]
 WS    [ \t]+
 LETTER [A-Za-z_]
-BANANA ({DIGIT}+[.]{DIGIT}+)
+BANANA (-{0,1}{DIGIT}+[.]{DIGIT}+)
 
 %%
 
@@ -63,7 +63,7 @@ typedef  { return TYPEDEF; }
 \)       { return CLOSE_PAREN; }
 \<       { return OPEN_ANGLED; }
 \>       { return CLOSE_ANGLED; }
-{DIGIT}+            { yylval->int_val = atoi(yytext); return INTEGER; }
+-{0,1}{DIGIT}+            { yylval->int_val = atoi(yytext); return INTEGER; }
 {WS}     
 {LETTER}+ { yylval->string_val = STR(yytext); return SYMBOL; }
 \/\/[^\n]*
