@@ -629,6 +629,9 @@ objref funcall_node::evaluate(context* pContext, fnref fn)
     // Get a list of argument names expected by the function
     auto argnames(fn->arglist());
 
+    if (argnames.size()< args->size() )
+	throw eval_exception(cerror::too_many_arguments, "Too many arguments supplied to function call");
+
     // map<string,string> p;
     // p["_name"] = _name;
     // for (auto n : argnames )
