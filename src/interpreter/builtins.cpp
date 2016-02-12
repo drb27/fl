@@ -137,6 +137,36 @@ namespace builtins
 					      rawfn(make_marshall(&builtins::foreach)),
 					      args,
 					      {} ) ));
+   
+	pContext->assign( integer::get_class()->name(), 
+			  classref(new class_object(pContext, integer::get_class())) );
+
+	pContext->assign( flfloat::get_class()->name(), 
+			  classref(new class_object(pContext, flfloat::get_class())) );
+
+	pContext->assign( string::get_class()->name(), 
+			  classref(new class_object(pContext, string::get_class())) );
+
+	pContext->assign( flvoid::get_class()->name(), 
+			  classref(new class_object(pContext, flvoid::get_class())) );
+
+	pContext->assign( list::get_class()->name(), 
+			  classref(new class_object(pContext, list::get_class())) );
+
+	pContext->assign( boolean::get_class()->name(), 
+			  classref(new class_object(pContext, boolean::get_class())) );
+
+	pContext->assign( flclass::get_class()->name(), 
+			  classref(new class_object(pContext, flclass::get_class())) );
+
+	pContext->assign( function::get_class()->name(), 
+			  classref(new class_object(pContext, function::get_class())) );
+
+	pContext->assign( flenum::get_class()->name(), 
+			  classref(new class_object(pContext, flenum::get_class())) );
+
+	pContext->assign( object::get_class()->name(), 
+			  classref(new class_object(pContext, object::get_class())) );
     }
 
     fclass* object::build_class()

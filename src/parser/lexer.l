@@ -29,7 +29,7 @@ BANANA (-{0,1}{DIGIT}+[.]{DIGIT}+)
 {BANANA} { yylval->float_val = FLT(yytext); return FLOAT; }
 <<EOF>>  { return EOFF; }
 while    { return WHILE; }
-enum     { return ENUM; }
+defenum  { return ENUM; }
 \[       { return OPEN_SQUARE; }
 \]       { return CLOSE_SQUARE; }
 ==       { return EQUALITY; }

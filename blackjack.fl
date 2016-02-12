@@ -18,8 +18,8 @@ true.class().addmethod( (t,o)->and(t,o), "and" );
 
 
 // Suit Enumeration
-suit=>enum suit (hearts,diamonds,clubs,spades);
-rank=>enum rank (two,three,four,five,six,seven,eight,nine,ten,jack,queen,king,ace);
+suit=>defenum suit (hearts,diamonds,clubs,spades);
+rank=>defenum rank (two,three,four,five,six,seven,eight,nine,ten,jack,queen,king,ace);
 
 // Card Class
 object=>null.class().base();
