@@ -1,7 +1,11 @@
 #ifndef BUILTINS_H
 #define BUILTINS_H
 
+#include <vector>
+#include <map>
+#include <functional>
 #include <parser/ast.h>
+#include <interpreter/marshall.h>
 
 class fclass;
 class fundef_node;
@@ -100,6 +104,7 @@ protected:
     static fclass* _class;
 };
 
+    objref make_object(context*,fclass*,std::vector<objref>&); 
     void build_globals(context*);
     objref obj_dump(context*, objref pThis);
     objref obj_equate(context*, objref pThis,objref pOther);

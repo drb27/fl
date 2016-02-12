@@ -183,6 +183,12 @@ objref object::get_attribute(const std::string& selector)
     return _attributes[selector];
 }
 
+void object::create_attribute(const std::string& selector)
+{
+    voidref o = voidref( new void_object(get_context()) );
+    _attributes[selector] = o;
+}
+
 void object::set_attribute(const std::string& selector, objref newValue)
 {
     if ( has_attribute(selector) )

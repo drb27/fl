@@ -34,6 +34,7 @@ class object
     virtual bool has_attribute(const std::string&) const;
     virtual objref get_attribute(const std::string&);
     virtual void set_attribute(const std::string&,objref);
+    virtual void create_attribute(const std::string&);
     virtual bool has_method(const std::string&) const;
     virtual void render( std::ostream& os, bool abbrev=true );
     virtual void dump( std::ostream& out = std::cout);

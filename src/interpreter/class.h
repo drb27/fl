@@ -67,7 +67,8 @@ class fclass
 {
 
  public:
-    fclass(const typespec&, fclass* pBase=nullptr, bool abstract=false);
+    fclass(const typespec&, fclass* pBase=nullptr, bool abstract=false,
+	   bool builtin=false, bool allownew=true);
     std::string name() const;
     const typespec& get_spec() const;
     virtual void add_attribute(const std::string&,objref d);
@@ -80,17 +81,20 @@ class fclass
     virtual bool has_class_method(const std::string& );
     virtual std::list<std::string> methods() const;
     virtual void all_methods( std::set<std::string>& ) const;
-    virtual bool is_abstract() const { return _is_abstract; }
 
     virtual const methodinfo& lookup_method(const std::string& name) const;
     virtual const methodinfo& lookup_class_method(const std::string& name) const;
     virtual fclass* base(void) const { return _base; }
-    virtual bool is_root() const { return _base==nullptr; }
     virtual std::deque<fclass*> hierarchy();
     virtual bool is_in_hierarchy( const fclass& other);
     virtual const methodinfo& instantiator() { return lookup_method(".ctor"); }
     virtual bool can_convert_to(fclass* pOther);
     virtual bool build_conversion_tree(fclass* pGoal,std::set<ctnoderef>& solutionSet);
+
+    bool is_root() const { return _base==nullptr; }
+    bool is_abstract() const { return _is_abstract; }
+    bool is_builtin() const { return _is_builtin; }
+    bool allow_new() const { return _allow_new; }
 
     static typemgr* types;
  protected:
@@ -103,6 +107,8 @@ class fclass
 
     fclass* _base;
     const bool _is_abstract;
+    const bool _is_builtin;
+    const bool _allow_new;
     const typespec _ts;
     std::map<std::string,objref> _attributes;
     std::map<std::string,methodinfo> _methods;

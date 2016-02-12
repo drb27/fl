@@ -23,7 +23,9 @@ enum class cerror
 	equate_float=14,
 	too_many_arguments=15,
 	unsupported_conversion=16,
-	not_a_class=17
+	not_a_class=17,
+        incorrect_arg_count=18,
+	no_construction=19
 };
 
 class eval_exception : public std::runtime_error

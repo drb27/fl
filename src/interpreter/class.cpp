@@ -53,8 +53,8 @@ int typespec::operator>( const typespec& other) const
     return full_name()>other.full_name();
 }
 
-fclass::fclass( const typespec& ts, fclass* pBase, bool abstract) 
-    : _ts(ts),_is_abstract(abstract),_base(pBase)
+fclass::fclass( const typespec& ts, fclass* pBase, bool abstract, bool builtin, bool allownew) 
+    : _ts(ts),_is_abstract(abstract),_base(pBase),_is_builtin(builtin),_allow_new(allownew)
 {
 }
 
