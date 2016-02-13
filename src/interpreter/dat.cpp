@@ -102,6 +102,20 @@ ast* dat::make_methodcall( ast* target, ast* method,list_node* args)
 {
     symbol_node* pMethodNameNode = dynamic_cast<symbol_node*>(method);
     auto r = new methodcall_node(pMethodNameNode->name());
+
+    if ( pMethodNameNode->name()=="new")
+    {
+	// Syntactic hack: To allow the user to write: 
+	//     <class>.new(1,2,3)
+	// instead of:
+	//     <class>.new( (1,2,3) )
+	// we need to encapsulate the parameters into another list node
+	
+	list_node* originalArgList = args;
+	args = new list_node();
+	args->push_element(originalArgList);
+    }
+
     for ( auto p : args->raw_elements() )
     {
 	r->add_param(p);

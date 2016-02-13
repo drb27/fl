@@ -61,7 +61,7 @@ car=>object.derive("car");
 car.addattr("wheels",0);
 car.addmethod( (t,v)-> t.wheels=>v, "setwheels");
 car.addmethod( (t,x,y) -> t.wheels=>x+y, "setfrontback" );
-c=>car.new(());
+c=>car.new();
 
 
 do=>(f,l) -> empty(l)? null : { f(l.head()); do(f,l.tail()); null };
@@ -75,9 +75,9 @@ node.addattr("higher",null);
 node.addattr("value",null);
 node.addattr("tag",null);
 
-make_node=>(v,l,h,t)-> { n=> node.new(()); n.lower=>l; n.higher=>h; n.value=>v; n.tag=>t; n};
+make_node=>(v,l,h,t)-> { n=> node.new(); n.lower=>l; n.higher=>h; n.value=>v; n.tag=>t; n};
 
-copy_node=>(o)-> { n=> node.new(()); 
+copy_node=>(o)-> { n=> node.new(); 
 		   n.lower=>o.lower; 
 		   n.higher=>o.higher; 
 		   n.value=>o.value; 
@@ -131,7 +131,7 @@ intmap.addmethod( (t,k) -> t.store.find(k), "find" );
 
 set=>object.derive("set");
 set.addattr("store",null);
-set.addmethod( (t)-> t.store=>intmap.new(()), ".ctor");
+set.addmethod( (t)-> t.store=>intmap.new(), ".ctor");
 set.addmethod( (t,v) -> t.store.add(v,v), "insert" );
 set.addmethod( (t,v) -> t.store.find(v).eq(null).not(), "contains" );
 
