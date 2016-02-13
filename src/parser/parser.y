@@ -19,6 +19,7 @@ extern action_target* target;
 %define api.pure full
 %define api.push-pull push
 
+%token CLASS
 %token SHOW
 %token FLOAT
 %token WHILE
@@ -81,6 +82,7 @@ extern action_target* target;
 %type <node_val> fundef
 %type <node_val> expr
 %type <node_val> enumdef
+%type <node_val> classdef
 %type <node_val> alias
 %type <node_val> funcall
 %type <node_val> methodcall
@@ -163,6 +165,7 @@ expr:   literal
       | listbuild
       | methodcall
       | enumdef
+      | classdef
       | alias
       | assign
       | selector
@@ -209,6 +212,8 @@ selpair: expr COLON expr { target->selector_condition( target->make_pair($1,$3) 
 index: expr OPEN_SQUARE expr CLOSE_SQUARE { $$=target->make_index($1,$3); }
 
 enumdef: ENUM SYMBOL list { $$=target->make_enum_class($2,$3); }
+
+classdef: CLASS SYMBOL list { $$=target->make_new_class($2,$3); }
 
 flwhile: WHILE OPEN_CURLY expr CLOSE_CURLY expr { $$=target->make_while($3,$5); }
 

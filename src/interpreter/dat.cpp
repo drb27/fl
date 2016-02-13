@@ -149,6 +149,13 @@ ast* dat::make_enum_class(string* name,ast* pDefList)
     return r;
 }
 
+ast* dat::make_new_class(std::string* name,ast* pDeriveList)
+{
+    auto r = new classdef_node(*name,pDeriveList);
+    delete name;
+    return r;
+}
+
 ast* dat::start_list()
 {
     auto n = new list_node();

@@ -200,12 +200,11 @@ namespace builtins
 	fclass* base_cls = object::get_class();
 	typespec spec("class");
 
-	fclass* pCls = new fclass(spec,base_cls,false,true,false);
+	fclass* pCls = new fclass(spec,base_cls,false,true,false,true);
 	pCls->add_method({"addmethod",make_marshall_mthd(&builtins::class_addmethod)});
 	pCls->add_method({"methods",make_marshall_mthd(&builtins::class_methods)});
 	pCls->add_method({"attributes",make_marshall_mthd(&builtins::class_attributes)});
 	pCls->add_method({"base",make_marshall_mthd(&builtins::class_base)});
-	pCls->add_method({"derive",make_marshall_mthd(&builtins::class_derive),true});
 	pCls->add_method({"new",make_marshall_mthd(&builtins::class_new),true});
 	pCls->add_method({"addattr",make_marshall_mthd(&builtins::class_addattr),true});
 	pCls->add_method({"eq", make_marshall_mthd(&builtins::class_equate),false} );
@@ -219,7 +218,7 @@ namespace builtins
 	fclass* base_cls = object::get_class();
 	typespec spec("string");
 
-	fclass* pCls = new fclass(spec,base_cls,false,true,false);
+	fclass* pCls = new fclass(spec,base_cls,false,true,false,true);
 	pCls->add_method({"size",make_marshall_mthd(&builtins::string_length)});
 	pCls->add_method({".index",make_marshall_mthd(&builtins::string_index)});
 	pCls->add_method({"add",make_marshall_mthd(&builtins::string_add)});
@@ -232,7 +231,7 @@ namespace builtins
 	fclass* base_cls = object::get_class();
 	typespec spec("integer");
 
-	fclass* pCls = new fclass(spec,base_cls,false,true,true);
+	fclass* pCls = new fclass(spec,base_cls,false,true,true,true);
 	pCls->add_method({"add", make_marshall_mthd(&builtins::add_integers)});
 	pCls->add_method({"in_range", make_marshall_mthd(&builtins::in_range_integers)});
 	pCls->add_method({"gt", make_marshall_mthd(&builtins::int_gt)});
@@ -251,7 +250,7 @@ namespace builtins
 	fclass* base_cls = object::get_class();
 	typespec spec("float");
 
-	fclass* pCls = new fclass(spec,base_cls,false,true,false);
+	fclass* pCls = new fclass(spec,base_cls,false,true,false,true);
 	pCls->add_method({"add", make_marshall_mthd(&builtins::float_add)});
 	pCls->add_method({"->integer", make_marshall_mthd(&builtins::float_to_int)});
 	return pCls;
@@ -262,7 +261,7 @@ namespace builtins
 	fclass* base_cls = object::get_class();
 	typespec spec("void");
 
-	fclass* pCls = new fclass(spec,base_cls,false,true,false);
+	fclass* pCls = new fclass(spec,base_cls,false,true,false,true);
 	return pCls;
     }
 
@@ -292,7 +291,7 @@ namespace builtins
 	typespec spec("function");
 	fclass* base_cls = object::get_class();
 
-	fclass* pCls = new fclass(spec,base_cls,false,true,false);
+	fclass* pCls = new fclass(spec,base_cls,false,true,false,true);
 	pCls->add_method({"itr", make_marshall_mthd(&builtins::fn_itr)});
 	pCls->add_method({"name", make_marshall_mthd(&builtins::fn_name)});
 	return pCls;
@@ -303,7 +302,7 @@ namespace builtins
 	fclass* base_cls = object::get_class();
 	typespec spec("boolean");
 
-	fclass* pCls = new fclass(spec,base_cls,false,true,false);
+	fclass* pCls = new fclass(spec,base_cls,false,true,false,true);
 	pCls->add_method({"not", make_marshall_mthd(&builtins::logical_not)});
 	pCls->add_method({"->integer", make_marshall_mthd(&builtins::bool_to_int)});
 	return pCls;
@@ -314,7 +313,7 @@ namespace builtins
 	fclass* base_cls = object::get_class();
 	typespec spec("enum");
 
-	fclass* pCls = new fclass(spec,base_cls,true,true,false);
+	fclass* pCls = new fclass(spec,base_cls,true,true,false,true);
 	pCls->add_class_method( {".iter", make_marshall_mthd(&builtins::enum_iter), false});
 	pCls->add_method( {"->string", make_marshall_mthd(&builtins::enum_str), false});
 	pCls->add_method( {"->integer", make_marshall_mthd(&builtins::enum_toint), false});
@@ -652,18 +651,6 @@ namespace builtins
 
 	// Return a reference to the class object
 	return pThis;
-    }
-
-    objref class_derive(context* pContext, classref pThis, stringref name)
-    {
-	if (pThis->is_sealed() )
-	    throw eval_exception(cerror::sealed_class,
-				 "Cannot derive a new class from a sealed class" );
-
-	typespec ts(name->internal_value());
-	fclass* pNewNativeClass = new fclass(ts,pThis->internal_value());
-	(pContext->types())->add(*pNewNativeClass);
-	return objref(new class_object(pContext, pNewNativeClass));
     }
 
     objref class_new(context* pContext, classref pThis, listref params)

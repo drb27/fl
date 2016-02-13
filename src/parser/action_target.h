@@ -28,6 +28,7 @@ class action_target
     virtual ast* make_equality(ast*,ast*)=0;
     virtual ast* make_index(ast*,ast*)=0;
     virtual ast* make_enum_class(std::string*,ast*)=0;
+    virtual ast* make_new_class(std::string*,ast*)=0;
     virtual ast* make_while(ast*,ast*)=0;
     virtual ast* make_float(double)=0;
     virtual ast* selector_default(ast*)=0;

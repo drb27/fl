@@ -26,7 +26,8 @@ enum class cerror
 	not_a_class=17,
         incorrect_arg_count=18,
 	no_construction=19,
-	sealed_class=20
+	sealed_class=20,
+	no_multiple_inheritance=21
 };
 
 class eval_exception : public std::runtime_error

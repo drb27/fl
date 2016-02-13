@@ -36,6 +36,7 @@ class dat : public action_target
     virtual ast* make_equality(ast*,ast*);
     virtual ast* make_index(ast* target, ast* index);
     virtual ast* make_enum_class(std::string*,ast*);
+    virtual ast* make_new_class(std::string*,ast*);
     virtual ast* make_while(ast*,ast*);
     virtual void add_expr(ast* expr);
     virtual void finish_seq();

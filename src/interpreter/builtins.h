@@ -141,7 +141,6 @@ protected:
     objref class_attributes(context* pContext, classref pThis);
     objref class_base(context* pContext, classref pThis);
     objref obj_ctor(context* pContext, objref pThis);
-    objref class_derive(context* pContext, classref pThis, stringref name);
     objref class_new(context* pContext, classref pThis, listref params);
     objref class_addattr(context* pContext, classref pThis, stringref name, objref d);
     objref class_equate(context* pContext, objref pThis,objref pOther);

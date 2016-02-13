@@ -30,6 +30,7 @@ BANANA (-{0,1}{DIGIT}+[.]{DIGIT}+)
 <<EOF>>  { return EOFF; }
 while    { return WHILE; }
 defenum  { return ENUM; }
+defclass { return CLASS; }
 \[       { return OPEN_SQUARE; }
 \]       { return CLOSE_SQUARE; }
 ==       { return EQUALITY; }

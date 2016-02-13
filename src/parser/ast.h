@@ -27,7 +27,8 @@ enum class asttype
 	fundef,
 	assign,
 	_while,
-	_enum
+	_enum,
+	classdef
 	};
 
 /**
