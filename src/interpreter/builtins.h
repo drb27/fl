@@ -158,6 +158,7 @@ protected:
     objref fn_name(context* pContext, fnref pThis );
     objref enum_iter(context* pContext, classref pThis );
     objref enum_str(context* pContext, enumref pThis );
+    objref enum_toint(context* pContext, enumref pThis);
     objref float_add(context* pContext, floatref a, objref b);
     objref float_to_int(context* pContext, floatref pThis);
     objref obj_convertible_to(context* pContet, objref pThis, classref pTargetClass);

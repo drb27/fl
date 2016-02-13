@@ -317,6 +317,9 @@ namespace builtins
 	fclass* pCls = new fclass(spec,base_cls,true,true,false);
 	pCls->add_class_method( {".iter", make_marshall_mthd(&builtins::enum_iter), false});
 	pCls->add_method( {"->string", make_marshall_mthd(&builtins::enum_str), false});
+	pCls->add_method( {"->integer", make_marshall_mthd(&builtins::enum_toint), false});
+	pCls->add_method( {"toint", make_marshall_mthd(&builtins::enum_toint), false});
+	pCls->add_method( {"tostr", make_marshall_mthd(&builtins::enum_str), false});
 	return pCls;
     }
 
@@ -821,6 +824,11 @@ namespace builtins
 	}
 
 	return returnList;
+    }
+
+    objref enum_toint(context* pContext, enumref pThis)
+    {
+	return objref( new int_object(pContext, N_INT(pThis) ));
     }
 
     objref enum_str(context* pContext, enumref pThis )
