@@ -1029,7 +1029,10 @@ objref enum_node::evaluate(context* pContext)
 
     // Register the new class with the type manager and return a class_object
     pContext->types()->add(*pNewClass);
-    return objref( new class_object(pContext,pNewClass) );
+
+    auto clsObj = classref( new class_object(pContext,pNewClass) );
+    pContext->assign(_name,clsObj);
+    return clsObj;
 }
 
 void enum_node::required_symbols(std::set<std::string>& s) const
