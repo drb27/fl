@@ -68,7 +68,7 @@ class fclass
 
  public:
     fclass(const typespec&, fclass* pBase=nullptr, bool abstract=false,
-	   bool builtin=false, bool allownew=true);
+	   bool builtin=false, bool allownew=true, bool sealed=false);
     std::string name() const;
     const typespec& get_spec() const;
     virtual void add_attribute(const std::string&,objref d);
@@ -96,6 +96,7 @@ class fclass
     bool is_root() const { return _base==nullptr; }
     bool is_abstract() const { return _is_abstract; }
     bool is_builtin() const { return _is_builtin; }
+    bool is_sealed() const { return _is_sealed; }
     bool allow_new() const { return _allow_new; }
 
     static typemgr* types;
@@ -111,6 +112,7 @@ class fclass
     const bool _is_abstract;
     const bool _is_builtin;
     const bool _allow_new;
+    const bool _is_sealed;
     const typespec _ts;
     std::map<std::string,objref> _attributes;
     std::map<std::string,methodinfo> _methods;

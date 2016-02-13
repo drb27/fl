@@ -228,6 +228,11 @@ class_object::class_object(context* pContext, fclass* pCls, fclass& cls)
 {
 }
 
+bool class_object::is_sealed() const
+{
+    return _value->is_sealed();
+}
+
 void class_object::render(std::ostream& os, bool abbrev )
 {
     os << "(class " << _value->name() << ") ";

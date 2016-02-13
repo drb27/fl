@@ -656,8 +656,11 @@ namespace builtins
 
     objref class_derive(context* pContext, classref pThis, stringref name)
     {
-	typespec ts(name->internal_value());
+	if (pThis->is_sealed() )
+	    throw eval_exception(cerror::sealed_class,
+				 "Cannot derive a new class from a sealed class" );
 
+	typespec ts(name->internal_value());
 	fclass* pNewNativeClass = new fclass(ts,pThis->internal_value());
 	(pContext->types())->add(*pNewNativeClass);
 	return objref(new class_object(pContext, pNewNativeClass));

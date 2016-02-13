@@ -120,6 +120,8 @@ public:
     virtual bool has_attribute(const std::string&) const;
     virtual objref get_attribute(const std::string&);
     virtual std::map<std::string,objref> class_attributes() { return _value->class_attributes(); }
+
+    bool is_sealed() const;
 protected:
     fclass* const _value;
 };

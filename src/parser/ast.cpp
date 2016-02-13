@@ -1014,7 +1014,7 @@ objref enum_node::evaluate(context* pContext)
     auto enum_cls = builtins::flenum::get_class();
 
     typespec tsn(_name);
-    fclass* pNewClass = new fclass(tsn,enum_cls);
+    fclass* pNewClass = new fclass(tsn,enum_cls,false,false,false,true);
 
     // Create class attributes
     int index=0;
