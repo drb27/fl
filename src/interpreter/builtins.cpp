@@ -203,6 +203,7 @@ namespace builtins
 	fclass* pCls = new fclass(spec,base_cls,false,true,false);
 	pCls->add_method({"addmethod",make_marshall_mthd(&builtins::class_addmethod)});
 	pCls->add_method({"methods",make_marshall_mthd(&builtins::class_methods)});
+	pCls->add_method({"attributes",make_marshall_mthd(&builtins::class_attributes)});
 	pCls->add_method({"base",make_marshall_mthd(&builtins::class_base)});
 	pCls->add_method({"derive",make_marshall_mthd(&builtins::class_derive),true});
 	pCls->add_method({"new",make_marshall_mthd(&builtins::class_new),true});
@@ -532,6 +533,24 @@ namespace builtins
 	pThis->internal_value()->all_methods(strMethods);
 	// Add all the methods of the given class
 	for ( auto m : strMethods )
+	{
+	    string_object* pString = new string_object(pContext, m);
+	    nativeList.push_back( objref(pString) );
+	}
+
+	// Create a new list
+	return objref( new list_object(pContext, nativeList) );
+    }
+
+    objref class_attributes(context* pContext, classref pThis)
+    {
+	// Create a native list of string_objects
+	std::list<objref> nativeList;
+
+	set<std::string> strAttrs;
+	pThis->internal_value()->all_attributes(strAttrs);
+	// Add all the attributes of the given class
+	for ( auto m : strAttrs )
 	{
 	    string_object* pString = new string_object(pContext, m);
 	    nativeList.push_back( objref(pString) );

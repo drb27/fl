@@ -176,6 +176,17 @@ list<string> fclass::methods() const
     return methods;
 }
 
+list<string> fclass::str_attributes() const
+{
+    list<string> attrs;
+    for (auto a : _attributes )
+    {
+	attrs.push_back(a.first);
+    }
+
+    return attrs;
+}
+
 deque<fclass*> fclass::hierarchy()
 {
     deque<fclass*> h;
@@ -291,6 +302,19 @@ void fclass::all_methods(set<string>& mset ) const
     // Call up the class hierarchy
     if (!is_root() )
 	base()->all_methods(mset);
+
+}
+void fclass::all_attributes(set<string>& mset ) const
+{
+    // Add direct attributes
+    for ( auto a : str_attributes() )
+    {
+	mset.insert(a);
+    }
+
+    // Call up the class hierarchy
+    if (!is_root() )
+	base()->all_attributes(mset);
 
 }
 

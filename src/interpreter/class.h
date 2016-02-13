@@ -80,7 +80,9 @@ class fclass
     virtual void add_class_method(const methodinfo&);
     virtual bool has_class_method(const std::string& );
     virtual std::list<std::string> methods() const;
+    virtual std::list<std::string> str_attributes() const;
     virtual void all_methods( std::set<std::string>& ) const;
+    virtual void all_attributes( std::set<std::string>& ) const;
 
     virtual const methodinfo& lookup_method(const std::string& name) const;
     virtual const methodinfo& lookup_class_method(const std::string& name) const;

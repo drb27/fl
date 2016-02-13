@@ -138,6 +138,7 @@ protected:
     objref string_add(context* pContext, stringref pThis, stringref pOther);
     objref string_join(context* pContext, stringref pThis, stringref pOther);
     objref class_methods(context* pContext, classref pThis);
+    objref class_attributes(context* pContext, classref pThis);
     objref class_base(context* pContext, classref pThis);
     objref obj_ctor(context* pContext, objref pThis);
     objref class_derive(context* pContext, classref pThis, stringref name);
