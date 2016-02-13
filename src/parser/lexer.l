@@ -7,7 +7,7 @@ class ftlist;
 #include <stdlib.h>
 #include <string>
 #include <list>
-#include <common.h>
+#include <inc/common.h>
 #include <parser/ast.h>
 #include <parser/bison.h>
 
