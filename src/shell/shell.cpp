@@ -126,6 +126,7 @@ int main(int argc, char** argv)
     bool more=true;
     while(more)
     {
+	std::cout << "fl> ";
 	string inputString;
 	std::getline(std::cin,inputString);
 	inputString = inputString;
