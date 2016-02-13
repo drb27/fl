@@ -251,6 +251,17 @@ ctnoderef fclass::get_all_conversions(set<fclass*>& inclusionSet,
     set<fclass*> directConversions;
     get_direct_conversions(directConversions);
 
+    // Add direct solutions first
+    for ( auto pCls : directConversions )
+    {
+	if (pCls==pGoal)
+	{
+	    ctnoderef pNode = ctnoderef(new conversion_tree_node(root,pCls));
+	    solutionSet.insert(pNode);
+	    inclusionSet.insert(pCls);
+	}
+    }
+
     /* foreach direct conversion */
     for ( auto pCls : directConversions )
     {
