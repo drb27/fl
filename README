@@ -1,0 +1,44 @@
+# Fl
+
+Fl is an experimental functional language written in C++ for Linux. It has a simple syntax, but supports powerful functional programming features, such as:
+
+* functions as first class objects
+* anonymous lambda functions
+* higher order functions (functions that generate functions)
+* tail recursion optimization (doesn't flood the stack)
+* partial function application ('curried' functions)
+
+In addition, the language is fully object oriented:
+* everything is an object, even literals such as integers and boolean values
+* classes have constructors
+* single inheritance
+* methods and attributes
+* operator overloading
+* run time type information (method discovery, classes are objects)
+* strong typed, class-based enumerations (with member discovery and string conversion)
+
+The type system is unusual, in that no type checking is done, despite rich type information being available. This allows for a high degree of function re-use (at the cost of not being able to rely on the interpreter to spot type-related programming errors for you).
+
+Another interesting feature of the language is type conversion chains. You can define methods on a class that tell the interpreter how to convert an object of one type into an object of another arbitrary type (int to string, for example). In well-defined circumstances, the interpreter will chain these conversion methods together automatically to convert objects (in the above example, if you also define how to convert a string into an object of type foo, the interpreter will deduce how to convert an int to a foo, by building the conversion chain int->string->foo, calling the appropriate sequence of conversion methods). Where multiple sequences of conversion methods are possible, the interpreter automatically selects the shortest route.
+
+Finally, the interpreter has a sophisticated list implementation, which combines the best features of singly-linked lists and arrays, and uses a memory optimization technique called 'lazy copying'. Many operations that make a list from another one (copying an entire list, taking a subset of a list, etc), don't actually make a copy of the list - references to 'chunks' of a list are used, until someone wants to modify the list in-place (at which time, parts of the list that are to be modified get copied, not the whole list). This makes for memory efficient function execution when processing large lists (such as a recursive function that processes a single list element and passes a copy of the list's tail to itself until all elements are processed).
+
+Although the interpreter is at an experimental phase of its development, it is quite feature-rich and useable! I hope you enjoy playing with it. If you would like to contribute, please feel free to fork the repo and get coding! I look forward to receiving your pull requests.
+
+## Building
+Fl requires the autotools build system, a modern c++ compiler, a parser, and a lexer. That's it. The current build is tested
+with the following tools:
+ * g++ v5.3
+ * autoconf v2.69
+ * automake v1.14.1
+ * flex v2.5.35
+ * bison v3.0.2
+To build, switch to the root directory of the project, and say:
+```
+$ configure
+$ make
+```
+This produces the `shell` binary, which can now be invoked. 
+
+## Using the language
+A tutorial file will be developed in my.fl (which is autoloaded when the shell is invoked).
