@@ -9,7 +9,10 @@
 #include <interpreter/context.h>
 #include <interpreter/object.h>
 #include <parser/callable.h>
-#include <parser/ast_nodes.h>
+#include <parser/ast/methodcall.h>
+#include <parser/ast/literal.h>
+#include <parser/ast/list.h>
+#include <parser/ast/funcall.h>
 #include <logger/logger.h>
 #include <interpreter/eval_exception.h>
 

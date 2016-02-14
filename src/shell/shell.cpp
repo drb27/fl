@@ -15,12 +15,11 @@
 #include <interpreter/typemgr.h>
 #include <parser/action_target.h>
 #include <interpreter/dat.h>
-#include <parser/ast.h>
+#include <parser/ast/ast.h>
 #include <interpreter/object.h>
 #include <parser/callable.h>
 #include <interpreter/builtins.h>
 #include <interpreter/eval_exception.h>
-#include <parser/ast_nodes.h>
 
 #include <parser/bison.h>
 #include <parser/flex.h>

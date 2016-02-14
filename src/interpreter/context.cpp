@@ -6,7 +6,6 @@
 #include "context.h"
 #include "typemgr.h"
 #include <interpreter/eval_exception.h>
-#include <parser/ast_nodes.h>
 #include <logger/logger.h>
 #include <cassert>
 

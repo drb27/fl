@@ -7,7 +7,7 @@
 #include <set>
 #include <deque>
 #include <list>
-#include <parser/ast.h>
+#include <parser/ast/ast.h>
 #include <interpreter/marshall.h>
 
 class object;

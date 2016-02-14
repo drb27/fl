@@ -7,7 +7,7 @@
 #include <deque>
 #include <memory>
 #include "typemgr.h"
-#include <parser/ast.h>
+#include <parser/ast/ast.h>
 
 class symbol_node;
 

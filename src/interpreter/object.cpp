@@ -5,14 +5,14 @@
 #include <vector>
 #include <map>
 #include <set>
-#include "object.h"
+#include <interpreter/object.h>
 #include <cassert>
 #include <interpreter/eval_exception.h>
-#include <parser/ast_nodes.h>
+#include <parser/ast/symbol.h>
+#include <parser/ast/literal.h>
+#include <parser/ast/methodcall.h>
 #include <logger/logger.h>
 #include <interpreter/smartlist.h>
-#include <parser/ast.h>
-#include <parser/ast_nodes.h>
 #include <interpreter/builtins.h>
 
 using std::string;

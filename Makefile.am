@@ -7,7 +7,6 @@ bin_PROGRAMS=shell
 noinst_LIBRARIES=liblang.a
 liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/parser/parser.cpp \
-			src/parser/ast.cpp \
 			src/interpreter/class.cpp \
 			src/interpreter/object.cpp \
 			src/interpreter/typemgr.cpp \
@@ -19,7 +18,23 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/logger/logger.cpp \
 			src/interpreter/smartlist.cpp \
 			src/interpreter/optimization.cpp \
-			src/parser/rawfn.cpp
+			src/parser/rawfn.cpp \
+			src/parser/ast/ast.cpp \
+			src/parser/ast/literal.cpp \
+			src/parser/ast/list.cpp \
+			src/parser/ast/methodcall.cpp \
+			src/parser/ast/attr.cpp \
+			src/parser/ast/symbol.cpp \
+			src/parser/ast/assign.cpp \
+			src/parser/ast/fundef.cpp \
+			src/parser/ast/funcall.cpp \
+			src/parser/ast/if.cpp \
+			src/parser/ast/sequence.cpp \
+			src/parser/ast/pair.cpp \
+			src/parser/ast/selector.cpp \
+			src/parser/ast/while.cpp \
+			src/parser/ast/enum.cpp \
+			src/parser/ast/classdef.cpp
 
 liblang_a_DEPENDENCIES=src/parser/lexer.l src/parser/parser.y
 

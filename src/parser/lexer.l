@@ -8,7 +8,7 @@ class ftlist;
 #include <string>
 #include <list>
 #include <inc/common.h>
-#include <parser/ast.h>
+#include <parser/ast/ast.h>
 #include <parser/bison.h>
 
 #define STR(x) new std::string(x)

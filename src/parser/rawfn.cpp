@@ -1,7 +1,7 @@
 #include <logger/logger.h>
 #include <parser/rawfn.h>
 #include <interpreter/context.h>
-#include <parser/ast_nodes.h>
+#include <parser/ast/fundef.h>
 
 using std::vector;
 

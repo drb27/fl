@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 #include <ostream>
-#include <parser/ast.h>
+#include <parser/ast/ast.h>
 #include <parser/action_target.h>
 
 int yylex(void);

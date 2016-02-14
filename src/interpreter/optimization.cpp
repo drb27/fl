@@ -1,7 +1,7 @@
 #include <string>
 #include <list>
 #include "optimization.h"
-#include <parser/ast_nodes.h>
+#include <parser/ast/nodes.h>
 #include <interpreter/eval_exception.h>
 #include <logger/logger.h>
 

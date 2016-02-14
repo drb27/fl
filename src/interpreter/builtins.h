@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 #include <functional>
-#include <parser/ast.h>
+#include <parser/ast/ast.h>
 #include <interpreter/marshall.h>
 
 class fclass;

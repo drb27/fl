@@ -3,8 +3,8 @@
 #include <deque>
 #include <vector>
 #include <interpreter/object.h>
-#include <parser/ast.h>
-#include <parser/ast_nodes.h>
+#include <parser/ast/ast.h>
+#include <parser/ast/nodes.h>
 #include "dat.h"
 #include <interpreter/typemgr.h>
 #include <interpreter/context.h>
