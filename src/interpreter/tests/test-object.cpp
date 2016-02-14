@@ -1,7 +1,8 @@
 #include <string>
 #include <memory>
 #include "test-object.h"
-#include <interpreter/object.h>
+#include <interpreter/obj/list_object.h>
+#include <interpreter/obj/void_object.h>
 #include <inc/references.h>
 #include <interpreter/builtins.h>
 

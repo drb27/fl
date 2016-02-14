@@ -2,7 +2,8 @@
 #include <vector>
 #include "test-smartlist.h"
 #include <interpreter/context.h>
-#include <interpreter/object.h>
+#include <interpreter/obj/int_object.h>
+#include <interpreter/obj/void_object.h>
 #include <interpreter/smartlist.h>
 #include <interpreter/builtins.h>
 
