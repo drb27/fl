@@ -3,7 +3,7 @@
 #include <list>
 #include <inc/references.h>
 #include <parser/ast/sequence.h>
-#include <interpreter/object.h>
+#include <interpreter/context.h>
 
 using std::string;
 using std::list;

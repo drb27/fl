@@ -5,10 +5,11 @@
 #include <inc/references.h>
 #include <interpreter/marshall.h>
 #include <parser/ast/symbol.h>
-#include <interpreter/object.h>
 #include <interpreter/eval_exception.h>
 #include <interpreter/optimization.h>
 #include <logger/logger.h>
+#include <interpreter/obj/fn_object.h>
+#include <interpreter/context.h>
 
 using std::string;
 using std::set;

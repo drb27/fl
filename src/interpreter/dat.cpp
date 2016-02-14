@@ -2,9 +2,9 @@
 #include <string>
 #include <deque>
 #include <vector>
-#include <interpreter/object.h>
 #include <parser/ast/ast.h>
 #include <parser/ast/nodes.h>
+#include <interpreter/obj/all.h>
 #include "dat.h"
 #include <interpreter/typemgr.h>
 #include <interpreter/context.h>

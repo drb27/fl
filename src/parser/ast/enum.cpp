@@ -5,7 +5,9 @@
 #include <parser/ast/enum.h>
 #include <parser/ast/list.h>
 #include <parser/ast/symbol.h>
-#include <interpreter/object.h>
+#include <interpreter/obj/enum_object.h>
+#include <interpreter/obj/class_object.h>
+#include <interpreter/context.h>
 
 using std::string;
 using std::list;

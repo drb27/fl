@@ -3,7 +3,8 @@
 #include <list>
 #include <inc/references.h>
 #include <parser/ast/while.h>
-#include <interpreter/object.h>
+#include <interpreter/obj/bool_object.h>
+#include <interpreter/obj/void_object.h>
 
 using std::string;
 using std::list;

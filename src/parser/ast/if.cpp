@@ -3,7 +3,7 @@
 #include <list>
 #include <inc/references.h>
 #include <parser/ast/if.h>
-#include <interpreter/object.h>
+#include <interpreter/obj/bool_object.h>
 
 using std::string;
 using std::list;

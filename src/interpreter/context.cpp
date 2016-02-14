@@ -2,8 +2,7 @@
 #include <map>
 #include <sstream>
 #include "context.h"
-#include "object.h"
-#include "context.h"
+#include <interpreter/obj/object.h>
 #include "typemgr.h"
 #include <interpreter/eval_exception.h>
 #include <logger/logger.h>

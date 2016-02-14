@@ -5,8 +5,9 @@
 #include <inc/references.h>
 #include <parser/ast/fundef.h>
 #include <parser/ast/symbol.h>
-#include <interpreter/object.h>
+#include <interpreter/obj/fn_object.h>
 #include <logger/logger.h>
+#include <interpreter/context.h>
 
 using std::string;
 using std::list;

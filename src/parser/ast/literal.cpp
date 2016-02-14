@@ -3,7 +3,7 @@
 #include <list>
 #include <inc/references.h>
 #include <parser/ast/literal.h>
-#include <interpreter/object.h>
+#include <interpreter/obj/object.h>
 
 using std::string;
 using std::set;

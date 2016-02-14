@@ -6,8 +6,8 @@
 #include <inc/references.h>
 #include <interpreter/marshall.h>
 #include <parser/ast/attr.h>
-#include <interpreter/object.h>
 #include <interpreter/eval_exception.h>
+#include <interpreter/obj/class_object.h>
 
 using std::string;
 using std::set;

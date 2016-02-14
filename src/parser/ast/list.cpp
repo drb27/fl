@@ -2,8 +2,9 @@
 #include <set>
 #include <list>
 #include <inc/references.h>
+#include <interpreter/obj/class_object.h>
+#include <interpreter/obj/list_object.h>
 #include <parser/ast/list.h>
-#include <interpreter/object.h>
 #include <interpreter/eval_exception.h>
 
 using std::string;

@@ -3,7 +3,6 @@
 #include <list>
 #include <inc/references.h>
 #include <parser/ast/pair.h>
-#include <interpreter/object.h>
 
 using std::string;
 using std::list;

@@ -7,7 +7,6 @@
 #include "builtins.h"
 #include <interpreter/class.h>
 #include <interpreter/context.h>
-#include <interpreter/object.h>
 #include <parser/callable.h>
 #include <parser/ast/methodcall.h>
 #include <parser/ast/literal.h>
@@ -15,6 +14,8 @@
 #include <parser/ast/funcall.h>
 #include <logger/logger.h>
 #include <interpreter/eval_exception.h>
+#include <parser/rawfn.h>
+#include <interpreter/obj/all.h>
 
 using std::string;
 using std::vector;

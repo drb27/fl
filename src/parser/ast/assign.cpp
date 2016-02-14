@@ -5,8 +5,8 @@
 #include <inc/references.h>
 #include <parser/ast/lvalue.h>
 #include <parser/ast/assign.h>
-#include <interpreter/object.h>
 #include <interpreter/eval_exception.h>
+#include <interpreter/obj/class_object.h>
 
 using std::string;
 using std::list;

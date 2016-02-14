@@ -5,7 +5,7 @@
 #include <inc/references.h>
 #include <parser/ast/selector.h>
 #include <parser/ast/pair.h>
-#include <interpreter/object.h>
+#include <interpreter/obj/bool_object.h>
 #include <interpreter/eval_exception.h>
 
 using std::string;

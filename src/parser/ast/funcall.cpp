@@ -4,9 +4,12 @@
 #include <vector>
 #include <inc/references.h>
 #include <parser/ast/funcall.h>
-#include <interpreter/object.h>
+#include <interpreter/obj/fn_object.h>
+#include <interpreter/obj/list_object.h>
+#include <interpreter/obj/class_object.h>
 #include <logger/logger.h>
 #include <interpreter/eval_exception.h>
+#include <interpreter/context.h>
 
 using std::string;
 using std::list;

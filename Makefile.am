@@ -8,7 +8,16 @@ noinst_LIBRARIES=liblang.a
 liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/parser/parser.cpp \
 			src/interpreter/class.cpp \
-			src/interpreter/object.cpp \
+			src/interpreter/obj/object.cpp \
+			src/interpreter/obj/int_object.cpp \
+			src/interpreter/obj/class_object.cpp \
+			src/interpreter/obj/string_object.cpp \
+			src/interpreter/obj/bool_object.cpp \
+			src/interpreter/obj/list_object.cpp \
+			src/interpreter/obj/void_object.cpp \
+			src/interpreter/obj/fn_object.cpp \
+			src/interpreter/obj/enum_object.cpp \
+			src/interpreter/obj/float_object.cpp \
 			src/interpreter/typemgr.cpp \
 			src/interpreter/context.cpp \
 			src/interpreter/builtins.cpp \
