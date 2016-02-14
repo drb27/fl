@@ -1,0 +1,219 @@
+//////////////////////////////////////////////////////////////////////////////// 
+// Welcome to the tutorial! This file is valid fl, you can run it in the 
+// interpreter by typing './shell tutorial.fl' in your shell. 
+
+//////////////////////////////////////////////////////////////////////////////// 
+// Built-in objects - remember, everything is an object instance
+// => is the reference operator. This creates a variable that references the 
+// result of the expression on the right-hand side
+
+// Create a variable x that references an integer object of value 4.
+x=>4;
+
+// Integer objects of value 4 are not necessarily the same object
+x.is(4); // returns false, because the 4 creates a new integer object of value 4
+
+// ... but they are equal!
+x==4;   // returns true
+
+// Some other built-ins:
+
+true; 	   // returns a boolean object of value 'true'
+false; 	   // returns a boolean object of value 'false'
+
+4.3; 	   // returns a floating point number, value 4.3
+"Hello";   // returns a string of value "Hello"
+(1,2,3);   // returns a list of three integer objects
+
+//////////////////////////////////////////////////////////////////////////////// 
+// Classes
+// Each class has a class object that identifies the class
+
+object;	      	  // returns a reference to a class object of object
+integer;      	  // returns a reference to a class object of object
+float; 	      	  // returns a reference to a class object of object
+boolean;      	  // returns a reference to a class object of object
+list;          	  // returns a reference to a class object of object
+
+integer.base();	  // returns a reference to object, which is the base class 
+		  // of integers
+
+integer.methods(); // returns a list of strings, one string for each mehod that
+		   // integer objects support. Because the list is long, the 
+		   // printout is truncated. Use 'show' to see the full list
+
+show integer.methods(); // Shows the full list.
+
+//////////////////////////////////////////////////////////////////////////////// 
+// Functions
+// Functions are ordinary objects, of class 'function'. To assign a function to
+// a variable, use the => operator
+
+(x)->x+1;      	   // An anonymous function which adds one to its argument
+f=>(x)->x+1;	   // A named function
+f(4);		   // A function called by name. Returns an integer object of 5.
+
+// Functions can be arguments to other functions:
+
+apply=>(f,a)->f(a); // A named function, apply, that takes a function and an 
+		    // argument, and applies the argument to the function. 
+
+apply( (x)->x+1, 4 );   // The apply function is called, with an anonymous 
+       		   	// function that adds one to its argument. Returns 5.
+
+// Functions can also have only some of their arguments applied:
+
+addtwo=>(a,b)->a+b;   // Defines a function that adds two objects together
+addtwo(4,5);	      // Returns 9, as expected.
+
+increment=>addtwo(1); // Create a new function, increment, that behaves like
+		      // addtwo, but already has its first argument supplied
+		      // ( i.e. 1). Increment now only needs one more argument
+		      // ...
+
+increment(4);	      // Returns 5! addtwo is called with 1 as the 'a' argument,
+		      // and 4 as the 'b' argument - i.e. 1+4=5.
+
+//////////////////////////////////////////////////////////////////////////////// 
+// Lists
+// Lists are an important element of any functional programming language. Lists
+// in fl contain object references, of any type. 
+
+x=>(1,2,3);	 	// Create a reference, x, to a list of integers 
+			// 1,2 and 3.
+
+();			// An empty list.
+
+x[0];			// Returns the first element of the list, 1 in this case. 
+x[1];			// Returns the seoncd element of the list, 2 in this case.
+
+x.head();		// Another way to return the first element of the list. We
+			// are calling a method named 'head' on a list object.
+
+x.tail();		// Returns everything but the first element i.e. (2,3)
+			// Note that head() and tail() do not modify the original 
+			// list. 
+
+x.size();		// Gets the length of the list (3, in this case)
+
+x.append(4);		// Modifies the object that x references, by appending an
+			// element (at the end). x is now (1,2,3,4);
+
+x.prepend(0);		// Modifies the object that x references, by adding an
+			// element at the start. x is now (0,1,2,3,4);
+
+empty=>(l)->l.size()==0;   // Defines a function, empty, that checks to see if the
+			   // size of a list is zero. Let's check x ...
+
+empty(x);		   // Returns false. 
+empty( () );		   // Returns true.		   
+
+(1,false,0.43);		// A list can have different types of object in it. In this
+			// case, an integer, a boolean, and a float object. 
+
+//////////////////////////////////////////////////////////////////////////////// 
+// Enumerations
+// Enumerations are a type which defines a set of values objects of that type 
+// can take.
+
+// Define a new enumeration type representing a choice of beverages:
+defenum coffee(espresso,latte,cappuccino);
+
+coffee.espresso;	// This is an object, of class coffee, with value 'espresso' 
+coffee.latte;		// This is an object, of class coffee, with value 'latte'
+coffee.cappuccino;	// This is an object, of class coffee, with value 'cappuccino'
+
+e=>coffee.espresso;	// Create a reference to a coffee object, value 'espresso'.
+e.tostr();		// Convert that into a string (returns "espresso").
+e.toint();		// Convert to an integer (returns 0. Each coffee type has a
+			// unique integer value). 
+
+x==coffee.espresso;	// Returns true
+x==coffee.cappuccino;	// Returns false
+
+// The following function uses the (condition)? (if_true) : (if_false) construct. 
+// This allows you to test the value of an expression, and return a different value
+// depending on whether or not the expression evaluates to true or false. 
+
+// This function determines if a coffee is small, by looking at a coffee object. 
+// The function is saying, "if this coffee is an espresso, then it is small, otherwise
+// it is not". 
+
+is_small=>(c)-> c==coffee.espresso? true : false;  
+
+is_small(coffee.espresso);	    // Returns true
+is_small(x);			    // Returns true
+is_small(coffee.latte);		    // Returns false
+
+// You can also get each possible value for coffee objects as a list using the foreach
+// function. The foreach function does something for every item in a collection, then adds
+// the result to a list, which is returned to the caller. For example:
+
+l=>foreach( (1,2,3), (x)->increment(x) );
+
+// The above sets l to the list (2,3,4). foreach takes two arguments - the first is anything
+// iterable (lists and enum classes are iterable), and a function. The function is applied to
+// each item in the first argument, and then all of the results of the function calls are 
+// passed back to the caller as a list. The second argument, (x)->increment(x), is a function
+// that takes its argument, and adds one to it. Hence, (1,2,3) becomes (2,3,4). 
+
+// You can use this to build a list of all possible coffee objects:
+menu=>foreach( coffee, (x)->x );
+
+// The above returns a list (coffee.espresso,coffee.latte,coffee.cappuccino), and makes
+// a reference to that list called 'menu'. (Note that the order in which the items appear in
+// the list is not defined - consider it to be a 'set' rather than an ordered list).  
+
+menu[0];       // Returns coffee.espresso
+menu[1];       // Returns coffee.latte
+menu[2];       // Returns coffee.cappuccino
+
+//////////////////////////////////////////////////////////////////////////////// 
+// Selectors
+// Selectors are like switch/case statements in other languages. They are useful 
+// with enumerations. For example:
+
+describe=> (c)-> c ??
+		    coffee.espresso: "Strong and dark"
+                  | coffee.cappuccino: "Frothy and mild"
+		  | coffee.latte: "Smooth and silky"
+		  | default: "That's not a coffee!";  
+
+// This creates a function, describe(), that describes a coffee. The c?? part says
+// match c against the following set of values, and 'select' the return value based on the match. 
+// So, ...
+
+describe(coffee.espresso);	// ... returns the string object "Strong and dark". 
+
+// Note the 'default' clause. This means, if nothing else matches, return this value. 
+
+describe(492);	      	        // returns "That's not a coffee!", because the integer object 492
+				// does not appear as a value to match. 
+
+// You could also have defined the function on a single line, like this:
+describe=> (c)-> c ?? coffee.espresso: "Strong and dark" | coffee.cappuccino: "Frothy and mild" | coffee.latte: "Smooth and silky" | default: "That's not a coffee!";  
+
+//////////////////////////////////////////////////////////////////////////////// 
+// Sequences
+// Sequences are just sequences of expressions. They get executed in order, and 
+// the return value of the sequence is the last expression evaluated. For example:
+
+{ n=>4; n+1 }; 	    // This is a 'sequence' expression, which returns the value 5. 
+  	    	    // Note that sequences do not have their own variable scope, so
+		    // n now exists at the global level ...
+
+n;		    // ... returns 4. 
+
+// On the other hand, functions do have their own variable scope. In the following 
+// example, we define a new function, f(), that takes an argument x and returns 
+// x+1:
+f=>(x)->{ q=>x; q+1 };
+
+f(5);	  	    // ... returns 6. 
+
+// However, q gets set to x within the body of the function, this is a private set
+// of variables which is not accessible from outside the function body. 
+
+q;    		   // Raises an error, 'Unresolved symbol [q]'. 
+
+
