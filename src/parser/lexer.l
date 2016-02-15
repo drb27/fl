@@ -26,6 +26,7 @@ BANANA (-{0,1}{DIGIT}+[.]{DIGIT}+)
 
 %%
 
+
 {BANANA} { yylval->float_val = FLT(yytext); return FLOAT; }
 <<EOF>>  { return EOFF; }
 while    { return WHILE; }
@@ -66,6 +67,7 @@ typedef  { return TYPEDEF; }
 \<       { return OPEN_ANGLED; }
 \>       { return CLOSE_ANGLED; }
 -{0,1}{DIGIT}+            { yylval->int_val = atoi(yytext); return INTEGER; }
+#.*
 {WS}     
 {LETTER}+ { yylval->string_val = STR(yytext); return SYMBOL; }
 \/\/[^\n]*
