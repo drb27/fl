@@ -98,7 +98,7 @@ objref funcall_node::evaluate(context* pContext, fnref fn)
 
 		// Convert to that class
 		argpairs.push_back( fn_object::argpair_t( argname,
-							  object::convert_to( args->get_element(0),
+							  object::convert_to( args->get_element(index),
 									      pTypeHintCls->internal_value() )));
 		
 	    }
