@@ -147,25 +147,29 @@ int main(int argc, char** argv)
 
     string fname="my.fl";
     if (argc>1)
-	fname=argv[1];
-    // File input
-    read_file(fname,scanner,g_ps,callbacks);
-    
-    // User input
-    bool more=true;
-    while(more)
     {
-	std::cout << "fl> ";
-	string inputString;
-	std::getline(std::cin,inputString);
-	inputString = inputString;
-	try
+	fname=argv[1];
+	// File input
+	read_file(fname,scanner,g_ps,callbacks);
+    }
+    else
+    {
+	// User input
+	bool more=true;
+	while(more)
 	{
-	    process_string(inputString,scanner,g_ps,callbacks);
-	}
-	catch( terminate_exception& )
-	{
-	    more=false;
+	    std::cout << "fl> ";
+	    string inputString;
+	    std::getline(std::cin,inputString);
+	    inputString = inputString;
+	    try
+	    {
+		process_string(inputString,scanner,g_ps,callbacks);
+	    }
+	    catch( terminate_exception& )
+	    {
+		more=false;
+	    }
 	}
     }
 
