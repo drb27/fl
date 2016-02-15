@@ -28,6 +28,7 @@ using std::shared_ptr;
 using std::deque;
 using std::string;
 using std::map;
+using std::function;
 
 action_target* target;
 
@@ -68,7 +69,25 @@ void parse_string(const std::string& inputString,yyscan_t scanner,yypstate* ps)
     yy_delete_buffer(newBuffer,scanner);
 }
 
-void read_file(const std::string& fname,yyscan_t scanner,yypstate* ps)
+void process_string(const std::string& inputString,
+		    yyscan_t scanner,
+		    yypstate* ps,
+		    deque<function<void(void)>>& callbacks )
+{
+    parse_string(inputString,scanner,ps);
+
+    while(callbacks.size()>0)
+    {
+	auto fn = callbacks.front();
+	callbacks.pop_front();
+	fn();
+    }
+}
+
+void read_file(const std::string& fname,
+	       yyscan_t scanner,
+	       yypstate* ps,
+	       deque<function<void(void)>>& callbacks )
 {
     // Library file
     std::ifstream infile(fname);
@@ -80,7 +99,7 @@ void read_file(const std::string& fname,yyscan_t scanner,yypstate* ps)
 	    {
 		string inputString;
 		std::getline(infile,inputString);
-		parse_string(inputString,scanner,ps);
+		process_string(inputString,scanner,ps,callbacks);
 		if (infile.eof())
 		    throw std::exception();
 	    }
@@ -107,18 +126,30 @@ int main(int argc, char** argv)
     wlog(level::debug,"Creating context");
     context* shell_context = new context();
     builtins::build_globals(shell_context);
-    target = new dat(shell_context);
 
     // Reentrant scanner/parser init
     yyscan_t scanner;
     yylex_init(&scanner);
     g_ps = yypstate_new();
 
+    deque<function<void(void)>> callbacks;
+    target = new dat(shell_context,
+		     [&callbacks,&scanner](const std::string& fname)
+		     {
+			 callbacks.push_back( [&fname,&scanner,&callbacks]()
+	                                      {
+						  read_file(fname,scanner,g_ps,callbacks);
+	                                      }
+					     
+					     );
+		     }
+		     );
+
     string fname="my.fl";
     if (argc>1)
 	fname=argv[1];
     // File input
-    read_file(fname,scanner,g_ps);
+    read_file(fname,scanner,g_ps,callbacks);
     
     // User input
     bool more=true;
@@ -130,7 +161,7 @@ int main(int argc, char** argv)
 	inputString = inputString;
 	try
 	{
-	    parse_string(inputString,scanner,g_ps);
+	    process_string(inputString,scanner,g_ps,callbacks);
 	}
 	catch( terminate_exception& )
 	{

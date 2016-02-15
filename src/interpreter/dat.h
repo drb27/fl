@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <deque>
+#include <functional>
 #include <parser/action_target.h>
 #include <interpreter/typemgr.h>
 
@@ -15,7 +16,7 @@ class dat : public action_target
 {
 
  public:
-    dat(context*);
+    dat(context*,std::function<void(const std::string&)>);
     virtual ~dat();
 
     virtual ast* make_int(int x) const;
@@ -29,6 +30,7 @@ class dat : public action_target
     virtual ast* make_symbol( std::string* name) const;
     virtual void respond( ast* def, bool abbrv = true, std::ostream& os = std::cout ) const;
     virtual void show_cmd( ast* def, std::ostream& os = std::cout );
+    virtual void include_cmd( ast* fname);
     virtual ast* make_methodcall( ast* target, ast* method, list_node* args);
     virtual ast* make_assign_node(ast* lvalue, ast* rvalue,bool);
     virtual ast* make_attr( ast* target, std::string* selector);
@@ -63,6 +65,7 @@ class dat : public action_target
     std::deque<list_node*> _list_stack;
     std::deque<sequence_node*> _seq_stack;
     std::deque<selector_node*> _sel_stack;
+    std::function<void(const std::string&)> _include_fn;
  private:
 
 };

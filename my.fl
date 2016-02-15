@@ -1,3 +1,5 @@
+include "tutorial.fl";
+
 // Predicate for testing for the empty list
 empty=>(l) -> l.size().eq(0);
 

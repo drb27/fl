@@ -37,6 +37,7 @@ extern action_target* target;
 %token BUILDER
 %token RENDER
 %token QUIT
+%token INCLUDE
 %token DECREMENT
 %token QUESTION
 %token COLON
@@ -219,7 +220,7 @@ flwhile: WHILE OPEN_CURLY expr CLOSE_CURLY expr { $$=target->make_while($3,$5); 
 
 /* COMMANDS ***************************************************************/
 
-command: trace_cmd | debug_cmd | render_cmd | quit_cmd | show_cmd;
+command: trace_cmd | debug_cmd | render_cmd | quit_cmd | show_cmd | include_cmd;
 
 render_cmd: RENDER expr {target->render($2); };
 
@@ -230,6 +231,8 @@ trace_cmd: TRACE expr { target->enable_trace(); target->respond($2); target->ena
 quit_cmd: QUIT { target->done(); };
 
 show_cmd: SHOW expr { target->show_cmd($2); };
+
+include_cmd: INCLUDE expr { target->include_cmd($2); };
 
 /* STATEMENTS *************************************************************/
 

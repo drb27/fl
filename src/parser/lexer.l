@@ -47,6 +47,7 @@ show     { return SHOW; }
 ::       { return BUILDER; }
 render   { return RENDER; }
 quit     { return QUIT; }
+include  { return INCLUDE; }
 \-\-     { return DECREMENT; }
 \?       { return QUESTION; }
 \:       { return COLON; }

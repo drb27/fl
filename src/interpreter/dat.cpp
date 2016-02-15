@@ -16,8 +16,11 @@ using std::string;
 using std::deque;
 using std::shared_ptr;
 using std::vector;
+using std::function;
 
-dat::dat(context* pContext) : _context(pContext)
+dat::dat(context* pContext,
+	 function<void(const string&)> fn)
+    : _context(pContext), _include_fn(fn)
 {
 }
 
@@ -73,6 +76,22 @@ void dat::respond( ast* def, bool abbrev, std::ostream& os) const
 void dat::show_cmd( ast* def, std::ostream& os)
 {
     respond(def,false,os);
+}
+
+void dat::include_cmd( ast* fname)
+{
+    // Evaluate the filename
+    objref result = fname->evaluate(_context);
+
+    // Check that it evaluated to a string
+    if ( &(result->get_class()) != builtins::string::get_class() )
+	throw eval_exception( cerror::unsupported_argument,
+			      "The include command requires a string argument" );
+
+    stringref pFnameStr = std::dynamic_pointer_cast<string_object>(result);
+ 
+    // TODO: Set a callback!
+    _include_fn(pFnameStr->internal_value() );
 }
 
 ast* dat::make_attr( ast* target, std::string* selector)
