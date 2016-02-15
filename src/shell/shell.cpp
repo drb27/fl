@@ -19,6 +19,7 @@
 #include <parser/callable.h>
 #include <interpreter/builtins.h>
 #include <interpreter/eval_exception.h>
+#include <interpreter/obj/int_object.h>
 
 #include <parser/bison.h>
 #include <parser/flex.h>
@@ -176,5 +177,11 @@ int main(int argc, char** argv)
     yypstate_delete(g_ps);
     yylex_destroy(scanner);
 
-    return 0;
+    if ( shell_context->is_defined("exit") )
+    {
+	intref exitCode = std::dynamic_pointer_cast<int_object>(shell_context->resolve_symbol("exit"));
+	return exitCode->internal_value();
+    }
+    else
+	return 0;
 }
