@@ -20,6 +20,7 @@ public:
     fn_object(context*, 
 	      rawfn impl, 
 	      hinted_args_t fullArgs,
+	      hinted_args_t origArgs,
 	      collection&& appliedArgs,
 	      fclass& = *builtins::function::get_class() );
 
@@ -45,6 +46,7 @@ protected:
     collection _applied_arguments;
     hinted_args_t _expected_args;
     hinted_args_t _full_args;
+    hinted_args_t _orig_args;
     std::string _name{"(anonymous)"};
     bool _is_anon;
 };

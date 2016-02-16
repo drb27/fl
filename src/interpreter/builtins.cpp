@@ -135,21 +135,21 @@ namespace builtins
 	pContext->assign("rnd", 
 			 fnref( new fn_object(pContext,
 					      rawfn(make_marshall(&builtins::rnd)),
-					      args,
+					      args,args,
 					      {}) 
 				) );
 
 	pContext->assign("foreach",
 			 fnref( new fn_object(pContext,
 					      rawfn(make_marshall(&builtins::foreach)),
-					      args,
+					      args,args,
 					      {} ) ));
 
 	args.pop_back();
 	pContext->assign("I", 
 			 fnref( new fn_object(pContext,
 					      rawfn(make_marshall(&builtins::I)),
-					      args,
+					      args,args,
 					      {}) 
 				) );
    

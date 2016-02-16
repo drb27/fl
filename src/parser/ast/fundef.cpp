@@ -104,7 +104,7 @@ objref fundef_node::evaluate(context* pContext)
 	    (*pClosure)[s] = pContext->resolve_symbol(s);
     }
 
-    return objref( new fn_object(pContext,rawfn(this,pClosure),argnames,{}) );
+    return objref( new fn_object(pContext,rawfn(this,pClosure),argnames,argnames,{}) );
 }
 
 fclass* fundef_node::type(context* pContext) const

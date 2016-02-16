@@ -13,9 +13,11 @@ using std::pair;
 fn_object::fn_object(context* pContext,
 		     rawfn impl, 
 		     hinted_args_t fullArgs,
+		     hinted_args_t origArgs,
 		     collection&& appliedArgs,
 		     fclass& cls)
-    : _full_args(fullArgs), _expected_args(fullArgs), object(pContext,cls), _fn(impl)
+    : _full_args(fullArgs), _orig_args(origArgs), _expected_args(fullArgs), 
+      object(pContext,cls), _fn(impl)
 {
     wlog_entry();
     _is_anon=true;
@@ -76,7 +78,7 @@ fnref fn_object::partial_application(context* pContext,const vector<argpair_t>& 
 					 [&arg](pair<string,ast*>& e){ return e.first==arg.first;}));
     }
     
-    auto result = fnref( new fn_object(pContext,_fn, remainingArgs,
+    auto result = fnref( new fn_object(pContext,_fn, remainingArgs, _orig_args,
 				       std::move(appliedArgs), get_class() ));
     result->_is_anon = _is_anon;
     result->_name = _name;
@@ -153,6 +155,34 @@ objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 	g.new_collection();
 	vector<ast*> params;
 
+	// TODO: To support built-in functions, we need to add
+	// previously-applied arguments to the params vector. Because they are
+	// stored in a map, we don't know which order. So alongside _full_args,
+	// we need to store _original_args, to preserve this ordering. 
+
+	// Make a copy of _orig_args
+	auto prev_args = _orig_args;
+
+	// Remove arguments that are in _full_args
+	for ( auto arg : _full_args )
+	{
+	    prev_args.erase(std::find_if(prev_args.begin(),prev_args.end(),
+					 [&arg](pair<string,ast*>& e)
+					 { 
+					     return e.first==arg.first;
+					 } ));
+	}
+
+	// prev_args now is an ordered sequence of previously-applied
+	// arguments. Add to params in order, taking the value from
+	// _applied_arguments.
+	for ( auto arg : prev_args)
+	{
+	    params.push_back( new symbol_node(arg.first));
+	}
+
+
+	// Now push the new arguments onto params
 	for ( auto arg : args )
 	{
 	    params.push_back( new symbol_node(arg.first) );
@@ -174,7 +204,7 @@ objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
 
 fn_object::fn_object(context* pContext, const fn_object& other)
     : object(pContext,other.get_class()), _fn(other._fn), 
-      _applied_arguments(other._applied_arguments), 
+      _applied_arguments(other._applied_arguments), _orig_args(other._orig_args), 
       _expected_args(other._expected_args), _full_args(other._full_args),
       _name(other._name)
 {
