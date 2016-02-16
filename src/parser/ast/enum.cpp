@@ -8,6 +8,7 @@
 #include <interpreter/obj/enum_object.h>
 #include <interpreter/obj/class_object.h>
 #include <interpreter/context.h>
+#include <interpreter/eval_exception.h>
 
 using std::string;
 using std::list;
@@ -21,6 +22,16 @@ enum_node::enum_node(const string& name, ast* pDefList)
 objref enum_node::evaluate(context* pContext)
 {
     // Create a new class that derives from enum
+
+    // First check the inputs
+    auto pList = dynamic_cast<list_node*>(_def_list);
+
+    for ( auto e : pList->raw_elements() )
+    {
+	if ( e->type()!=asttype::symbol )
+	    throw eval_exception(cerror::enum_value_not_a_symbol,
+				 "Invalid list of symbols provided to defenum" );
+    }
     
     auto enum_cls = builtins::flenum::get_class();
 
@@ -29,7 +40,6 @@ objref enum_node::evaluate(context* pContext)
 
     // Create class attributes
     int index=0;
-    auto pList = dynamic_cast<list_node*>(_def_list);
 
     for ( auto e : pList->raw_elements() )
     {
