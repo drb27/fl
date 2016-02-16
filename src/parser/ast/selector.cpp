@@ -49,7 +49,10 @@ objref selector_node::evaluate(context* pContext)
 
 	// Compare the guard to the selector value
 	vector<objref> params{firstResult};
-	boolref is_equal = std::dynamic_pointer_cast<bool_object>(selResult->invoke("eq",pContext,params));
+
+	boolref is_equal = object::cast_or_abort<bool_object>
+	    (selResult->invoke("eq",pContext,params));
+
 	if ( is_equal->internal_value() )
 	{
 	    // We have a match!

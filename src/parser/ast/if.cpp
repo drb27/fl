@@ -50,7 +50,7 @@ void if_node::required_symbols(set<string>& s) const
 
 objref if_node::evaluate(context* pContext)
 {
-    boolref cond = std::dynamic_pointer_cast<bool_object>(_condition->evaluate(pContext));
+    boolref cond = object::cast_or_abort<bool_object>(_condition->evaluate(pContext));
     
     if (cond->internal_value())
 	return _trueExpr->evaluate(pContext);

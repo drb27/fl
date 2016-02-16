@@ -63,7 +63,7 @@ void funcall_node::required_symbols(set<string>& s) const
 objref funcall_node::evaluate(context* pContext)
 {
     // Look up the function object in the context
-    fnref fn = std::dynamic_pointer_cast<fn_object>(pContext->resolve_symbol(_name));
+    fnref fn = object::cast_or_abort<fn_object>(pContext->resolve_symbol(_name));
     return evaluate(pContext,fn);
 }
 
@@ -72,7 +72,7 @@ objref funcall_node::evaluate(context* pContext, fnref fn)
     auto class_cls = builtins::flclass::get_class();
 
     // Evaluate the argument list
-    listref args = std::dynamic_pointer_cast<list_object>(_arg_list->evaluate(pContext));
+    listref args = object::cast_or_abort<list_object>(_arg_list->evaluate(pContext));
 
     // Get a list of argument names expected by the function
     auto argnames(fn->arglist());

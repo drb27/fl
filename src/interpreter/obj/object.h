@@ -9,6 +9,7 @@
 #include <interpreter/class.h>
 #include <interpreter/marshall.h>
 #include <interpreter/builtins.h>
+#include <interpreter/eval_exception.h>
 
 class context;
 
@@ -39,6 +40,18 @@ class object
     virtual object& operator=(const objref other);
     
     static objref convert_to( objref pThis, fclass* pOther);
+    
+    template<class T>
+    static std::shared_ptr<T> cast_or_abort( objref pTarget )
+    {
+	auto result = std::dynamic_pointer_cast<T>(pTarget);
+	
+	if (!result)
+	    throw eval_exception(cerror::invalid_argument,
+				 "Object is of an unexpected class" );
+	
+	return result;
+    }
     
 protected:
     virtual void construct(context* pContext, std::vector<objref>&);

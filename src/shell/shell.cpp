@@ -190,7 +190,8 @@ int main(int argc, char** argv)
 
     if ( shell_context->is_defined("exit") )
     {
-	intref exitCode = std::dynamic_pointer_cast<int_object>(shell_context->resolve_symbol("exit"));
+	intref exitCode = object::cast_or_abort<int_object>
+	    (shell_context->resolve_symbol("exit"));
 	return exitCode->internal_value();
     }
     else

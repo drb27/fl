@@ -197,7 +197,7 @@ void object::render( std::ostream& os, bool abbrev )
     	literal_node* pThisLiteral = new literal_node(pThis);
     	methodcall_node* pMethodCall = new methodcall_node(".render");
     	pMethodCall->add_target(pThisLiteral);
-    	stringref pRendered = std::dynamic_pointer_cast<string_object>(pMethodCall->evaluate(get_context()));
+    	stringref pRendered = object::cast_or_abort<string_object>(pMethodCall->evaluate(get_context()));
     	os << pRendered->internal_value() << " ";
     	delete pThisLiteral;
     	delete pMethodCall;

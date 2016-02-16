@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <interpreter/eval_exception.h>
+#include <interpreter/obj/object.h>
 
 class context;
 class ast;
@@ -33,7 +34,7 @@ namespace
     v_eval_each(context* c,std::vector<ast*>& p,std::tuple<P...>& t)
     {
 	auto result = p[I]->evaluate(c);
-	std::get<I>(t) = std::dynamic_pointer_cast<typename std::tuple_element<I,std::tuple<P...>>::type::element_type>(result);
+	std::get<I>(t) = object::cast_or_abort<typename std::tuple_element<I,std::tuple<P...>>::type::element_type>(result);
 	v_eval_each<I+1,P...>(c,p,t);
     }
 
@@ -47,7 +48,7 @@ namespace
     inline typename std::enable_if<I < sizeof...(P), void>::type
     v_tuplerize_each(context* c,std::vector<objref>& p,std::tuple<P...>& t)
     {
-	std::get<I>(t) = std::dynamic_pointer_cast<typename std::tuple_element<I,std::tuple<P...>>::type::element_type>(p[I]);
+	std::get<I>(t) = object::cast_or_abort<typename std::tuple_element<I,std::tuple<P...>>::type::element_type>(p[I]);
 	v_tuplerize_each<I+1,P...>(c,p,t);
     }
 
@@ -83,7 +84,7 @@ namespace
 	    typename ArgTuple<F>::type evaled_params;
 	    std::get<0>(evaled_params) = pContext;
 	    std::get<1>(evaled_params) = 
-		std::dynamic_pointer_cast<typename std::tuple_element<1,typename ArgTuple<F>::type>::type::element_type>
+		object::cast_or_abort<typename std::tuple_element<1,typename ArgTuple<F>::type>::type::element_type>
 		(pThis);
 	    v_eval_each<2>(pContext,p,evaled_params);
 	    return apply(*f,evaled_params);

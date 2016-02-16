@@ -35,7 +35,7 @@ void while_node::render_dot(int& uuid,
     _action->render_dot(uuid,myid," action",out);
 }
 
-#define BOOL_CAST(x) (std::dynamic_pointer_cast<bool_object>(x))->internal_value()
+#define BOOL_CAST(x) (object::cast_or_abort<bool_object>(x))->internal_value()
 
 objref while_node::evaluate(context* pContext )
 {

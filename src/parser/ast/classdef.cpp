@@ -21,7 +21,7 @@ objref classdef_node::evaluate(context* pContext)
 {
     // Ensure that exactly one parameter has been given
     listref paramList = 
-	std::dynamic_pointer_cast<list_object>(_derive_list->evaluate(pContext));
+	object::cast_or_abort<list_object>(_derive_list->evaluate(pContext));
     
     if (paramList->size()!=1)
 	throw eval_exception( cerror::no_multiple_inheritance,
