@@ -73,7 +73,7 @@ void parse_string(const std::string& inputString,yyscan_t scanner,yypstate* ps)
 void process_string(const std::string& inputString,
 		    yyscan_t scanner,
 		    yypstate* ps,
-		    deque<function<void(void)>>& callbacks )
+		    deque<function<objref(void)>>& callbacks )
 {
     parse_string(inputString,scanner,ps);
 
@@ -88,7 +88,7 @@ void process_string(const std::string& inputString,
 void read_file(const std::string& fname,
 	       yyscan_t scanner,
 	       yypstate* ps,
-	       deque<function<void(void)>>& callbacks )
+	       deque<function<objref(void)>>& callbacks )
 {
     // Library file
     std::ifstream infile(fname);
@@ -133,13 +133,24 @@ int main(int argc, char** argv)
     yylex_init(&scanner);
     g_ps = yypstate_new();
 
-    deque<function<void(void)>> callbacks;
+    deque<function<objref(void)>> callbacks;
     target = new dat(shell_context,
 		     [&callbacks,&scanner](const std::string& fname)
 		     {
 			 callbacks.push_back( [&fname,&scanner,&callbacks]()
 	                                      {
 						  read_file(fname,scanner,g_ps,callbacks);
+						  return objref(nullptr);
+	                                      }
+					     
+					     );
+		     },
+		     [&callbacks,&scanner,&shell_context](const std::string& flStatement)
+		     {
+			 callbacks.push_back( [&flStatement,&scanner,&callbacks,&shell_context]()
+	                                      {
+						  process_string(flStatement,scanner,g_ps,callbacks);
+						  return shell_context->resolve_symbol("_last");
 	                                      }
 					     
 					     );

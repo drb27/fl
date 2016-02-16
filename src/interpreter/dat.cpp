@@ -19,8 +19,10 @@ using std::vector;
 using std::function;
 
 dat::dat(context* pContext,
-	 function<void(const string&)> fn)
-    : _context(pContext), _include_fn(fn)
+	 function<void(const string&)> fn,
+	 function<void(const string&)> fn_eval
+	 )
+    : _context(pContext), _include_fn(fn),_eval_fn(fn_eval)
 {
 }
 
@@ -65,8 +67,10 @@ void dat::respond( ast* def, bool abbrev, std::ostream& os) const
 {
     try
     {
-	def->evaluate(_context)->render(os,abbrev);
+	objref result = def->evaluate(_context);
+	result->render(os,abbrev);
 	os << "OK" << std::endl;
+	_context->assign("_last",result);
     }
     catch( eval_exception& e )
     {
@@ -90,8 +94,24 @@ void dat::include_cmd( ast* fname)
 
     stringref pFnameStr = std::dynamic_pointer_cast<string_object>(result);
  
-    // TODO: Set a callback!
-    _include_fn(pFnameStr->internal_value() );
+    // Set a callback!
+    _include_fn( pFnameStr->internal_value() );
+}
+
+void dat::eval_cmd( ast* stmtString)
+{
+    // Evaluate the string argument
+    objref result = stmtString->evaluate(_context);
+
+    // Check that it evaluated to a string
+    if ( &(result->get_class()) != builtins::string::get_class() )
+	throw eval_exception( cerror::unsupported_argument,
+			      "The eval command requires a string argument" );
+
+    stringref pStmt = std::dynamic_pointer_cast<string_object>(result);
+ 
+    // Set a callback!
+    _eval_fn(pStmt->internal_value() );
 }
 
 ast* dat::make_attr( ast* target, std::string* selector)

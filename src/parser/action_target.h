@@ -46,6 +46,7 @@ class action_target
     virtual void respond( ast* def, bool abbrev=true, std::ostream& os = std::cout ) const=0;
     virtual void show_cmd( ast* def, std::ostream& os = std::cout )=0;
     virtual void include_cmd( ast* fname)=0;
+    virtual void eval_cmd( ast* fname)=0;
     virtual ast* make_bool(bool b)=0;
     virtual ast* build_list( ast* list, ast* element)=0;
     virtual void render(ast* node)=0;

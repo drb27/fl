@@ -16,7 +16,10 @@ class dat : public action_target
 {
 
  public:
-    dat(context*,std::function<void(const std::string&)>);
+    dat(context*,
+	std::function<void(const std::string&)>,
+	std::function<void(const std::string&)>
+	);
     virtual ~dat();
 
     virtual ast* make_int(int x) const;
@@ -31,6 +34,7 @@ class dat : public action_target
     virtual void respond( ast* def, bool abbrv = true, std::ostream& os = std::cout ) const;
     virtual void show_cmd( ast* def, std::ostream& os = std::cout );
     virtual void include_cmd( ast* fname);
+    virtual void eval_cmd( ast* stmtString);
     virtual ast* make_methodcall( ast* target, ast* method, list_node* args);
     virtual ast* make_assign_node(ast* lvalue, ast* rvalue,bool);
     virtual ast* make_attr( ast* target, std::string* selector);
@@ -66,6 +70,7 @@ class dat : public action_target
     std::deque<sequence_node*> _seq_stack;
     std::deque<selector_node*> _sel_stack;
     std::function<void(const std::string&)> _include_fn;
+    std::function<void(const std::string&)> _eval_fn;
  private:
 
 };
