@@ -67,7 +67,7 @@ fnref fn_object::partial_application(context* pContext,const vector<argpair_t>& 
 {
     wlog_entry();
     hinted_args_t remainingArgs(_full_args);
-    collection appliedArgs;
+    collection appliedArgs = _applied_arguments;
 
     // For each partial application, add to the context and remove from
     // the remaining args
