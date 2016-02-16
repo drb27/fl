@@ -51,7 +51,7 @@ shell_SOURCES=src/shell/shell.cpp
 shell_LDADD=liblang.a
 shell_LDFLAGS=-lfl
 
-TESTS=interpreter_tests
+TESTS=interpreter_tests fl-tests/testsuite.fl
 check_PROGRAMS=interpreter_tests
 interpreter_tests_SOURCES=src/interpreter/tests/tests.cpp \
 				src/interpreter/tests/test-fclass.cpp \

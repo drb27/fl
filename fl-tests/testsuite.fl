@@ -1,0 +1,8 @@
+#!shell
+
+exit=>125;
+
+include "fl/prime.fl";
+pass=> is_prime(-3)==true;
+
+exit=>pass?0:1;
