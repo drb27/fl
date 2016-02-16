@@ -20,6 +20,7 @@ class ftlist;
 %option bison-bridge
 
 DIGIT [0-9]
+HEXDIGIT[0-9a-fA-F]
 WS    [ \t]+
 LETTER [A-Za-z_]
 BANANA (-{0,1}{DIGIT}+[.]{DIGIT}+)
@@ -68,6 +69,7 @@ typedef  { return TYPEDEF; }
 \<       { return OPEN_ANGLED; }
 \>       { return CLOSE_ANGLED; }
 -{0,1}{DIGIT}+            { yylval->int_val = atoi(yytext); return INTEGER; }
+-{0,1}0x{HEXDIGIT}+ { yylval->int_val = strtol(yytext,NULL,16); return INTEGER; }
 #.*
 {WS}     
 {LETTER}+ { yylval->string_val = STR(yytext); return SYMBOL; }
