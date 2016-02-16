@@ -108,9 +108,9 @@ extern action_target* target;
 %precedence MAPSTO
 %left ALIAS
 %left EQ
+%left COLON
 %left SELECTOR
 %left BAR
-%left COLON
 %left QUESTION
 %precedence EQUALITY
 %left BUILDER
