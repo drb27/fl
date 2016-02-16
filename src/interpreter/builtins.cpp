@@ -144,6 +144,14 @@ namespace builtins
 					      rawfn(make_marshall(&builtins::foreach)),
 					      args,
 					      {} ) ));
+
+	args.pop_back();
+	pContext->assign("I", 
+			 fnref( new fn_object(pContext,
+					      rawfn(make_marshall(&builtins::I)),
+					      args,
+					      {}) 
+				) );
    
 	pContext->assign( integer::get_class()->name(), 
 			  classref(new class_object(pContext, integer::get_class())) );
@@ -712,7 +720,12 @@ namespace builtins
 
 	return objref( new int_object(pContext, distribution(generator)));
     }
-
+    
+    objref I(context* pContext, objref a)
+    {
+	return a;
+    }
+    
     objref foreach(context* pContext, objref pObj, fnref pFn )
     {
 	// Call .iter on the object to yield a list object
