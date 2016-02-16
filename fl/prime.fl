@@ -29,8 +29,9 @@ range=>(b,e) -> b.eq(e) ? (e) : range(b,e.dec())::e;
 //
 
 ######################### BUG: calling with a negative integer doesn't terminate #####################
+rep=>(n)-> n.lt(0)? rep( n.div(0.dec()) ) : n?? 0: false | 1:false | default: any_true( divides_exactly(n), range(2,n.dec()) ).not();
 
-is_prime=>(n)-> n.lt(0)? is_prime( n.div(0.dec()) ) :
+is_prime=>(n)-> n.lt(0)? is_prime( n.div(-1) ) :
 		n?? 
 		    0: false 
 		  | 1: false
@@ -38,3 +39,5 @@ is_prime=>(n)-> n.lt(0)? is_prime( n.div(0.dec()) ) :
 		  | default: any_true( divides_exactly(n), range(2,n.dec()) ).not();
 
 primes=>(b,e)-> { l=>(); foreach( range(b,e), (x)-> is_prime(x)? l.append(x) : null); l };
+
+#trace is_prime(-3);

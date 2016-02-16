@@ -2,6 +2,8 @@
 #include <set>
 #include <list>
 #include <vector>
+#include <map>
+#include <sstream>
 #include <inc/references.h>
 #include <parser/ast/funcall.h>
 #include <interpreter/obj/fn_object.h>
@@ -15,6 +17,8 @@ using std::string;
 using std::list;
 using std::set;
 using std::vector;
+using std::map;
+using std::stringstream;
 
 funcall_node::funcall_node(const string& name, ast* args)
     : _name(name), _arg_list(args)
@@ -117,8 +121,17 @@ objref funcall_node::evaluate(context* pContext, fnref fn)
 
     }
 
+    map<string,string> trace_params;
+    stringstream s;
+    for ( auto p : argpairs)
+    {
+	p.second->render(s,true);
+	trace_params[p.first] = s.str();
+	s.str("");
+    }
+
     // Call the function and return the result!
-    wlog_trace("CALL: " + _name,{});//trace_params);
+    wlog_trace("CALL: " + _name,trace_params);
     auto retVal =  (*fn)(pContext,argpairs);
     wlog_exit();
     return retVal;
