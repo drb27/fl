@@ -6,7 +6,11 @@ CLEANFILES=src/parser/parser.cpp \
 	src/parser/lexer.cpp \
 	src/parser/flex.h \
 	src/parser/bison.h
-EXTRA_DIST=src/parser/lexer.l src/parser/parser.y
+
+EXTRA_DIST=src/parser/lexer.l \
+	   src/parser/parser.y \
+	   fl-tests/testsuite.fl
+
 AM_YFLAGS=-d
 AM_CXXFLAGS=-std=c++14 -I$(top_srcdir)/src -I$(top_builddir)/src
 bin_PROGRAMS=fl
@@ -102,7 +106,7 @@ fl_SOURCES=src/shell/shell.cpp
 fl_LDADD=liblang.a
 fl_LDFLAGS=-lfl
 
-TESTS=interpreter_tests
+TESTS=interpreter_tests fl-tests/fl_tests.sh
 check_PROGRAMS=interpreter_tests
 interpreter_tests_SOURCES=src/interpreter/tests/tests.cpp \
 				src/interpreter/tests/test-fclass.cpp \
@@ -125,4 +129,3 @@ $(top_builddir)/src/parser/parser.cpp $(top_builddir)/src/parser/bison.h: $(top_
 
 $(top_builddir)/src/parser/lexer.cpp $(top_builddir)/src/parser/flex.h: $(top_srcdir)/src/parser/lexer.l $(top_builddir)/src/parser/parser.cpp $(top_builddir)/src/parser/bison.h
 	$(LEX) $(AM_LFLAGS) --header-file=$(top_builddir)/src/parser/flex.h -o $(top_builddir)/src/parser/lexer.cpp $(top_srcdir)/src/parser/lexer.l
-
