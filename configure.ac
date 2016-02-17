@@ -6,7 +6,6 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/shell/shell.cpp])
 AC_CONFIG_HEADERS([src/inc/config.h])
 
-
 AC_PROG_CXX
 AM_PROG_AR
 AC_PROG_LIBTOOL
@@ -14,6 +13,5 @@ AC_PROG_LEX
 AC_PROG_YACC
 
 AC_CHECK_LIB([cppunit],[main])
-
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile Doxyfile])
 AC_OUTPUT

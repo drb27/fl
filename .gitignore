@@ -10,7 +10,12 @@ libtool
 src/inc/stamp-h1
 m4/
 doc/
-shell
+fl
+dbg
+rel
+Doxyfile
+*.tar.gz
+fl-*
 interpreter_tests
 .deps
 .dirstamp
