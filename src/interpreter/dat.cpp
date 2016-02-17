@@ -1,3 +1,4 @@
+#include <inc/config.h>
 #include <memory>
 #include <string>
 #include <deque>
@@ -11,6 +12,10 @@
 #include <interpreter/eval_exception.h>
 #include <logger/logger.h>
 #include <interpreter/builtins.h>
+
+#ifdef HAVE_CHDIR
+#include <unistd.h>
+#endif
 
 using std::string;
 using std::deque;
@@ -96,6 +101,31 @@ void dat::include_cmd( ast* fname)
  
     // Set a callback!
     _include_fn( pFnameStr->internal_value() );
+}
+
+void dat::cd_cmd( ast* fname)
+{
+#ifdef HAVE_CHDIR
+    
+    stringref newDir = object::cast_or_abort<string_object>(fname->evaluate(_context));
+    auto result = chdir(newDir->internal_value().c_str());
+    delete fname;
+
+#ifdef HAVE_GETCWD
+    
+    char* buf = getcwd(nullptr,0);
+    std::cout << "Working directory is now " << buf << std::endl;
+    free(buf);
+
+#endif
+
+#else
+
+    delete fname;
+    throw eval_exception(cerror::unsupported_feature,
+			 "This feature is not supported by the build environment" );
+#endif
+
 }
 
 void dat::eval_cmd( ast* stmtString)

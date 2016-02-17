@@ -21,6 +21,7 @@ extern action_target* target;
 
 %token CLASS
 %token SHOW
+%token CD_CMD
 %token FLOAT
 %token WHILE
 %token EOFF
@@ -221,7 +222,7 @@ flwhile: WHILE OPEN_CURLY expr CLOSE_CURLY expr { $$=target->make_while($3,$5); 
 
 /* COMMANDS ***************************************************************/
 
-command: trace_cmd | debug_cmd | render_cmd | quit_cmd | show_cmd | include_cmd | eval_cmd;
+command: trace_cmd | debug_cmd | render_cmd | quit_cmd | show_cmd | include_cmd | eval_cmd | cd_cmd;
 
 render_cmd: RENDER expr {target->render($2); };
 
@@ -236,6 +237,8 @@ show_cmd: SHOW expr { target->show_cmd($2); };
 include_cmd: INCLUDE expr { target->include_cmd($2); };
 
 eval_cmd: EVAL expr { target->eval_cmd($2); };
+
+cd_cmd: CD_CMD expr { target->cd_cmd($2); };
 
 /* STATEMENTS *************************************************************/
 

@@ -13,5 +13,6 @@ AC_PROG_LEX
 AC_PROG_YACC
 
 AC_CHECK_LIB([cppunit],[main])
+AC_CHECK_FUNCS(chdir getcwd)
 AC_CONFIG_FILES([Makefile Doxyfile])
 AC_OUTPUT

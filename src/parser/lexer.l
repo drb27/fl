@@ -47,6 +47,7 @@ trace    { return TRACE; }
 eval     { return EVAL; }
 debug    { return DEBUG_CMD; }
 show     { return SHOW; }
+cd       { return CD_CMD; }
 ::       { return BUILDER; }
 render   { return RENDER; }
 quit     { return QUIT; }
