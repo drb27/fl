@@ -123,7 +123,13 @@ int main(int argc, char** argv)
     //g_logger.enable( level::debug );
 
     wlog(level::info,PACKAGE_STRING ": Application startup");
-    std::cout << PACKAGE_STRING << std::endl;
+    std::cout << PACKAGE_STRING;
+    
+    #ifdef DEBUG
+    std::cout << " [** DEBUG BUILD **]";
+    #endif
+
+    std::cout << std::endl;
     wlog(level::debug,"Creating context");
     context* shell_context = new context();
     builtins::build_globals(shell_context);

@@ -45,7 +45,7 @@ default  { return DEFAULT; }
 \"[^\"]*\" { yylval->string_val =STR(yytext); return STRING; } 
 trace    { return TRACE; }
 eval     { return EVAL; }
-debug    { return DEBUG; }
+debug    { return DEBUG_CMD; }
 show     { return SHOW; }
 ::       { return BUILDER; }
 render   { return RENDER; }

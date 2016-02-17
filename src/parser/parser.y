@@ -33,7 +33,7 @@ extern action_target* target;
 %token OPEN_CURLY
 %token CLOSE_CURLY
 %token TRACE
-%token DEBUG
+%token DEBUG_CMD
 %token EVAL
 %token BUILDER
 %token RENDER
@@ -225,7 +225,7 @@ command: trace_cmd | debug_cmd | render_cmd | quit_cmd | show_cmd | include_cmd 
 
 render_cmd: RENDER expr {target->render($2); };
 
-debug_cmd: DEBUG expr { target->enable_debug(); target->respond($2); target->enable_debug(false); };
+debug_cmd: DEBUG_CMD expr { target->enable_debug(); target->respond($2); target->enable_debug(false); };
 
 trace_cmd: TRACE expr { target->enable_trace(); target->respond($2); target->enable_trace(false); };
 

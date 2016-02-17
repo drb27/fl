@@ -65,6 +65,11 @@ string logger::default_formatter(const logmsg& m, bool divider)
 
 bool logger::log(const logmsg& m, bool divider)
 {
+    #ifndef DEBUG
+    if ( (m.severity==level::info) || (m.severity==level::debug) )
+	return false;
+    #endif
+
     if ( enabled(m.severity))
 	_out << _formatter(m,divider);
     return true;
