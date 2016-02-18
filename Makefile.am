@@ -12,7 +12,7 @@ EXTRA_DIST=src/parser/lexer.l \
 	   fl-tests/testsuite.fl
 
 AM_YFLAGS=-d
-AM_CXXFLAGS=-std=c++14 -I$(top_srcdir)/src -I$(top_builddir)/src
+AM_CXXFLAGS=-std=c++14 -I$(top_builddir)/src -I$(top_srcdir)/src
 bin_PROGRAMS=fl
 noinst_LIBRARIES=liblang.a
 
