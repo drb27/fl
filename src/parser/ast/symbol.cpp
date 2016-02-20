@@ -77,14 +77,14 @@ const string& symbol_node::name() const
     return _name;
 }
 
-void symbol_node::required_symbols(set<string>& s) const
+void symbol_node::required_symbols(set<symspec>& s) const
 {
     s.insert(_name);
 }
 
 objref symbol_node::evaluate(context* pContext)
 {
-    return pContext->resolve_symbol(_name); 
+    return pContext->resolve_symbol( symspec(_name,_pkg_spec) ); 
 }
 
 
@@ -107,4 +107,8 @@ asttype symbol_node::type() const
 
 void symbol_node::direct_subordinates( list<ast*>& subs ) const
 {
+}
+void symbol_node::add_pkg_spec( const std::deque<std::string>& spec)
+{
+    _pkg_spec = spec;
 }

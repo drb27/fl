@@ -52,7 +52,7 @@ objref classdef_node::evaluate(context* pContext)
     return pNewClassObject;
 }
 
-void classdef_node::required_symbols(set<string>& s) const
+void classdef_node::required_symbols(set<symspec>& s) const
 {
     _derive_list->required_symbols(s);
 }

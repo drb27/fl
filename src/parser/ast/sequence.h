@@ -18,7 +18,7 @@ public:
     virtual objref evaluate(context*);
     virtual objref evaluate_isolated(context* pContext);
     virtual fclass* type(context*) const;
-    virtual void required_symbols(std::set<std::string>&) const;
+    virtual void required_symbols(std::set<symspec>&) const;
     virtual void add_expr(ast*);
     virtual  bool calls_and_returns( const std::string& fname) const;
     virtual asttype type() const;

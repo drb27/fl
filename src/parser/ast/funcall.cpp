@@ -20,8 +20,8 @@ using std::vector;
 using std::map;
 using std::stringstream;
 
-funcall_node::funcall_node(const string& name, ast* args)
-    : _name(name), _arg_list(args)
+funcall_node::funcall_node(const symspec& ss, ast* args)
+    : _symbol(ss), _arg_list(args)
 {
     wlog_entry();
     wlog_exit();
@@ -29,7 +29,7 @@ funcall_node::funcall_node(const string& name, ast* args)
 
 bool funcall_node::calls_and_returns( const string& fname) const
 {
-    return _name==fname;
+    return _symbol.name()==fname;
 }
 
 void funcall_node::render_dot(int& uuid, 
@@ -40,7 +40,7 @@ void funcall_node::render_dot(int& uuid,
     int myref=uuid++;
     string labelString;
 
-    string myid = "funcall_" + _name + "_" + std::to_string(myref);
+    string myid = "funcall_" + _symbol.name() + "_" + std::to_string(myref);
     if (!parent.empty())
     {
 	out << parent << " -> ";
@@ -51,19 +51,19 @@ void funcall_node::render_dot(int& uuid,
     _arg_list->render_dot(uuid,myid," lvalue",out);
 }
 
-void funcall_node::required_symbols(set<string>& s) const
+void funcall_node::required_symbols(set<symspec>& s) const
 {
     // Add all the arguments
     _arg_list->required_symbols(s);
 
     // ... and the name of the added function
-    s.insert(_name);
+    s.insert(_symbol.name());
 }
 
 objref funcall_node::evaluate(context* pContext)
 {
     // Look up the function object in the context
-    fnref fn = object::cast_or_abort<fn_object>(pContext->resolve_symbol(_name));
+    fnref fn = object::cast_or_abort<fn_object>(pContext->resolve_symbol(_symbol));
     return evaluate(pContext,fn);
 }
 
@@ -131,7 +131,7 @@ objref funcall_node::evaluate(context* pContext, fnref fn)
     }
 
     // Call the function and return the result!
-    wlog_trace("CALL: " + _name,trace_params);
+    wlog_trace("CALL: " + _symbol.name(),trace_params);
     auto retVal =  (*fn)(pContext,argpairs);
     wlog_exit();
     return retVal;

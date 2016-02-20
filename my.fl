@@ -4,19 +4,19 @@ include "tutorial.fl";
 empty=>(l) -> l.size().eq(0);
 
 // Reverse a list
-reverse=>(l) -> empty(l)? () : reverse(l.tail())::l.head();
+reverse=>(l) -> empty(l)? () : reverse(l.tail())@l.head();
 
 // Reversed map
-rmap=>(f,l) -> empty(l)? () : rmap(f,l.tail())::f(l.head());
+rmap=>(f,l) -> empty(l)? () : rmap(f,l.tail())@f(l.head());
 
 // Normal map
 map=>(f,l)->reverse(rmap(f,l));
 
 // Build a list
-range=>(b,e) -> b.eq(e) ? (e) : range(b,e.dec())::e;
+range=>(b,e) -> b.eq(e) ? (e) : range(b,e.dec())@e;
 
 // Reverse-filter a list
-rfilter=>(p,l)-> empty(l)? () : p(l.head())? rfilter(p,l.tail())::l.head() : rfilter(p,l.tail());
+rfilter=>(p,l)-> empty(l)? () : p(l.head())? rfilter(p,l.tail())@l.head() : rfilter(p,l.tail());
 
 // Normal-filter a list
 filter=>(p,l)->reverse(rfilter(p,l));
@@ -27,8 +27,8 @@ sum=>accumulate(0,(a,b)->a+b);
 sumf=>accumulate(0.0,(a,b)->a+b);
 
 // Repeat an element in a list
-rep=>(e,n)-> n.eq(0)? () : rep(e,n.dec())::e;
-repgr=>(g,n,l) -> n.eq(0)? l : repgr(g,n.dec(),l::g());
+rep=>(e,n)-> n.eq(0)? () : rep(e,n.dec())@e;
+repgr=>(g,n,l) -> n.eq(0)? l : repgr(g,n.dec(),l@g());
 repg=>(g,n)->repgr(g,n,());
 
 btoi=>(a)-> a? 1:0;
@@ -54,7 +54,7 @@ is_even=>(x) -> x.eq(0)? true : is_odd(x.dec());
 countif=>(p,l)->filter(p,l).size();
 countifnot=>(p,l)->countif((x)->p(x).not(),l);
 
-merge=>(la,lb)-> empty(lb)? la : merge(la::lb.head(),lb.tail());
+merge=>(la,lb)-> empty(lb)? la : merge(la@lb.head(),lb.tail());
 
 nth=>(l,n)-> n.eq(0)?l.head() : nth(l.tail(),n.dec());
 

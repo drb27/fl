@@ -2,6 +2,7 @@
 #include <set>
 #include <list>
 #include <deque>
+#include <algorithm>
 #include <inc/references.h>
 #include <parser/ast/fundef.h>
 #include <parser/ast/symbol.h>
@@ -14,6 +15,8 @@ using std::list;
 using std::set;
 using std::deque;
 using std::pair;
+using std::find_if;
+using std::for_each;
 
 fundef_node::fundef_node(ast* arglist, ast* definition)
     : _arglist(arglist), _definition(definition)
@@ -49,22 +52,42 @@ void fundef_node::render_dot(int& uuid,
 
 }
 
-void fundef_node::required_symbols(set<string>& s) const
+void fundef_node::required_symbols(set<symspec>& s) const
 {
     // Definitions which are not arguments
-    set<string> tempSet;
+    set<symspec> tempSet;
     set<string> args;
+    set<symspec> argSpecs;
 
-    // Get all used symbols
+    // Get all symbols used by the function body
     _definition->required_symbols(tempSet);
 
-    // Get argument symbols
-    _arglist->required_symbols(args);
+    // Get all arguments provided by the function caller
+    _arglist->required_symbols(argSpecs);
 
-    // Subtract arguments from the definition set
+    std::for_each( argSpecs.begin(), argSpecs.end(), 
+		   [&args](const symspec& s)
+		   {
+		       args.insert(s.name());
+		   } 
+		   );
+
+    // Subtract arguments from the definition set.
+    // This uses find_if to locate required symbols with the same name as an argument, AND
+    // having no package specifier. This is guaranteed to be a reference to the argument,
+    // as the unscoped reference binds most closely to the argument, even if another
+    // matching symbol outside of the function definition exists. 
     for ( auto arg : args)
     {
-	tempSet.erase(arg);
+	auto it = find_if( tempSet.begin(),
+			   tempSet.end(),
+			   [&arg]( const symspec& s) 
+			   { 
+			       return (s.name()==arg) && (s.pkg_spec().empty()); 
+			   } );
+
+	if (it != tempSet.end() )
+	    tempSet.erase(it);
     }
 
     // Add the remaining non-argument symbols to the result
@@ -80,12 +103,12 @@ objref fundef_node::evaluate(context* pContext)
 {
     wlog_entry();
 
-    set<string> requiredSymbols;
+    set<symspec> requiredSymbols;
     required_symbols(requiredSymbols);
 
     for ( auto s : requiredSymbols )
     {
-	wlog(level::debug, "Required symbol: " + s );
+	wlog(level::debug, "Required symbol: " + s.rqn() );
     }
 
     deque<pair<string,ast*>> argnames;
@@ -97,11 +120,11 @@ objref fundef_node::evaluate(context* pContext)
 	argnames.push_back({pSymNode->name(),pSymNode->get_typehint()});
     }
 
-    colref pClosure( new collection );
+    colref pClosure( new closure_collection );
     for ( auto s : requiredSymbols )
     {
 	if (pContext->is_defined(s))
-	    (*pClosure)[s] = pContext->resolve_symbol(s);
+	    pClosure->define_symbol(s, pContext->resolve_symbol(s) );
     }
 
     return objref( new fn_object(pContext,rawfn(this,pClosure),argnames,argnames,{}) );

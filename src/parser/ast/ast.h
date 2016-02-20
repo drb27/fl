@@ -7,7 +7,7 @@
 #include <set>
 #include <memory>
 #include <interpreter/marshall.h>
-
+#include <parser/symspec.h>
 class fclass;
 
 /// Used by ast::type() to provide run-time type information about a node
@@ -57,11 +57,11 @@ class ast
 
     /// Returns the set of symbols required to be defined in the context to
     /// successfully evaluate this node. 
-    virtual void required_symbols(std::set<std::string>& s ///< [out] The set
-							   ///of symbols
+    virtual void required_symbols(std::set<symspec>& s ///< [out] The set
+						       ///of symbols
 				  ) const=0;
 
-    /// Returns true if the node represents a valid lvale (i.e. can be assigned
+    /// Returns true if the node represents a valid lvalue (i.e. can be assigned
     /// to), or false otherwise. 
     virtual bool is_lvalue() const { return false; }
 

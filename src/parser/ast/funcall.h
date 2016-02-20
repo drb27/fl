@@ -7,18 +7,18 @@
 #include <set>
 #include <inc/references.h>
 #include <parser/ast/ast.h>
+#include <interpreter/context.h>
 
-class context;
 class fclass;
 
 class funcall_node : public ast
 {
 public:
-    funcall_node(const std::string&,ast* args);
+    funcall_node(const symspec&,ast* args);
     virtual objref evaluate(context*);
     virtual objref evaluate(context*,fnref);
     virtual fclass* type(context*) const;
-    virtual void required_symbols(std::set<std::string>&) const;
+    virtual void required_symbols(std::set<symspec>&) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="",
 			    const std::string& label="",
@@ -28,10 +28,10 @@ public:
     virtual void direct_subordinates( std::list<ast*>& ) const;
 
     virtual ast* args() const { return _arg_list; }
-    virtual const std::string& name() const { return _name; }
+    virtual const std::string& name() const { return _symbol.name(); }
 
 protected:
-    const std::string _name;
+    const symspec _symbol;
     ast* _arg_list;
     mutable objref _result;
 };

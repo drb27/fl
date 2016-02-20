@@ -23,7 +23,7 @@ fclass* pair_node::type(context* pContext) const
     return _second->type(pContext);
 }
 
-void pair_node::required_symbols(set<string>& s) const
+void pair_node::required_symbols(set<symspec>& s) const
 {
     _first->required_symbols(s);
     _second->required_symbols(s);

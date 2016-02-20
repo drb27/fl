@@ -39,7 +39,7 @@ void assign_node::render_dot(int& uuid,
     _rvalue->render_dot(uuid,myid," rvalue",out);
 }
 
-void assign_node::required_symbols(set<string>& s) const
+void assign_node::required_symbols(set<symspec>& s) const
 {
     _lvalue->required_symbols(s);
     _rvalue->required_symbols(s);

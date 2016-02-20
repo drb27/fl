@@ -73,7 +73,7 @@ fnref fn_object::partial_application(context* pContext,const vector<argpair_t>& 
     // the remaining args
     for ( auto arg : args )
     {
-	appliedArgs[arg.first] = arg.second;
+	appliedArgs.define_symbol(arg.first,arg.second);
 	remainingArgs.erase(std::find_if(remainingArgs.begin(),remainingArgs.end(),
 					 [&arg](pair<string,ast*>& e){ return e.first==arg.first;}));
     }

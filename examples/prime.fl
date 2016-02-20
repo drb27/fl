@@ -21,7 +21,7 @@ any_true=>(p,l)-> l.size()==0? false : p(l.head())? true : any_true(p,l.tail());
 // Generates a range of integers in a list, between b and e, incusive
 //
 
-range=>(b,e) -> b.eq(e) ? (e) : range(b,e.dec())::e;
+range=>(b,e) -> b.eq(e) ? (e) : range(b,e.dec())@e;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////

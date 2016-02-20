@@ -16,7 +16,7 @@ public:
     if_node(ast* pCondition, ast* trueExpression, ast* falseExpression);
     virtual objref evaluate(context*);    
     virtual fclass* type(context*) const;
-    virtual void required_symbols(std::set<std::string>&) const;
+    virtual void required_symbols(std::set<symspec>&) const;
     virtual bool calls_and_returns( const std::string& fname) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="",

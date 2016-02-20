@@ -91,7 +91,7 @@ objref methodcall_node::evaluate(context* pContext)
 
 }
 
-void methodcall_node::required_symbols(set<string>& s) const
+void methodcall_node::required_symbols(set<symspec>& s) const
 {
     _target->required_symbols(s);
     for (auto p : _params)

@@ -39,7 +39,7 @@ objref attr_node::evaluate(context* pContext)
     }
 }
 
-void attr_node::required_symbols( set<string>& rs ) const
+void attr_node::required_symbols( set<symspec>& rs ) const
 {
     _target->required_symbols(rs);
 }

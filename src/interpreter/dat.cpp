@@ -70,12 +70,13 @@ ast* dat::make_fundef( ast* arglist,  ast* def) const
 
 void dat::respond( ast* def, bool abbrev, std::ostream& os) const
 {
+
     try
     {
 	objref result = def->evaluate(_context);
 	result->render(os,abbrev);
 	os << "OK" << std::endl;
-	_context->assign("_last",result);
+	_context->assign(std::string("_last"),result);
     }
     catch( eval_exception& e )
     {
@@ -194,9 +195,11 @@ ast* dat::make_methodcall( ast* target, ast* method,list_node* args)
     return r;
 }
 
-ast* dat::make_symbol( std::string* name) const
+ast* dat::make_symbol( std::string* name, const deque<string>& scopespec) const
 {
     auto r = new symbol_node(*name);
+    if (scopespec.size())
+	r->add_pkg_spec(scopespec);
     delete name;
     return r;
 }
@@ -355,6 +358,22 @@ ast* dat::selector_condition(ast* pCondPair)
 ast* dat::finish_selector()
 {
     _sel_stack.pop_front();
+}
+
+ast* dat::finish_symbol()
+{
+    string last = _symbol_stack.back();
+    auto pLast = new string(last);
+    _symbol_stack.pop_back();
+    auto result = make_symbol(pLast,_symbol_stack);
+    _symbol_stack.clear();
+    return result;
+}
+
+void dat::push_symbol_identifier(std::string* s)
+{
+    _symbol_stack.push_back(*s);
+    delete s;
 }
 
 ast* dat::make_while(ast* pCond,ast* pAction)
