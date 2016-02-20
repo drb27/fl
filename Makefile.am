@@ -112,7 +112,7 @@ fl_SOURCES=src/shell/shell.cpp
 fl_LDADD=liblang.a
 fl_LDFLAGS=-lfl
 
-TESTS=interpreter_tests fl-tests/fl_tests.sh
+TESTS=interpreter_tests fl_tests.sh
 check_PROGRAMS=interpreter_tests
 interpreter_tests_SOURCES=src/interpreter/tests/tests.cpp \
 				src/interpreter/tests/test-fclass.cpp \

@@ -38,5 +38,5 @@ AC_CHECK_FUNCS([chdir getcwd memset strtol])
 
 AC_CHECK_LIB([cppunit],[main])
 AC_CONFIG_FILES([Makefile Doxyfile])
-AC_CONFIG_FILES([fl-tests/fl_tests.sh],[chmod +x fl-tests/fl_tests.sh])
+AC_CONFIG_FILES([fl_tests.sh],[chmod +x fl_tests.sh])
 AC_OUTPUT
