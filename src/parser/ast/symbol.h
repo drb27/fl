@@ -4,7 +4,6 @@
 #include <string>
 #include <list>
 #include <set>
-#include <deque>
 #include <parser/ast/ast.h>
 #include <parser/ast/lvalue.h>
 
@@ -16,7 +15,7 @@ class symbol_node : public lvalue_node
 public:
     symbol_node( const std::string& );
     
-    virtual void add_pkg_spec( const std::deque<std::string>&);
+    virtual void add_pkg_spec( const std::list<std::string>&);
 
     virtual objref evaluate(context*);
     virtual fclass* type(context*) const;
@@ -32,7 +31,7 @@ public:
 
 protected:
     const std::string _name;
-    std::deque<std::string> _pkg_spec;
+    std::list<std::string> _pkg_spec;
 };
 
 

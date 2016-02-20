@@ -1,4 +1,5 @@
 #include <interpreter/package.h>
+#include <interpreter/eval_exception.h>
 
 using std::string;
 using std::map;
@@ -22,14 +23,29 @@ package::~package()
 
 objref package::resolve_symbol(const symspec& s)
 {
-    // TODO
-    return context::resolve_symbol(s);
+    // Attempt to locate a matching symbol in the package hierarchy
+    package* pMatchedPackage = package::resolve(this,s);
+
+    if (pMatchedPackage)
+    {
+	return pMatchedPackage->context::resolve_symbol(s.name());
+    }
+    else
+	throw eval_exception(cerror::undefined_symbol,
+			     "Unresolved symbol " + s.rqn() );
 }
 
 bool package::is_defined( const symspec& s)
 {
-    // TODO
-    return context::is_defined(s);
+    // Attempt to locate a matching symbol in the package hierarchy
+    package* pMatchedPackage = package::resolve(this,s);
+
+    if (pMatchedPackage)
+    {
+	return pMatchedPackage->context::is_defined(s.name());
+    }
+    else
+	return false;
 }
 
 void package::add_child(const string& name)
@@ -56,15 +72,31 @@ package* package::get_child(const string& name ) const
 
 package* package::trace_down(package* currentPkg, const list<string>& speclist )
 {
-    for ( auto name : speclist )
+    // If the speclist is empty, we are done. 
+    if (speclist.size()==0)
+	return currentPkg;
+
+    // If this package is the first in the list, swallow it. 
+    list<string>::const_iterator i = speclist.begin();
+
+    if (currentPkg->name() == speclist.front() )
+	i++;
+
+    for ( ; i != speclist.end(); i++  )
     {
-	if ( auto child = currentPkg->get_child(name) )
+	if ( auto child = currentPkg->get_child(*i) )
 	     currentPkg = child;
 	else
 	    return nullptr;
     }
 
     return currentPkg;
+}
+
+package* package::resolve(package* currentPackage, const symspec& s )
+{
+    list<string> l = s.pkg_spec();
+    return resolve(currentPackage,l);
 }
 
 package* package::resolve(package* currentPackage, const list<string>& speclist )

@@ -92,6 +92,12 @@ class package final : public context
     static package* resolve(package* pkg, const std::list<std::string>& speclist);
 
     /**
+     * Convenience method that converts symspec into an appropriate list of strings,
+     * then calls the overloaded resolve() that expects a string list. 
+     */
+    static package* resolve(package* pkg, const symspec& s);
+
+    /**
      * Attempts to locate an \e indirect child of this package, the route route given in
      * \p speclist. The search starts at \p pkg, and then the \p speclist route is
      * followed from there. 

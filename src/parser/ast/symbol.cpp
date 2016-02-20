@@ -108,7 +108,7 @@ asttype symbol_node::type() const
 void symbol_node::direct_subordinates( list<ast*>& subs ) const
 {
 }
-void symbol_node::add_pkg_spec( const std::deque<std::string>& spec)
+void symbol_node::add_pkg_spec( const list<string>& spec)
 {
     _pkg_spec = spec;
 }

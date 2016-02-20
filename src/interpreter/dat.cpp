@@ -22,6 +22,7 @@ using std::deque;
 using std::shared_ptr;
 using std::vector;
 using std::function;
+using std::list;
 
 dat::dat(context* pContext,
 	 function<void(const string&)> fn,
@@ -68,7 +69,7 @@ ast* dat::make_fundef( ast* arglist,  ast* def) const
     return new fundef_node(arglist,def);
 }
 
-void dat::respond( ast* def, bool abbrev, std::ostream& os) const
+void dat::respond( ast* def, bool abbrev, std::ostream& os)
 {
 
     try
@@ -80,6 +81,7 @@ void dat::respond( ast* def, bool abbrev, std::ostream& os) const
     }
     catch( eval_exception& e )
     {
+	_symbol_stack.clear();
 	throw e;
     }
 }
@@ -195,7 +197,7 @@ ast* dat::make_methodcall( ast* target, ast* method,list_node* args)
     return r;
 }
 
-ast* dat::make_symbol( std::string* name, const deque<string>& scopespec) const
+ast* dat::make_symbol( std::string* name, const list<string>& scopespec) const
 {
     auto r = new symbol_node(*name);
     if (scopespec.size())

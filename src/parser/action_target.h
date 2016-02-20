@@ -2,7 +2,7 @@
 #define ACTION_TARGET_H
 
 #include <string>
-#include <deque>
+#include <list>
 #include <iostream>
 
 class ast;
@@ -19,7 +19,7 @@ class action_target
     virtual ast* make_fundef( ast* arglist,  ast* def) const=0;
     virtual ast* make_funcall( ast* fn,  ast* args) const=0;
     virtual ast* make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const=0;
-    virtual ast* make_symbol( std::string* name, const std::deque<std::string>& scopespec={}) const=0;
+    virtual ast* make_symbol( std::string* name, const std::list<std::string>& scopespec={}) const=0;
     virtual ast* make_alias(ast* alias, ast* existing) const=0;
     virtual ast* make_assign_node(ast* lvalue, ast* rvalue,bool alias=false)=0;
     virtual ast* make_methodcall( ast* target, ast* method,list_node* args)=0;
@@ -46,7 +46,7 @@ class action_target
     virtual ast* finish_symbol()=0;
     virtual ast* make_empty_list()=0;
     virtual ast* make_single_list(ast*)=0;
-    virtual void respond( ast* def, bool abbrev=true, std::ostream& os = std::cout ) const=0;
+    virtual void respond( ast* def, bool abbrev=true, std::ostream& os = std::cout )=0;
     virtual void show_cmd( ast* def, std::ostream& os = std::cout )=0;
     virtual void include_cmd( ast* fname)=0;
     virtual void eval_cmd( ast* fname)=0;

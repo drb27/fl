@@ -2,6 +2,7 @@
 #define DAT_H
 
 #include <memory>
+#include <list>
 #include <deque>
 #include <functional>
 #include <parser/action_target.h>
@@ -30,8 +31,8 @@ class dat : public action_target
     virtual ast* make_fundef( ast* arglist,  ast* def) const;
     virtual ast* make_funcall( ast* fn,  ast* args) const;
     virtual ast* make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const;
-    virtual ast* make_symbol( std::string* name, const std::deque<std::string>& scopespec = {}) const;
-    virtual void respond( ast* def, bool abbrv = true, std::ostream& os = std::cout ) const;
+    virtual ast* make_symbol( std::string* name, const std::list<std::string>& scopespec = {}) const;
+    virtual void respond( ast* def, bool abbrv = true, std::ostream& os = std::cout );
     virtual void show_cmd( ast* def, std::ostream& os = std::cout );
     virtual void include_cmd( ast* fname);
     virtual void eval_cmd( ast* stmtString);
@@ -72,7 +73,7 @@ class dat : public action_target
     std::deque<list_node*> _list_stack;
     std::deque<sequence_node*> _seq_stack;
     std::deque<selector_node*> _sel_stack;
-    std::deque<std::string> _symbol_stack;
+    std::list<std::string> _symbol_stack;
     std::function<void(const std::string&)> _include_fn;
     std::function<void(const std::string&)> _eval_fn;
  private:
