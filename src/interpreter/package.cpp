@@ -48,13 +48,14 @@ bool package::is_defined( const symspec& s)
 	return false;
 }
 
-void package::add_child(const string& name)
+package* package::add_child(const string& name)
 {
     if ( _children.find(name)!=_children.end() )
 	delete _children[name];
 
     auto p = new package(name,this);
     _children[name] = p;
+    return p;
 }
 
 bool package::has_child(const string& name ) const
@@ -96,17 +97,18 @@ package* package::trace_down(package* currentPkg, const list<string>& speclist )
 package* package::resolve(package* currentPackage, const symspec& s )
 {
     list<string> l = s.pkg_spec();
-    return resolve(currentPackage,l);
+    return resolve(currentPackage,l,s.name());
 }
 
-package* package::resolve(package* currentPackage, const list<string>& speclist )
+package* package::resolve(package* currentPackage, const list<string>& speclist, const string& sym )
 { 
 
     // Can we get to the result from this node?
     package* pTargetPkg;
-    if ( pTargetPkg = trace_down(currentPackage,speclist) )
+    if ( (pTargetPkg = trace_down(currentPackage,speclist) ) &&
+	 (pTargetPkg->context::is_defined(sym) ) )
     {
-	// Yes - return the target package
+	// Yes - good to go
 	return pTargetPkg;
     }
     else
@@ -115,7 +117,7 @@ package* package::resolve(package* currentPackage, const list<string>& speclist 
 	if ( currentPackage->is_root() )
 	    return nullptr;
 	else
-	    return resolve(currentPackage->_parent, speclist );
+	    return resolve(currentPackage->_parent, speclist, sym );
     }
     
     // Still no match? Then package spec is invalid from here

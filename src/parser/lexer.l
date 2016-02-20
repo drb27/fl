@@ -27,7 +27,7 @@ BANANA (-{0,1}{DIGIT}+[.]{DIGIT}+)
 
 %%
 
-
+package  { return PKG; }
 ::       { return SCOPE; }
 {BANANA} { yylval->float_val = FLT(yytext); return FLOAT; }
 <<EOF>>  { return EOFF; }

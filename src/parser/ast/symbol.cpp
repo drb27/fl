@@ -77,6 +77,11 @@ const string& symbol_node::name() const
     return _name;
 }
 
+const list<string> symbol_node::pkg_spec() const
+{
+    return _pkg_spec;
+}
+
 void symbol_node::required_symbols(set<symspec>& s) const
 {
     s.insert(_name);
@@ -111,4 +116,9 @@ void symbol_node::direct_subordinates( list<ast*>& subs ) const
 void symbol_node::add_pkg_spec( const list<string>& spec)
 {
     _pkg_spec = spec;
+}
+
+symspec symbol_node::sym_spec() const
+{
+    return symspec(_name,_pkg_spec);
 }

@@ -20,6 +20,7 @@ class action_target
     virtual ast* make_funcall( ast* fn,  ast* args) const=0;
     virtual ast* make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const=0;
     virtual ast* make_symbol( std::string* name, const std::list<std::string>& scopespec={}) const=0;
+    virtual void switch_package( ast* symbol )=0;
     virtual ast* make_alias(ast* alias, ast* existing) const=0;
     virtual ast* make_assign_node(ast* lvalue, ast* rvalue,bool alias=false)=0;
     virtual ast* make_methodcall( ast* target, ast* method,list_node* args)=0;

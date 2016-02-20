@@ -6,6 +6,7 @@
 #include <set>
 #include <parser/ast/ast.h>
 #include <parser/ast/lvalue.h>
+#include <parser/symspec.h>
 
 class context;
 class fclass;
@@ -19,7 +20,11 @@ public:
 
     virtual objref evaluate(context*);
     virtual fclass* type(context*) const;
+
     virtual const std::string& name() const;
+    virtual const std::list<std::string> pkg_spec() const;
+    virtual symspec sym_spec() const;
+    
     virtual void required_symbols(std::set<symspec>&) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="", 

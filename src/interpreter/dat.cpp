@@ -8,7 +8,7 @@
 #include <interpreter/obj/all.h>
 #include "dat.h"
 #include <interpreter/typemgr.h>
-#include <interpreter/context.h>
+#include <interpreter/package.h>
 #include <interpreter/eval_exception.h>
 #include <logger/logger.h>
 #include <interpreter/builtins.h>
@@ -24,11 +24,11 @@ using std::vector;
 using std::function;
 using std::list;
 
-dat::dat(context* pContext,
+dat::dat(package* pPkg,
 	 function<void(const string&)> fn,
 	 function<void(const string&)> fn_eval
 	 )
-    : _context(pContext), _include_fn(fn),_eval_fn(fn_eval)
+    : _current_pkg(pPkg), _root_pkg(pPkg),_include_fn(fn),_eval_fn(fn_eval)
 {
 }
 
@@ -39,27 +39,27 @@ dat::~dat()
 
 ast* dat::make_int(int x) const
 {
-    objref pObject(new int_object(_context,x));
+    objref pObject(new int_object(_current_pkg,x));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
 ast* dat::make_float(double v)
 {
-    objref pObject(new float_object(_context,v));
+    objref pObject(new float_object(_current_pkg,v));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
 
 ast* dat::make_string(std::string* x) const
 {
-    objref pObject(new string_object(_context, (*x).substr(1,(*x).length()-2) ));
+    objref pObject(new string_object(_current_pkg, (*x).substr(1,(*x).length()-2) ));
     delete x;
     return new literal_node(pObject);
 }
 
 ast* dat::make_null() const
 {
-    objref pObject(new void_object(_context));
+    objref pObject(new void_object(_current_pkg));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
@@ -74,10 +74,10 @@ void dat::respond( ast* def, bool abbrev, std::ostream& os)
 
     try
     {
-	objref result = def->evaluate(_context);
+	objref result = def->evaluate(_current_pkg);
 	result->render(os,abbrev);
 	os << "OK" << std::endl;
-	_context->assign(std::string("_last"),result);
+	_current_pkg->assign(std::string("_last"),result);
     }
     catch( eval_exception& e )
     {
@@ -93,7 +93,7 @@ void dat::show_cmd( ast* def, std::ostream& os)
 void dat::include_cmd( ast* fname)
 {
     // Evaluate the filename
-    objref result = fname->evaluate(_context);
+    objref result = fname->evaluate(_current_pkg);
 
     // Check that it evaluated to a string
     if ( &(result->get_class()) != builtins::string::get_class() )
@@ -110,7 +110,7 @@ void dat::cd_cmd( ast* fname)
 {
 #ifdef HAVE_CHDIR
     
-    stringref newDir = object::cast_or_abort<string_object>(fname->evaluate(_context));
+    stringref newDir = object::cast_or_abort<string_object>(fname->evaluate(_current_pkg));
     auto result = chdir(newDir->internal_value().c_str());
     delete fname;
 
@@ -134,7 +134,7 @@ void dat::cd_cmd( ast* fname)
 void dat::eval_cmd( ast* stmtString)
 {
     // Evaluate the string argument
-    objref result = stmtString->evaluate(_context);
+    objref result = stmtString->evaluate(_current_pkg);
 
     // Check that it evaluated to a string
     if ( &(result->get_class()) != builtins::string::get_class() )
@@ -277,7 +277,7 @@ ast* dat::make_single_list(ast* item)
 
 ast* dat::make_bool(bool b)
 {
-    objref pObject(new bool_object(_context,b));
+    objref pObject(new bool_object(_current_pkg,b));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
@@ -285,7 +285,7 @@ ast* dat::make_bool(bool b)
 ast* dat::make_funcall( ast* fn,  ast* args) const
 {
     symbol_node* snode = dynamic_cast<symbol_node*>(fn);
-    return new funcall_node(snode->name(),args);
+    return new funcall_node(snode->sym_spec(),args);
 }
 
 ast* dat::make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const
@@ -381,4 +381,35 @@ void dat::push_symbol_identifier(std::string* s)
 ast* dat::make_while(ast* pCond,ast* pAction)
 {
     return new while_node(pCond,pAction);
+}
+
+void dat::switch_package( ast* symbol )
+{
+    if ( symbol->type()!=asttype::symbol)
+	throw eval_exception(cerror::unsupported_argument,
+			     "The package command requires a symbolic argument, e.g. root::mypackage");
+
+    auto pSymNode = dynamic_cast<symbol_node*>(symbol);
+    package* currentPkg = _root_pkg;
+    list<string> package_specs = pSymNode->pkg_spec();
+    package_specs.push_back( pSymNode->name() );
+
+    if ( package_specs.front()!="root")
+	throw eval_exception(cerror::unsupported_argument,
+			     "The argument to the package command must begin with root::");
+
+    package_specs.pop_front();
+    for ( auto s : package_specs )
+    {
+	package* pChild = currentPkg->get_child(s);
+	if (!pChild)
+	{
+	    pChild = currentPkg->add_child(s);
+	}
+	
+	currentPkg = pChild;
+    }
+
+    _current_pkg = currentPkg;
+
 }

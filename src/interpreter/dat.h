@@ -8,7 +8,7 @@
 #include <parser/action_target.h>
 #include <interpreter/typemgr.h>
 
-class context;
+class package;
 class list_node;
 class sequence_node;
 class selector_node;
@@ -17,7 +17,7 @@ class dat : public action_target
 {
 
  public:
-    dat(context*,
+    dat(package*,
 	std::function<void(const std::string&)>,
 	std::function<void(const std::string&)>
 	);
@@ -32,6 +32,7 @@ class dat : public action_target
     virtual ast* make_funcall( ast* fn,  ast* args) const;
     virtual ast* make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const;
     virtual ast* make_symbol( std::string* name, const std::list<std::string>& scopespec = {}) const;
+    virtual void switch_package( ast* symbol );
     virtual void respond( ast* def, bool abbrv = true, std::ostream& os = std::cout );
     virtual void show_cmd( ast* def, std::ostream& os = std::cout );
     virtual void include_cmd( ast* fname);
@@ -69,7 +70,8 @@ class dat : public action_target
     virtual ast* finish_selector();
 
  protected:
-    context* _context;
+    package* _current_pkg;
+    package* _root_pkg;
     std::deque<list_node*> _list_stack;
     std::deque<sequence_node*> _seq_stack;
     std::deque<selector_node*> _sel_stack;

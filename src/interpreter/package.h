@@ -36,9 +36,10 @@ class package final : public context
     /**
      * Adds a new child package to this package. If a child package with this name already
      * exists, then the existing package is deleted, and a fresh, empty package with the
-     * same name takes its place. 
+     * same name takes its place.
+     * @returns the new package 
      */
-    virtual void add_child(const std::string&);
+    virtual package* add_child(const std::string&);
 
     /**
      * Determines if this package is a root package (i.e. has no parent package).
@@ -89,7 +90,9 @@ class package final : public context
      * 
      * @returns
      */
-    static package* resolve(package* pkg, const std::list<std::string>& speclist);
+    static package* resolve(package* pkg, 
+			    const std::list<std::string>& speclist,
+			    const std::string& sym);
 
     /**
      * Convenience method that converts symspec into an appropriate list of strings,
