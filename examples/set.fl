@@ -1,0 +1,91 @@
+empty=>(l)->l.size()==0;
+and=>(x:integer,y:integer)->x.add(y).gt(1);
+
+######################################################################################################
+# NODES
+#
+# A node is a basic building blocks for a tree, which is used by a keystore to store values in a way
+# that makes their lookup efficient. Each node stores a value (can be any class that supports equality
+# and greater-than and less-than operations), and two node references - one ref to all nodes whose 
+# values are lower than the current value, and one ref to all nodes that are higher. 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Defines a new class, 'node', with four attributes and a constructor.
+//
+
+defclass node(object)
+	 .addattr("lower",null)
+	 .addattr("higher",null)
+	 .addattr("value",null)
+	 .addattr("tag",null)
+	 .addmethod( (n,v,l,h,t)-> { n.lower=>l; n.higher=>h; n.value=>v; n.tag=>t; n}, ".ctor" ); 
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Returns a list of all values in the set, sorted from low to high
+//
+
+all_contents=>(n)-> and(n.lower==null,n.higher==null)?
+			(n.value)
+		      : n.lower==null? (n.value).join(all_contents(n.higher))
+                      : n.higher==null? all_contents(n.lower).join( (n.value) )
+                      : all_contents(n.lower).join( (n.value) ).join( all_contents(n.higher) );
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Inserts a new node with value v starting with node n
+//
+
+insert=>(n,v,t)-> n.value.eq(v)?				# Does this node match?
+		  { n.tag=>t ; null } 				# Yes, done. 
+                : { v.lt(n.value)?  				# No - is v lower?
+		    {n.lower.eq(null)?				   # Yes - is there a lower?
+			n.lower=>node.new(v,null,null,t) 	     # No, add one
+		      : insert(n.lower,v,t) 			     # Yes, recurse down
+		    }  
+		  : { n.higher.eq(null)?			   # Is there a higher?
+		      	n.higher=>node.new(v,null,null,t) 	     # No, add one
+		      : insert(n.higher,v,t) 			     # Yes, recurse down
+		    } };
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Finds a value v starting from node n
+//
+
+find=>(n,v)-> n.eq(null)? 
+	      null 
+	    : n.value==v?					# Does this node match? 
+	      		     n 					  
+			   : v.lt(n.value)? 			# No, do we need to look lower
+			     		    find(n.lower,v) 
+					  : find(n.higher,v);	# ... or higher?
+
+node.addmethod(insert,"insert");
+node.addmethod(find,"find");
+
+
+######################################################################################################
+# KEYSTORE
+
+defclass keystore(object);
+keystore.addattr("store",null);
+keystore.addmethod( (t,k,v)-> t.store.eq(null)?					# Do we have a store?
+		  	      { t.store=>node.new(k,null,null,v) ; t } 		# No, create one
+			    : { insert( t.store, k, v ) ; t } , "add");		# Yes, use 'insert'
+
+keystore.addmethod( (t,k) -> t.store.find(k), "find" );
+
+
+######################################################################################################
+# Set
+
+defclass set(object)
+	 .addattr("store",null)
+	 .addmethod( (t)-> t.store=>keystore.new(), ".ctor")
+	 .addmethod( (t,v) -> {t.store.add(v,v); t }, "insert" )
+	 .addmethod( (t,v) -> t.store.find(v).eq(null).not(), "contains" )
+	 .addmethod( (t)-> t.store.store==null? () : all_contents(t.store.store), ".iter" )
+	 .addmethod( (t)-> foreach(t,(x)->x).size(), "size" );
+
+sort=>(l)-> { s=>set.new(); foreach(l,(x)->s.insert(x)); foreach(s,(x)->x) };

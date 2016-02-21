@@ -1,20 +1,22 @@
+include "tutorial.fl";
+
 // Predicate for testing for the empty list
 empty=>(l) -> l.size().eq(0);
 
 // Reverse a list
-reverse=>(l) -> empty(l)? () : reverse(l.tail())::l.head();
+reverse=>(l) -> empty(l)? () : reverse(l.tail())@l.head();
 
 // Reversed map
-rmap=>(f,l) -> empty(l)? () : rmap(f,l.tail())::f(l.head());
+rmap=>(f,l) -> empty(l)? () : rmap(f,l.tail())@f(l.head());
 
 // Normal map
 map=>(f,l)->reverse(rmap(f,l));
 
 // Build a list
-range=>(b,e) -> b.eq(e) ? (e) : range(b,e.dec())::e;
+range=>(b,e) -> b.eq(e) ? (e) : range(b,e.dec())@e;
 
 // Reverse-filter a list
-rfilter=>(p,l)-> empty(l)? () : p(l.head())? rfilter(p,l.tail())::l.head() : rfilter(p,l.tail());
+rfilter=>(p,l)-> empty(l)? () : p(l.head())? rfilter(p,l.tail())@l.head() : rfilter(p,l.tail());
 
 // Normal-filter a list
 filter=>(p,l)->reverse(rfilter(p,l));
@@ -25,8 +27,8 @@ sum=>accumulate(0,(a,b)->a+b);
 sumf=>accumulate(0.0,(a,b)->a+b);
 
 // Repeat an element in a list
-rep=>(e,n)-> n.eq(0)? () : rep(e,n.dec())::e;
-repgr=>(g,n,l) -> n.eq(0)? l : repgr(g,n.dec(),l::g());
+rep=>(e,n)-> n.eq(0)? () : rep(e,n.dec())@e;
+repgr=>(g,n,l) -> n.eq(0)? l : repgr(g,n.dec(),l@g());
 repg=>(g,n)->repgr(g,n,());
 
 btoi=>(a)-> a? 1:0;
@@ -52,88 +54,16 @@ is_even=>(x) -> x.eq(0)? true : is_odd(x.dec());
 countif=>(p,l)->filter(p,l).size();
 countifnot=>(p,l)->countif((x)->p(x).not(),l);
 
-merge=>(la,lb)-> empty(lb)? la : merge(la::lb.head(),lb.tail());
+merge=>(la,lb)-> empty(lb)? la : merge(la@lb.head(),lb.tail());
 
 nth=>(l,n)-> n.eq(0)?l.head() : nth(l.tail(),n.dec());
 
 object=>null.class().base();
-car=>object.derive("car");
+defclass car(object);
 car.addattr("wheels",0);
 car.addmethod( (t,v)-> t.wheels=>v, "setwheels");
 car.addmethod( (t,x,y) -> t.wheels=>x+y, "setfrontback" );
 c=>car.new();
 
-
 do=>(f,l) -> empty(l)? null : { f(l.head()); do(f,l.tail()); null };
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// NODES
-
-node=>object.derive("node");
-node.addattr("lower",null);
-node.addattr("higher",null);
-node.addattr("value",null);
-node.addattr("tag",null);
-
-make_node=>(v,l,h,t)-> { n=> node.new(); n.lower=>l; n.higher=>h; n.value=>v; n.tag=>t; n};
-
-copy_node=>(o)-> { n=> node.new(); 
-		   n.lower=>o.lower; 
-		   n.higher=>o.higher; 
-		   n.value=>o.value; 
-		   n.tag=>o.tag; 
-		   n};
-
-insert=>(n,v,t)-> n.value.eq(v)? 
-		  { n.tag=>t ; null } 
-                : { v.lt(n.value)? {n.lower.eq(null)? 
-				       n.lower=>make_node(v,null,null,t) 
-				     : insert(n.lower,v,t) }  
-				 : { n.higher.eq(null)? 
-				         n.higher=>make_node(v,null,null,t) 
-				       : insert(n.higher,v,t) } };
-
-find=>(n,v)-> n.eq(null)? null : n.value.eq(v)? n : v.lt(n.value)? find(n.lower,v) : find(n.higher,v);
-
-node.addmethod(insert,"insert");
-node.addmethod(find,"find");
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// BASIC KEYSTORE
-
-first=>(a)->a.head();
-second=>(a)->a.tail().head();
-
-keystore=>object.derive("keystore");
-keystore.addattr("store",());
-keystore.addmethod( (t) -> t.store.size(), "size");
-keystore.addmethod( (t,k,v)-> t.has(k)? null : t.store.append((k,v)),"add");
-keystore.addmethod( (t,v)-> containsp(t.store,v, (e,v)-> first(e).eq(v)), "has");
-
-keystore.addmethod( (t,k)-> t.has(k)? 
-		    	    	      second( filter( (p)->first(p).eq(k), t.store).head() ) 
-				    : null
-		    ,"lookup");
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// BETTER KEYSTORE
-
-intmap=>object.derive("intmap");
-intmap.addattr("store",null);
-intmap.addmethod( (t,k,v)-> t.store.eq(null)? 
-		  	      { t.store=>make_node(k,null,null,v) ; t } 
-			    : { insert( t.store, k, v ) ; t } , "add");
-
-intmap.addmethod( (t,k) -> t.store.find(k), "find" );
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// BETTER KEYSTORE
-
-set=>object.derive("set");
-set.addattr("store",null);
-set.addmethod( (t)-> t.store=>intmap.new(), ".ctor");
-set.addmethod( (t,v) -> t.store.add(v,v), "insert" );
-set.addmethod( (t,v) -> t.store.find(v).eq(null).not(), "contains" );
-
-ti=>(l,t,a,b) -> empty(l)? (a,b) : ti( l.tail(), t, l.head().gt(t)? a : a+1, l.head().lt(t)? b : b+1);
-threshold=>(l,t) -> { a=>0; b=>0; ti(l,t,0,0) };

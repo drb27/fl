@@ -1,7 +1,7 @@
 #include <logger/logger.h>
 #include <parser/rawfn.h>
 #include <interpreter/context.h>
-#include <parser/ast_nodes.h>
+#include <parser/ast/fundef.h>
 
 using std::vector;
 
@@ -44,7 +44,6 @@ void rawfn::regenerate_function(ast* newDef)
 	    wlog(level::debug,"Merging in the closure...");
 	    g.new_collection(pClosure);
 	    g.new_collection();
-	    wlog_trace("Final context",pContext->trace());
 	    wlog(level::debug,"Evaluating function definition...");
 	    auto retVal = localDef->def()->evaluate(pContext);
 	    wlog(level::debug,"About to return result from fl function call lambda...");

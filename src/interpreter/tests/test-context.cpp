@@ -1,7 +1,6 @@
 #include <string.h>
 #include "test-context.h"
 #include <interpreter/context.h>
-#include <interpreter/object.h>
 
 contextTestFixture::contextTestFixture()
 {

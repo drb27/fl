@@ -8,7 +8,7 @@ class ftlist;
 #include <string>
 #include <list>
 #include <inc/common.h>
-#include <parser/ast.h>
+#include <parser/ast/ast.h>
 #include <parser/bison.h>
 
 #define STR(x) new std::string(x)
@@ -20,16 +20,20 @@ class ftlist;
 %option bison-bridge
 
 DIGIT [0-9]
+HEXDIGIT[0-9a-fA-F]
 WS    [ \t]+
 LETTER [A-Za-z_]
 BANANA (-{0,1}{DIGIT}+[.]{DIGIT}+)
 
 %%
 
+package  { return PKG; }
+::       { return SCOPE; }
 {BANANA} { yylval->float_val = FLT(yytext); return FLOAT; }
 <<EOF>>  { return EOFF; }
 while    { return WHILE; }
 defenum  { return ENUM; }
+defclass { return CLASS; }
 \[       { return OPEN_SQUARE; }
 \]       { return CLOSE_SQUARE; }
 ==       { return EQUALITY; }
@@ -41,11 +45,14 @@ default  { return DEFAULT; }
 \}       { return CLOSE_CURLY; }
 \"[^\"]*\" { yylval->string_val =STR(yytext); return STRING; } 
 trace    { return TRACE; }
-debug    { return DEBUG; }
+eval     { return EVAL; }
+debug    { return DEBUG_CMD; }
 show     { return SHOW; }
-::       { return BUILDER; }
+cd       { return CD_CMD; }
+@        { return BUILDER; }
 render   { return RENDER; }
 quit     { return QUIT; }
+include  { return INCLUDE; }
 \-\-     { return DECREMENT; }
 \?       { return QUESTION; }
 \:       { return COLON; }
@@ -64,8 +71,10 @@ typedef  { return TYPEDEF; }
 \<       { return OPEN_ANGLED; }
 \>       { return CLOSE_ANGLED; }
 -{0,1}{DIGIT}+            { yylval->int_val = atoi(yytext); return INTEGER; }
+-{0,1}0x{HEXDIGIT}+ { yylval->int_val = strtol(yytext,NULL,16); return INTEGER; }
+#.*
 {WS}     
-{LETTER}+ { yylval->string_val = STR(yytext); return SYMBOL; }
+{LETTER}+ { yylval->string_val = STR(yytext); return IDENTIFIER; }
 \/\/[^\n]*
 =        { return EQ; }
 \n

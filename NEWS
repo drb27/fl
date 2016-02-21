@@ -1,0 +1,37 @@
+fl release 0.0.2 20th February 2016
+
+Here are the commits made since the previous release, v0.0.1. 
+See github for ticket details (the repository is team-fl/fl). 
+
+* 1199aac (HEAD, upstream/dev, origin/dev, release-0.0.2, dev) Fixed #35: Current 
+* e9e2758 Fixed #34: Merge branch 'pkg#2' into dev - introduced package system
+* 37726ec Updated configure.ac and include file ordering in Makefile
+* d3aae2d Integrated an fl-based test harness
+* ae6c0a7 Added cd command to change working directory
+* 6f71bcf Compatibility with the DEBUG macro definition
+* 501c0e9 Fixed #21: Autotoools distribution now works
+* 2568c93 Fixed #33: Currying in more than one stage now works
+* 0dbb353 Fixed #32: Built-in functions can now be curried
+* c60ac5b Fixed #17: interpreter now detects when an object cast cannot be complet
+* 677f6f8 Fixed #27: detection of invalid enum values in defenum statement
+* e71caf0 Moved examples into the fl folder
+* 115d09c Added a way to write unit tests in fl
+* 1b2986d Added parsing of hex integers
+* c07a6eb Added the identity function I to builtins
+* ea7ad88 Fixed #31: Operator precedence issue causing unexpected function evaluat
+* 0042d7a Re-enabled params in function call trace
+* 3553740 Added the eval command
+* fc82abf HOTFIX Fixes #30: Argument conversions lead to incorrect function evalua
+* b39d6cb Added the ability to return an exit code
+* 4e2dc63 Started work on a library
+* 90b3a94 Changed startup behaviour - no interactive shell if file loaded
+* 81a6be8 Added #-style comments
+* ad60faf Fixed #28: Added include command to pull in files
+* c61b7d0 Fixed unit test framework broken by refactoring
+* 57cf875 Removed files added in error
+* a032e63 Added a basic tutorial
+* 2cd1dc9 Refactored object.cpp and object.h into separate translation units under
+* 90ccb3f Refactored ast classes into separate files
+* 11f54fd HOTFIX Fixes #26: Conversion chains giving wrong result
+* 77dde98 Fixed #24: defclass to introduce derived classes
+* 813e671 Fixed #23: Added sealed classes and made declared enums sealed

@@ -2,11 +2,13 @@
 #define DAT_H
 
 #include <memory>
+#include <list>
 #include <deque>
+#include <functional>
 #include <parser/action_target.h>
 #include <interpreter/typemgr.h>
 
-class context;
+class package;
 class list_node;
 class sequence_node;
 class selector_node;
@@ -15,7 +17,10 @@ class dat : public action_target
 {
 
  public:
-    dat(context*);
+    dat(package*,
+	std::function<void(const std::string&)>,
+	std::function<void(const std::string&)>
+	);
     virtual ~dat();
 
     virtual ast* make_int(int x) const;
@@ -26,9 +31,13 @@ class dat : public action_target
     virtual ast* make_fundef( ast* arglist,  ast* def) const;
     virtual ast* make_funcall( ast* fn,  ast* args) const;
     virtual ast* make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const;
-    virtual ast* make_symbol( std::string* name) const;
-    virtual void respond( ast* def, bool abbrv = true, std::ostream& os = std::cout ) const;
+    virtual ast* make_symbol( std::string* name, const std::list<std::string>& scopespec = {}) const;
+    virtual void switch_package( ast* symbol );
+    virtual void respond( ast* def, bool abbrv = true, std::ostream& os = std::cout );
     virtual void show_cmd( ast* def, std::ostream& os = std::cout );
+    virtual void include_cmd( ast* fname);
+    virtual void eval_cmd( ast* stmtString);
+    virtual void cd_cmd( ast* fname);
     virtual ast* make_methodcall( ast* target, ast* method, list_node* args);
     virtual ast* make_assign_node(ast* lvalue, ast* rvalue,bool);
     virtual ast* make_attr( ast* target, std::string* selector);
@@ -36,13 +45,16 @@ class dat : public action_target
     virtual ast* make_equality(ast*,ast*);
     virtual ast* make_index(ast* target, ast* index);
     virtual ast* make_enum_class(std::string*,ast*);
+    virtual ast* make_new_class(std::string*,ast*);
     virtual ast* make_while(ast*,ast*);
     virtual void add_expr(ast* expr);
     virtual void finish_seq();
     virtual ast* start_list();
     virtual void push_list_element(ast*);
     virtual void push_list_element_with_typehint(ast* n,ast* t);
+    virtual void push_symbol_identifier(std::string*);
     virtual ast* finish_list();
+    virtual ast* finish_symbol();
     virtual ast* make_empty_list();
     virtual ast* make_single_list(ast*);
     virtual ast* make_bool(bool b);
@@ -57,11 +69,19 @@ class dat : public action_target
     virtual ast* selector_condition(ast*);
     virtual ast* finish_selector();
 
+    virtual void push_package();
+    virtual void pop_package();
+
  protected:
-    context* _context;
+    package* _current_pkg;
+    package* _root_pkg;
     std::deque<list_node*> _list_stack;
     std::deque<sequence_node*> _seq_stack;
     std::deque<selector_node*> _sel_stack;
+    std::list<std::string> _symbol_stack;
+    std::function<void(const std::string&)> _include_fn;
+    std::function<void(const std::string&)> _eval_fn;
+    std::deque<package*> _pkg_stack;
  private:
 
 };

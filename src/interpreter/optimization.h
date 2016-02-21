@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <functional>
-#include <parser/ast.h>
+#include <parser/ast/ast.h>
 
 
 namespace opt

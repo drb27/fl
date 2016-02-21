@@ -22,8 +22,7 @@ defenum suit (hearts,diamonds,clubs,spades);
 defenum rank (two,three,four,five,six,seven,eight,nine,ten,jack,queen,king,ace);
 
 // Card Class
-object=>null.class().base();
-card=>object.derive("card");
+defclass card(object);
 card.addattr( "suit", suit.hearts );
 card.addattr( "rank", rank.ace );
 card.addmethod( (t,s,r)-> {t.suit=>s; t.rank=>r; t}, ".ctor" );
@@ -52,7 +51,7 @@ make_deck=>()-> flatten( foreach( foreach(suit,I), (s)->make_suit(s)), () );
 
 rep=>(x,y)-> y.size()==0? x: rep(x.join(y.head()),y.tail());
 
-deck=>object.derive("deck");
+defclass deck(object);
 deck.addattr("cards", () );
 deck.addmethod( (t)-> { t.cards=>make_deck(); t }, ".ctor" );
 deck.addmethod( (t) -> { rval=>t.cards.head(); t.cards=>t.cards.tail(); rval }, "deal" );

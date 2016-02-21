@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 #include <functional>
-#include <parser/ast.h>
+#include <parser/ast/ast.h>
 #include <interpreter/marshall.h>
 
 class fclass;
@@ -141,7 +141,6 @@ protected:
     objref class_attributes(context* pContext, classref pThis);
     objref class_base(context* pContext, classref pThis);
     objref obj_ctor(context* pContext, objref pThis);
-    objref class_derive(context* pContext, classref pThis, stringref name);
     objref class_new(context* pContext, classref pThis, listref params);
     objref class_addattr(context* pContext, classref pThis, stringref name, objref d);
     objref class_equate(context* pContext, objref pThis,objref pOther);
@@ -149,6 +148,7 @@ protected:
     objref obj_assign(context* pContext, objref pThis, objref pOther);
     objref void_equate(context* pContext, objref pThis, objref pOther);
     objref rnd(context* pContext, intref a, intref b);
+    objref I(context* pContext, objref a);
     objref foreach(context* pContext, objref pObj, fnref pFn );
     objref obj_is(context*,objref,objref);
     objref obj_invoke(context*,objref,stringref,listref params);

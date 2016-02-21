@@ -1,0 +1,39 @@
+######################################################################################################
+#
+#
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Returns true if n is perfectly divisible by d
+//
+
+divides_exactly=>(n,d)-> n.mod(d)==0;
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Returns true if applying the predicate p to each item of the list l returns at least one
+// true result - i.e. if p(x) for any member of l is true, then this returns true. 
+//
+
+any_true=>(p,l)-> l.size()==0? false : p(l.head())? true : any_true(p,l.tail());
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Generates a range of integers in a list, between b and e, incusive
+//
+
+range=>(b,e) -> b.eq(e) ? (e) : range(b,e.dec())@e;
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// true is n is a prime number, false otherwise.
+//
+
+is_prime=>(n)-> n.lt(0)? is_prime( n.div(-1) ) :
+		n?? 
+		    0: false 
+		  | 1: false
+		  | 2: true 
+		  | default: any_true( divides_exactly(n), range(2,n.dec()) ).not();
+
+primes=>(b,e)-> { l=>(); foreach( range(b,e), (x)-> is_prime(x)? l.append(x) : null); l };
+

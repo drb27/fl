@@ -6,8 +6,9 @@
 #include <map>
 #include <deque>
 #include <memory>
+#include <parser/symspec.h>
 #include "typemgr.h"
-#include <parser/ast.h>
+#include <parser/ast/ast.h>
 
 class symbol_node;
 
@@ -28,11 +29,10 @@ public:
     virtual typemgr* types(); 
 
     virtual colref current_collection();
-    virtual objref resolve_symbol(const std::string&);
-    virtual bool is_defined( const std::string&);
-    virtual void assign(const std::string& name, objref value);
+    virtual objref resolve_symbol(const symspec&);
+    virtual bool is_defined( const symspec&);
+    virtual void assign(const symspec& name, objref value);
     virtual void reset();
-    virtual colref all();
     virtual std::map<std::string,std::string> trace() const;
 
     friend std::ostream& operator<<( std::ostream& os, const context& c);

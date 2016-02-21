@@ -1,23 +1,34 @@
+#include <inc/config.h>
 #include <memory>
 #include <string>
 #include <deque>
 #include <vector>
-#include <interpreter/object.h>
-#include <parser/ast.h>
-#include <parser/ast_nodes.h>
+#include <parser/ast/ast.h>
+#include <parser/ast/nodes.h>
+#include <interpreter/obj/all.h>
 #include "dat.h"
 #include <interpreter/typemgr.h>
-#include <interpreter/context.h>
+#include <interpreter/package.h>
 #include <interpreter/eval_exception.h>
 #include <logger/logger.h>
 #include <interpreter/builtins.h>
+
+#ifdef HAVE_CHDIR
+#include <unistd.h>
+#endif
 
 using std::string;
 using std::deque;
 using std::shared_ptr;
 using std::vector;
+using std::function;
+using std::list;
 
-dat::dat(context* pContext) : _context(pContext)
+dat::dat(package* pPkg,
+	 function<void(const string&)> fn,
+	 function<void(const string&)> fn_eval
+	 )
+    : _current_pkg(pPkg), _root_pkg(pPkg),_include_fn(fn),_eval_fn(fn_eval)
 {
 }
 
@@ -28,27 +39,27 @@ dat::~dat()
 
 ast* dat::make_int(int x) const
 {
-    objref pObject(new int_object(_context,x));
+    objref pObject(new int_object(_current_pkg,x));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
 ast* dat::make_float(double v)
 {
-    objref pObject(new float_object(_context,v));
+    objref pObject(new float_object(_current_pkg,v));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
 
 ast* dat::make_string(std::string* x) const
 {
-    objref pObject(new string_object(_context, (*x).substr(1,(*x).length()-2) ));
+    objref pObject(new string_object(_current_pkg, (*x).substr(1,(*x).length()-2) ));
     delete x;
     return new literal_node(pObject);
 }
 
 ast* dat::make_null() const
 {
-    objref pObject(new void_object(_context));
+    objref pObject(new void_object(_current_pkg));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
@@ -58,21 +69,82 @@ ast* dat::make_fundef( ast* arglist,  ast* def) const
     return new fundef_node(arglist,def);
 }
 
-void dat::respond( ast* def, bool abbrev, std::ostream& os) const
+void dat::respond( ast* def, bool abbrev, std::ostream& os)
 {
+
     try
     {
-	def->evaluate(_context)->render(os,abbrev);
+	objref result = def->evaluate(_current_pkg);
+	result->render(os,abbrev);
 	os << "OK" << std::endl;
+	_current_pkg->assign(std::string("_last"),result);
     }
     catch( eval_exception& e )
     {
+	_symbol_stack.clear();
 	throw e;
     }
 }
 void dat::show_cmd( ast* def, std::ostream& os)
 {
     respond(def,false,os);
+}
+
+void dat::include_cmd( ast* fname)
+{
+    // Evaluate the filename
+    objref result = fname->evaluate(_current_pkg);
+
+    // Check that it evaluated to a string
+    if ( &(result->get_class()) != builtins::string::get_class() )
+	throw eval_exception( cerror::unsupported_argument,
+			      "The include command requires a string argument" );
+
+    stringref pFnameStr = std::dynamic_pointer_cast<string_object>(result);
+ 
+    // Set a callback!
+    _include_fn( pFnameStr->internal_value() );
+}
+
+void dat::cd_cmd( ast* fname)
+{
+#ifdef HAVE_CHDIR
+    
+    stringref newDir = object::cast_or_abort<string_object>(fname->evaluate(_current_pkg));
+    auto result = chdir(newDir->internal_value().c_str());
+    delete fname;
+
+#ifdef HAVE_GETCWD
+    
+    char* buf = getcwd(nullptr,0);
+    std::cout << "Working directory is now " << buf << std::endl;
+    free(buf);
+
+#endif
+
+#else
+
+    delete fname;
+    throw eval_exception(cerror::unsupported_feature,
+			 "This feature is not supported by the build environment" );
+#endif
+
+}
+
+void dat::eval_cmd( ast* stmtString)
+{
+    // Evaluate the string argument
+    objref result = stmtString->evaluate(_current_pkg);
+
+    // Check that it evaluated to a string
+    if ( &(result->get_class()) != builtins::string::get_class() )
+	throw eval_exception( cerror::unsupported_argument,
+			      "The eval command requires a string argument" );
+
+    stringref pStmt = std::dynamic_pointer_cast<string_object>(result);
+ 
+    // Set a callback!
+    _eval_fn(pStmt->internal_value() );
 }
 
 ast* dat::make_attr( ast* target, std::string* selector)
@@ -125,9 +197,11 @@ ast* dat::make_methodcall( ast* target, ast* method,list_node* args)
     return r;
 }
 
-ast* dat::make_symbol( std::string* name) const
+ast* dat::make_symbol( std::string* name, const list<string>& scopespec) const
 {
     auto r = new symbol_node(*name);
+    if (scopespec.size())
+	r->add_pkg_spec(scopespec);
     delete name;
     return r;
 }
@@ -145,6 +219,13 @@ ast* dat::make_assign_node(ast* lvalue, ast* rvalue,bool alias)
 ast* dat::make_enum_class(string* name,ast* pDefList)
 {
     auto r = new enum_node(*name,pDefList);
+    delete name;
+    return r;
+}
+
+ast* dat::make_new_class(std::string* name,ast* pDeriveList)
+{
+    auto r = new classdef_node(*name,pDeriveList);
     delete name;
     return r;
 }
@@ -196,7 +277,7 @@ ast* dat::make_single_list(ast* item)
 
 ast* dat::make_bool(bool b)
 {
-    objref pObject(new bool_object(_context,b));
+    objref pObject(new bool_object(_current_pkg,b));
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }
@@ -204,7 +285,7 @@ ast* dat::make_bool(bool b)
 ast* dat::make_funcall( ast* fn,  ast* args) const
 {
     symbol_node* snode = dynamic_cast<symbol_node*>(fn);
-    return new funcall_node(snode->name(),args);
+    return new funcall_node(snode->sym_spec(),args);
 }
 
 ast* dat::make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const
@@ -281,7 +362,65 @@ ast* dat::finish_selector()
     _sel_stack.pop_front();
 }
 
+ast* dat::finish_symbol()
+{
+    string last = _symbol_stack.back();
+    auto pLast = new string(last);
+    _symbol_stack.pop_back();
+    auto result = make_symbol(pLast,_symbol_stack);
+    _symbol_stack.clear();
+    return result;
+}
+
+void dat::push_symbol_identifier(std::string* s)
+{
+    _symbol_stack.push_back(*s);
+    delete s;
+}
+
 ast* dat::make_while(ast* pCond,ast* pAction)
 {
     return new while_node(pCond,pAction);
+}
+
+void dat::switch_package( ast* symbol )
+{
+    if ( symbol->type()!=asttype::symbol)
+	throw eval_exception(cerror::unsupported_argument,
+			     "The package command requires a symbolic argument, e.g. root::mypackage");
+
+    auto pSymNode = dynamic_cast<symbol_node*>(symbol);
+    package* currentPkg = _root_pkg;
+    list<string> package_specs = pSymNode->pkg_spec();
+    package_specs.push_back( pSymNode->name() );
+
+    if ( package_specs.front()!="root")
+	throw eval_exception(cerror::unsupported_argument,
+			     "The argument to the package command must begin with root::");
+
+    package_specs.pop_front();
+    for ( auto s : package_specs )
+    {
+	package* pChild = currentPkg->get_child(s);
+	if (!pChild)
+	{
+	    pChild = currentPkg->add_child(s);
+	}
+	
+	currentPkg = pChild;
+    }
+
+    _current_pkg = currentPkg;
+
+}
+
+void dat::push_package()
+{
+    _pkg_stack.push_back(_current_pkg);
+}
+
+void dat::pop_package()
+{
+    _current_pkg = _pkg_stack.back();
+    _pkg_stack.pop_back();
 }

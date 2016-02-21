@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 #include <ostream>
-#include <parser/ast.h>
+#include <parser/ast/ast.h>
 #include <parser/action_target.h>
 
 int yylex(void);
@@ -19,7 +19,11 @@ extern action_target* target;
 %define api.pure full
 %define api.push-pull push
 
+%token PKG
+%token SCOPE
+%token CLASS
 %token SHOW
+%token CD_CMD
 %token FLOAT
 %token WHILE
 %token EOFF
@@ -32,10 +36,12 @@ extern action_target* target;
 %token OPEN_CURLY
 %token CLOSE_CURLY
 %token TRACE
-%token DEBUG
+%token DEBUG_CMD
+%token EVAL
 %token BUILDER
 %token RENDER
 %token QUIT
+%token INCLUDE
 %token DECREMENT
 %token QUESTION
 %token COLON
@@ -47,7 +53,7 @@ extern action_target* target;
 %token INTEGER
 %token STRING
 %token NEWLINE
-%token SYMBOL
+%token IDENTIFIER
 %token EQ
 %token OPEN_PAREN
 %token CLOSE_PAREN
@@ -71,16 +77,18 @@ extern action_target* target;
 
 %type <int_val> INTEGER
 %type <float_val> FLOAT
-%type <string_val> SYMBOL
+%type <string_val> IDENTIFIER
 %type <string_val> STRING
 %type <node_val> integer
 %type <node_val> flfloat
 %type <node_val> if
 %type <node_val> null
 %type <node_val> symbol
+%type <node_val> symbol_wip
 %type <node_val> fundef
 %type <node_val> expr
 %type <node_val> enumdef
+%type <node_val> classdef
 %type <node_val> alias
 %type <node_val> funcall
 %type <node_val> methodcall
@@ -102,22 +110,26 @@ extern action_target* target;
 
 %left SEMICOLON
 %precedence MAPSTO
-%left ALIAS
 %left EQ
+%left COLON
 %left SELECTOR
 %left BAR
-%left COLON
 %left QUESTION
+%right ALIAS
 %precedence EQUALITY
-%left BUILDER
+%right OPEN_CURLY
+%left CLOSE_CURLY
 %left ADD
 %left DECREMENT
 %precedence LOWEST
 %precedence OPEN_PAREN
 %precedence DOT
-%precedence QUOTE
+%left BUILDER
+%left SCOPE
+%right QUOTE
 %left OPEN_SQUARE
 %left CLOSE_SQUARE
+%right WHILE
 %%
 
 /* INPUTS *****************************************************************/
@@ -128,7 +140,11 @@ input: stmt { YYACCEPT; };
 
 integer: INTEGER { $$=target->make_int($1); }
 flfloat: FLOAT { $$=target->make_float($1); }
-symbol:  SYMBOL  { $$=target->make_symbol($1);  }
+symbol_wip:  IDENTIFIER  { target->push_symbol_identifier($1);  }
+           | IDENTIFIER  { target->push_symbol_identifier($1); } SCOPE symbol_wip {$$=$4;};
+
+symbol: symbol_wip { $$ = target->finish_symbol(); };
+
 str: STRING { $$=target->make_string($1); }
 
 /* DEFINITIONS ************************************************************/
@@ -163,6 +179,7 @@ expr:   literal
       | listbuild
       | methodcall
       | enumdef
+      | classdef
       | alias
       | assign
       | selector
@@ -181,7 +198,7 @@ literal: null | bool | integer | flfloat | str | list_literal;
 funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
 
 methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
-attr: expr DOT SYMBOL {$$=target->make_attr($1,$3); };
+attr: expr DOT IDENTIFIER {$$=target->make_attr($1,$3); };
 
 bool: TRUE {$$=target->make_bool(true); } 
     | FALSE { $$=target->make_bool(false); }
@@ -208,23 +225,34 @@ selpair: expr COLON expr { target->selector_condition( target->make_pair($1,$3) 
 
 index: expr OPEN_SQUARE expr CLOSE_SQUARE { $$=target->make_index($1,$3); }
 
-enumdef: ENUM SYMBOL list { $$=target->make_enum_class($2,$3); }
+enumdef: ENUM IDENTIFIER list { $$=target->make_enum_class($2,$3); }
+
+classdef: CLASS IDENTIFIER list { $$=target->make_new_class($2,$3); }
 
 flwhile: WHILE OPEN_CURLY expr CLOSE_CURLY expr { $$=target->make_while($3,$5); }
 
 /* COMMANDS ***************************************************************/
 
-command: trace_cmd | debug_cmd | render_cmd | quit_cmd | show_cmd;
+command: trace_cmd | debug_cmd | render_cmd | quit_cmd | show_cmd | include_cmd | eval_cmd 
+       | cd_cmd | pkg_cmd;
 
 render_cmd: RENDER expr {target->render($2); };
 
-debug_cmd: DEBUG expr { target->enable_debug(); target->respond($2); target->enable_debug(false); };
+debug_cmd: DEBUG_CMD expr { target->enable_debug(); target->respond($2); target->enable_debug(false); };
 
 trace_cmd: TRACE expr { target->enable_trace(); target->respond($2); target->enable_trace(false); };
 
 quit_cmd: QUIT { target->done(); };
 
 show_cmd: SHOW expr { target->show_cmd($2); };
+
+include_cmd: INCLUDE expr { target->include_cmd($2); };
+
+eval_cmd: EVAL expr { target->eval_cmd($2); };
+
+cd_cmd: CD_CMD expr { target->cd_cmd($2); };
+
+pkg_cmd: PKG symbol { target->switch_package($2); };
 
 /* STATEMENTS *************************************************************/
 
