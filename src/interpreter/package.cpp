@@ -21,6 +21,22 @@ package::~package()
     _children.clear();
 }
 
+void package::assign(const symspec& s, objref o)
+{
+    if (s.pkg_spec().size()==0)
+    {
+	context::assign(s,o);
+    }
+    else if ( is_defined(s) )
+    {
+	package* pMatchedPackage = package::resolve(this,s);
+	pMatchedPackage->assign(s.name(),o);
+    }
+    else
+	throw eval_exception(cerror::undefined_symbol,
+			     "Unresolved symbol " + s.rqn() );
+}
+
 objref package::resolve_symbol(const symspec& s)
 {
     // Attempt to locate a matching symbol in the package hierarchy

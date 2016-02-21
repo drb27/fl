@@ -50,7 +50,7 @@ function<void(objref)> symbol_node::setter(context* pContext)
 	    }
 	}
 
-	pContext->assign(_name,pNewVal);
+	pContext->assign(symspec(_name,_pkg_spec),pNewVal);
 
     };
 }
