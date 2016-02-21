@@ -1,4 +1,5 @@
 include "tests-fl/testcase.fl";
+include "tests-fl/ticket-37.fl";
 
 exit=>1;
 all_passed=>(l)-> l.size().eq(0)? true : l.head()? all_passed(l.tail()) : false;
@@ -6,6 +7,7 @@ all_passed=>(l)-> l.size().eq(0)? true : l.head()? all_passed(l.tail()) : false;
 tc=>tests::testcase.new();
 
 tc.add_test( "int_addition_sane", ()-> 1.add(2).eq(3) );
+tc.add_test( "ticket_37", tickets::t37::run );
 
 results=>tc.run();
 
