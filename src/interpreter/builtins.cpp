@@ -152,6 +152,13 @@ namespace builtins
 					      args,args,
 					      {}) 
 				) );
+
+	pContext->assign(std::string("print"), 
+			 fnref( new fn_object(pContext,
+					      rawfn(make_marshall(&builtins::print)),
+					      args,args,
+					      {}) 
+				) );
    
 	pContext->assign( integer::get_class()->name(), 
 			  classref(new class_object(pContext, integer::get_class())) );
@@ -709,7 +716,22 @@ namespace builtins
 	bool result = (*pThis)==pOther;
 	return boolref(new bool_object(pContext, result));
     }
+    
+    objref print(context* pContext, objref a)
+    {
+	a = ::object::convert_to(a,builtins::string::get_class());
 
+	// Check the result of the conversion
+	if (!a)
+	    throw eval_exception(cerror::unsupported_argument,
+				 "Argument to print must be a string, or convertible to a string");
+
+	stringref str = ::object::cast_or_abort<string_object>(a);
+	std::cout << ( str->internal_value() ) << std::endl;
+
+	return a;
+    }
+    
     objref rnd(context* pContext, intref a, intref b)
     {
 	int lower = a->internal_value();
