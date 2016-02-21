@@ -1,0 +1,13 @@
+include "tests-fl/testcase.fl";
+package root;
+
+exit=>1;
+all_passed=>(l)-> l.size().eq(0)? true : l.head()? all_passed(l.tail()) : false;
+
+tc=>tests::testcase.new();
+
+tc.add_test( "int_addition_sane", ()-> 1.add(2).eq(3) );
+
+results=>tc.run();
+
+all_passed(results)? exit=>0 : exit=>1;

@@ -3,6 +3,7 @@
 
 #include <interpreter/obj/object.h>
 #include <parser/rawfn.h>
+#include <interpreter/collection.h>
 
 /**
  * A function which can only be evaluated when all of its arguments have been

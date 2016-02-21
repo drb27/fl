@@ -45,6 +45,8 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/interpreter/typemgr.h \
 			src/interpreter/context.cpp \
 			src/interpreter/context.h \
+			src/interpreter/package.cpp \
+			src/interpreter/package.h \
 			src/interpreter/builtins.cpp \
 			src/interpreter/builtins.h \
 			src/interpreter/dat.cpp \
@@ -98,6 +100,10 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/parser/ast/classdef.h \
 			src/parser/action_target.h \
 			src/parser/callable.h \
+			src/parser/symspec.h \
+			src/parser/symspec.cpp \
+			src/interpreter/collection.h \
+			src/interpreter/collection.cpp \
 			src/inc/common.h
 
 liblang_a_DEPENDENCIES=src/parser/lexer.l src/parser/parser.y
@@ -106,7 +112,7 @@ fl_SOURCES=src/shell/shell.cpp
 fl_LDADD=liblang.a
 fl_LDFLAGS=-lfl
 
-TESTS=interpreter_tests fl-tests/fl_tests.sh
+TESTS=interpreter_tests fl_tests.sh
 check_PROGRAMS=interpreter_tests
 interpreter_tests_SOURCES=src/interpreter/tests/tests.cpp \
 				src/interpreter/tests/test-fclass.cpp \
@@ -120,7 +126,9 @@ interpreter_tests_SOURCES=src/interpreter/tests/tests.cpp \
 				src/interpreter/tests/test-typemgr.h \
 				src/interpreter/tests/test-context.h \
 				src/interpreter/tests/test-parser.h \
-				src/interpreter/tests/test-smartlist.h
+				src/interpreter/tests/test-smartlist.h \
+				src/interpreter/tests/test-package.h \
+				src/interpreter/tests/test-package.cpp
 
 interpreter_tests_LDADD=liblang.a
 

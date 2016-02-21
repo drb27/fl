@@ -1,0 +1,17 @@
+package root::tests;
+
+apply=>(f,l)-> f 'l;
+
+defenum result(notrun,pass,fail,unknown);
+
+defclass test(object)
+	 .addattr("name","<anonymous>")
+	 .addattr("fn",()->false)
+	 .addmethod( (t)-> apply(t.fn,()), "run")
+	 .addmethod( (t,n,f)-> {t.name=>n; t.fn=>f; t } , ".ctor" );
+
+defclass testcase(object)
+	 .addattr("tests",())
+	 .addattr("results",result.notrun)
+	 .addmethod( (t)-> foreach(t.tests, (tt)->tt.run() ), "run" )
+	 .addmethod( (t,n,f)-> t.tests.append( test.new(n,f) ), "add_test" );

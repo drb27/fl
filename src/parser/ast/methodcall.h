@@ -18,7 +18,7 @@ public:
 
     virtual void add_target(ast* pObj);
     virtual void add_param(ast*);
-    virtual void required_symbols(std::set<std::string>&) const;
+    virtual void required_symbols(std::set<symspec>&) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="",
 			    const std::string& label="",

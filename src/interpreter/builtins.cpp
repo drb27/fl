@@ -132,21 +132,21 @@ namespace builtins
 	args.push_back({"a",nullptr}); 
 	args.push_back({"b",nullptr});
 
-	pContext->assign("rnd", 
+	pContext->assign(std::string("rnd"), 
 			 fnref( new fn_object(pContext,
 					      rawfn(make_marshall(&builtins::rnd)),
 					      args,args,
 					      {}) 
 				) );
 
-	pContext->assign("foreach",
+	pContext->assign(std::string("foreach"),
 			 fnref( new fn_object(pContext,
 					      rawfn(make_marshall(&builtins::foreach)),
 					      args,args,
 					      {} ) ));
 
 	args.pop_back();
-	pContext->assign("I", 
+	pContext->assign(std::string("I"), 
 			 fnref( new fn_object(pContext,
 					      rawfn(make_marshall(&builtins::I)),
 					      args,args,
@@ -746,7 +746,7 @@ namespace builtins
 	    list_node* pArgList = new list_node();
 	    literal_node* pArg = new literal_node(currentObject);
 	    pArgList->push_element( pArg );
-	    funcall_node* pFnCall = new funcall_node("(anonymous)", pArgList);
+	    funcall_node* pFnCall = new funcall_node(symspec("(anonymous)"), pArgList);
 
 	    auto result = pFnCall->evaluate(pContext,pFn);
 

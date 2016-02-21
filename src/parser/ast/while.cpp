@@ -50,7 +50,7 @@ objref while_node::evaluate(context* pContext )
     return result;
 }
 
-void while_node::required_symbols(set<string>& s ) const
+void while_node::required_symbols(set<symspec>& s ) const
 {
     _cond->required_symbols(s);
     _action->required_symbols(s);

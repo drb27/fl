@@ -17,7 +17,7 @@ public:
     assign_node(ast*,ast*,bool alias=false);
     virtual objref evaluate(context*);
     virtual fclass* type(context*) const;
-    virtual void required_symbols(std::set<std::string>&) const;
+    virtual void required_symbols(std::set<symspec>&) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="",
 			    const std::string& label="",

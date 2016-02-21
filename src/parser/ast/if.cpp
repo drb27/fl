@@ -41,7 +41,7 @@ void if_node::render_dot(int& uuid,
     _falseExpr->render_dot(uuid,myid," false",out);
 }
 
-void if_node::required_symbols(set<string>& s) const
+void if_node::required_symbols(set<symspec>& s) const
 {
     _condition->required_symbols(s);
     _trueExpr->required_symbols(s);

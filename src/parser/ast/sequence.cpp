@@ -4,6 +4,7 @@
 #include <inc/references.h>
 #include <parser/ast/sequence.h>
 #include <interpreter/context.h>
+#include <interpreter/collection.h>
 
 using std::string;
 using std::list;
@@ -82,7 +83,7 @@ objref sequence_node::evaluate_isolated(context* pContext)
     {
 	for ( auto p : *(col.get()) )
 	{
-	    (*currentCollection)[p.first] = p.second;
+	    currentCollection->define_symbol(p.first,p.second);
 	}
     }
 
@@ -90,7 +91,7 @@ objref sequence_node::evaluate_isolated(context* pContext)
     return latestResult;
 }
 
-void sequence_node::required_symbols(set<string>& s) const
+void sequence_node::required_symbols(set<symspec>& s) const
 {
     for ( auto expr : _sequence )
     {

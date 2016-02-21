@@ -19,7 +19,7 @@ objref literal_node::evaluate(context* pContext)
     return _object;
 }
 
-void literal_node::required_symbols(std::set<std::string>&) const
+void literal_node::required_symbols(set<symspec>&) const
 {
 }
 

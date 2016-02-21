@@ -10,7 +10,7 @@
 #include <fstream>
 
 #include <logger/logger.h>
-#include <interpreter/context.h>
+#include <interpreter/package.h>
 #include <interpreter/class.h>
 #include <interpreter/typemgr.h>
 #include <parser/action_target.h>
@@ -130,9 +130,9 @@ int main(int argc, char** argv)
     #endif
 
     std::cout << std::endl;
-    wlog(level::debug,"Creating context");
-    context* shell_context = new context();
-    builtins::build_globals(shell_context);
+    wlog(level::debug,"Creating root package");
+    package* pRootPackage = new package("root",nullptr);
+    builtins::build_globals(pRootPackage);
 
     // Reentrant scanner/parser init
     yyscan_t scanner;
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
     g_ps = yypstate_new();
 
     deque<function<objref(void)>> callbacks;
-    target = new dat(shell_context,
+    target = new dat(pRootPackage,
 		     [&callbacks,&scanner](const std::string& fname)
 		     {
 			 callbacks.push_back( [&fname,&scanner,&callbacks]()
@@ -151,12 +151,12 @@ int main(int argc, char** argv)
 					     
 					     );
 		     },
-		     [&callbacks,&scanner,&shell_context](const std::string& flStatement)
+		     [&callbacks,&scanner,&pRootPackage](const std::string& flStatement)
 		     {
-			 callbacks.push_back( [&flStatement,&scanner,&callbacks,&shell_context]()
+			 callbacks.push_back( [&flStatement,&scanner,&callbacks,&pRootPackage]()
 	                                      {
 						  process_string(flStatement,scanner,g_ps,callbacks);
-						  return shell_context->resolve_symbol("_last");
+						  return pRootPackage->resolve_symbol(std::string("_last"));
 	                                      }
 					     
 					     );
@@ -194,10 +194,10 @@ int main(int argc, char** argv)
     yypstate_delete(g_ps);
     yylex_destroy(scanner);
 
-    if ( shell_context->is_defined("exit") )
+    if ( pRootPackage->is_defined(string("exit")) )
     {
 	intref exitCode = object::cast_or_abort<int_object>
-	    (shell_context->resolve_symbol("exit"));
+	    (pRootPackage->resolve_symbol(string("exit")));
 	return exitCode->internal_value();
     }
     else

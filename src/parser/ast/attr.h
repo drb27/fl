@@ -16,7 +16,7 @@ class attr_node : public lvalue_node
 public:
     attr_node(ast* target, const std::string& selector);
     virtual objref evaluate(context*);
-    virtual void required_symbols(std::set<std::string>&) const;
+    virtual void required_symbols(std::set<symspec>&) const;
     virtual std::function<void(objref)> setter(context*);
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="",

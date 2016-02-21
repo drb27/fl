@@ -76,7 +76,7 @@ objref list_node::evaluate(context* pContext)
     return objref(l);
 }
 
-void list_node::required_symbols(set<string>& s) const
+void list_node::required_symbols(set<symspec>& s) const
 {
     for ( auto e : _elements)
     {

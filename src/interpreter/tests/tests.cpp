@@ -16,6 +16,7 @@
 #include "test-context.h"
 #include "test-parser.h"
 #include "test-smartlist.h"
+#include "test-package.h"
 
 logger g_logger(std::cout);
 context* g_pContext;
@@ -26,6 +27,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TypemgrTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(contextTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(parserTestFixture);
 CPPUNIT_TEST_SUITE_REGISTRATION(smartlistTestFixture);
+CPPUNIT_TEST_SUITE_REGISTRATION(packageTestFixture);
 
 int main(int argc, char* argv[] )
 {

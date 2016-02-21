@@ -91,7 +91,7 @@ fclass* selector_node::type(context* pContext) const
     return builtins::object::get_class();
 }
 
-void selector_node::required_symbols(set<string>& s ) const
+void selector_node::required_symbols(set<symspec>& s ) const
 {
     _selector->required_symbols(s);
     if (_default)

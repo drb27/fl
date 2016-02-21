@@ -56,7 +56,7 @@ objref enum_node::evaluate(context* pContext)
     return clsObj;
 }
 
-void enum_node::required_symbols(set<string>& s) const
+void enum_node::required_symbols(set<symspec>& s) const
 {
     _def_list->required_symbols(s);
 }

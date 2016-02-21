@@ -1,12 +1,15 @@
 #include <string>
 #include <map>
 #include <sstream>
-#include "context.h"
+#include <cassert>
+
+#include <interpreter/context.h>
 #include <interpreter/obj/object.h>
-#include "typemgr.h"
+#include <interpreter/typemgr.h>
 #include <interpreter/eval_exception.h>
 #include <logger/logger.h>
-#include <cassert>
+#include <interpreter/collection.h>
+
 
 using std::string;
 using std::map;
@@ -28,19 +31,19 @@ context::~context()
     wlog_entry();
 }
 
-objref context::resolve_symbol(const string& name)
+objref context::resolve_symbol(const symspec& s)
 {
     wlog_entry();
     // Newest collections are at the head
     for ( auto col : _collections )
     {
-        auto i = col->find(name);
-	if (i!=col->end())
-	    return (*i).second;
+        auto o = col->resolve_symbol(s);
+	if (o)
+	    return o;
     }
 
     // Not found in any collection
-    string msg = "Unresolved symbol [" + name + "]";
+    string msg = "Unresolved symbol [" + s.rqn() + "]";
     throw eval_exception(cerror::undefined_symbol,msg);
 }
 
@@ -90,24 +93,24 @@ typemgr* context::types()
     return _types;
 }
 
-bool context::is_defined(const string& name)
+bool context::is_defined(const symspec& s)
 {
     wlog_entry();
 
     for ( auto col : _collections )
     {
-	auto i = col->find(name);
-	if ( i!=col->end())
+	auto o = col->resolve_symbol(s);
+	if (o) 
 	    return true;
     }
 
     return false;
 }
 
-void context::assign(const string& name, objref value )
+void context::assign(const symspec& s, objref value )
 {
     wlog_entry();
-    (*_collections.front())[name] = value;
+    (*_collections.front()).define_symbol(s,value);
 }
 
 void context::reset()
@@ -116,22 +119,6 @@ void context::reset()
     _collections.clear();
     _states.clear();
     new_collection();
-}
-
-colref context::all()
-{
-    wlog_entry();
-    auto pooled = colref( new collection );
-
-    for ( auto i = _collections.rbegin(); i!= _collections.rend(); i++ )
-    {
-	for ( auto p : *(*i) )
-	{
-	    (*pooled)[p.first] = p.second;
-	}
-    }
-
-    return pooled;
 }
 
 void context::dump( std::ostream& os )
@@ -149,7 +136,7 @@ void context::dump( std::ostream& os )
 	os << " LEVEL " << level_index << "----->" << std::endl;
 
 	// Iterate over symbols in this collection
-	for ( auto s : *pCol )
+	for ( const auto s : *pCol )
 	{
 	    os << s.first << ": ";
 	    s.second->render(os);
