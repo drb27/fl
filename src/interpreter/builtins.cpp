@@ -514,9 +514,19 @@ namespace builtins
 	return (*pThis)[index];
     }
 
-    objref string_add(context* pContext, stringref pThis, stringref pOther)
+    objref string_add(context* pContext, stringref pThis, objref pOther)
     {
-	return stringref( (*pThis)+pOther );
+	pOther = ::object::convert_to(pOther,builtins::string::get_class());
+
+	// Check the result of the conversion
+	if (!pOther)
+	    throw eval_exception(cerror::unsupported_argument,
+				 "Attempt to add a non-string to a string, and can't convert");
+
+	// Cast
+	stringref pB = ::object::cast_or_abort<string_object>(pOther);
+
+	return stringref( (*pThis)+pB);
     }
 
     objref string_join(context* pContext, stringref pThis, stringref pOther)

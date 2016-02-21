@@ -135,7 +135,7 @@ protected:
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
     objref string_length(context* pContext, stringref pThis);
     objref string_index(context* pContext, stringref pThis, intref index );
-    objref string_add(context* pContext, stringref pThis, stringref pOther);
+    objref string_add(context* pContext, stringref pThis, objref pOther);
     objref string_join(context* pContext, stringref pThis, stringref pOther);
     objref class_methods(context* pContext, classref pThis);
     objref class_attributes(context* pContext, classref pThis);
