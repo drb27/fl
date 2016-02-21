@@ -17,6 +17,7 @@ rel
 Doxyfile
 *.tar.gz
 fl-*
+fl_tests.sh
 interpreter_tests
 .deps
 .dirstamp
