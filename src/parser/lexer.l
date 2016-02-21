@@ -74,7 +74,7 @@ typedef  { return TYPEDEF; }
 -{0,1}0x{HEXDIGIT}+ { yylval->int_val = strtol(yytext,NULL,16); return INTEGER; }
 #.*
 {WS}     
-{LETTER}+ { yylval->string_val = STR(yytext); return IDENTIFIER; }
+{LETTER}({LETTER}|{DIGIT})* { yylval->string_val = STR(yytext); return IDENTIFIER; }
 \/\/[^\n]*
 =        { return EQ; }
 \n
