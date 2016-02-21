@@ -31,7 +31,7 @@ using std::string;
 using std::map;
 using std::function;
 
-action_target* target;
+dat* target;
 
 logger g_logger(std::cout);
 yypstate* g_ps;
@@ -90,7 +90,9 @@ void read_file(const std::string& fname,
 	       yypstate* ps,
 	       deque<function<objref(void)>>& callbacks )
 {
-    // Library file
+
+    target->push_package();
+
     std::ifstream infile(fname);
     if ( infile.good() )
     {
@@ -109,6 +111,7 @@ void read_file(const std::string& fname,
 	{
 	    
 	}
+	target->pop_package();
 	infile.close();
     }
 }

@@ -413,3 +413,14 @@ void dat::switch_package( ast* symbol )
     _current_pkg = currentPkg;
 
 }
+
+void dat::push_package()
+{
+    _pkg_stack.push_back(_current_pkg);
+}
+
+void dat::pop_package()
+{
+    _current_pkg = _pkg_stack.back();
+    _pkg_stack.pop_back();
+}

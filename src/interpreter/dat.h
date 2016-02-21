@@ -69,6 +69,9 @@ class dat : public action_target
     virtual ast* selector_condition(ast*);
     virtual ast* finish_selector();
 
+    virtual void push_package();
+    virtual void pop_package();
+
  protected:
     package* _current_pkg;
     package* _root_pkg;
@@ -78,6 +81,7 @@ class dat : public action_target
     std::list<std::string> _symbol_stack;
     std::function<void(const std::string&)> _include_fn;
     std::function<void(const std::string&)> _eval_fn;
+    std::deque<package*> _pkg_stack;
  private:
 
 };
