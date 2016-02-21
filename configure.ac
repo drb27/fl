@@ -37,6 +37,8 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([chdir getcwd memset strtol])
 
 AC_CHECK_LIB([cppunit],[main])
+AC_CONFIG_LINKS([tests-fl/testsuite.fl:tests-fl/testsuite.fl])
+AC_CONFIG_LINKS([tests-fl/testcase.fl:tests-fl/testcase.fl])
 AC_CONFIG_FILES([Makefile Doxyfile])
 AC_CONFIG_FILES([fl_tests.sh],[chmod +x fl_tests.sh])
 AC_OUTPUT

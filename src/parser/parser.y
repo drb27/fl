@@ -110,12 +110,12 @@ extern action_target* target;
 
 %left SEMICOLON
 %precedence MAPSTO
-%left ALIAS
 %left EQ
 %left COLON
 %left SELECTOR
 %left BAR
 %left QUESTION
+%right ALIAS
 %precedence EQUALITY
 %right OPEN_CURLY
 %left CLOSE_CURLY
