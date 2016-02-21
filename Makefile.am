@@ -8,8 +8,7 @@ CLEANFILES=src/parser/parser.cpp \
 	src/parser/bison.h
 
 EXTRA_DIST=src/parser/lexer.l \
-	   src/parser/parser.y \
-	   fl-tests/testsuite.fl
+	   src/parser/parser.y
 
 AM_YFLAGS=-d
 AM_CXXFLAGS=-std=c++14 -I$(top_builddir)/src -I$(top_srcdir)/src
