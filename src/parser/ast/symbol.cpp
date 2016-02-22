@@ -87,7 +87,7 @@ void symbol_node::required_symbols(set<symspec>& s) const
     s.insert(_name);
 }
 
-objref symbol_node::evaluate(context* pContext)
+objref symbol_node::raw_evaluate(context* pContext)
 {
     return pContext->resolve_symbol( symspec(_name,_pkg_spec) ); 
 }

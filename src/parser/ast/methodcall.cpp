@@ -47,7 +47,7 @@ void methodcall_node::render_dot(int& uuid,
     }
 }
 
-objref methodcall_node::evaluate(context* pContext)
+objref methodcall_node::raw_evaluate(context* pContext)
 {
     state_guard g(pContext);
     // Evaluate the target
@@ -81,7 +81,7 @@ objref methodcall_node::evaluate(context* pContext)
 	params[index++] = p;
     }
 
-    g.new_collection();
+    pContext->new_collection();
 
     // Dispatch the call
     auto retVal =  m(pContext,target,params);

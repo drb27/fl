@@ -30,21 +30,25 @@ enum class cerror
 	no_multiple_inheritance=21,
 	invalid_argument=22,
 	enum_value_not_a_symbol=23,
-	unsupported_feature=24
+	unsupported_feature=24,
+	unhandled_signal=25
 };
 
 class eval_exception : public std::runtime_error
 {
 
  public:
-    eval_exception(cerror errCode, const std::string& arg);
+    eval_exception(cerror errCode, const std::string& arg, bool fatal=false);
     virtual ~eval_exception();
     virtual cerror code() const;
     virtual const char* what() const noexcept;
+    bool fatal() const { return _fatal; }
+
  protected:
 
  private:
     const cerror _errcode;
+    const bool _fatal;
 };
 
 class terminate_exception : public std::runtime_error

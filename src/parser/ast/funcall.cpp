@@ -1,3 +1,4 @@
+#include <cassert>
 #include <string>
 #include <set>
 #include <list>
@@ -20,8 +21,8 @@ using std::vector;
 using std::map;
 using std::stringstream;
 
-funcall_node::funcall_node(const symspec& ss, ast* args)
-    : _symbol(ss), _arg_list(args)
+funcall_node::funcall_node(const symspec& ss, ast* args, fnref pFn)
+    : _symbol(ss), _arg_list(args),_captured_fn(pFn)
 {
     wlog_entry();
     wlog_exit();
@@ -60,16 +61,21 @@ void funcall_node::required_symbols(set<symspec>& s) const
     s.insert(_symbol.name());
 }
 
-objref funcall_node::evaluate(context* pContext)
-{
-    // Look up the function object in the context
-    fnref fn = object::cast_or_abort<fn_object>(pContext->resolve_symbol(_symbol));
-    return evaluate(pContext,fn);
-}
-
-objref funcall_node::evaluate(context* pContext, fnref fn)
+objref funcall_node::raw_evaluate(context* pContext)
 {
     auto class_cls = builtins::flclass::get_class();
+
+    // The function can either be captured (embedded in this object), or
+    // looked up in the context.
+
+    fnref fn = _captured_fn;
+    if (!fn)
+    {
+	fn = object::cast_or_abort<fn_object>(pContext->resolve_symbol(_symbol));
+	_captured_fn=fn;
+    }
+
+    assert(fn);
 
     // Evaluate the argument list
     listref args = object::cast_or_abort<list_object>(_arg_list->evaluate(pContext));
@@ -151,4 +157,6 @@ asttype funcall_node::type() const
 void funcall_node::direct_subordinates( list<ast*>& subs ) const
 {
     subs.push_back(_arg_list);
+    if (_captured_fn && _captured_fn->raw().def() )
+	_captured_fn->raw().def()->direct_subordinates(subs);
 }

@@ -21,6 +21,7 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/interpreter/class.h \
 			src/interpreter/obj/object.cpp \
 			src/interpreter/obj/int_object.cpp \
+			src/interpreter/obj/signal_object.cpp \
 			src/interpreter/obj/class_object.cpp \
 			src/interpreter/obj/string_object.cpp \
 			src/interpreter/obj/bool_object.cpp \
@@ -32,6 +33,7 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/interpreter/obj/lazy_object.cpp \
 			src/interpreter/obj/object.h \
 			src/interpreter/obj/int_object.h \
+			src/interpreter/obj/signal_object.h \
 			src/interpreter/obj/class_object.h \
 			src/interpreter/obj/string_object.h \
 			src/interpreter/obj/bool_object.h \
@@ -80,6 +82,7 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/parser/ast/fundef.cpp \
 			src/parser/ast/funcall.cpp \
 			src/parser/ast/if.cpp \
+			src/parser/ast/raise.cpp \
 			src/parser/ast/lvalue.h \
 			src/parser/ast/sequence.cpp \
 			src/parser/ast/pair.cpp \
@@ -96,6 +99,7 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/parser/ast/fundef.h \
 			src/parser/ast/funcall.h \
 			src/parser/ast/if.h \
+			src/parser/ast/raise.h \
 			src/parser/ast/sequence.h \
 			src/parser/ast/pair.h \
 			src/parser/ast/selector.h \

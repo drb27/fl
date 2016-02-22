@@ -14,7 +14,7 @@ class while_node : public ast
 {
 public:
     while_node(ast* pCond,ast* pAction);
-    virtual objref evaluate(context*);
+    virtual objref raw_evaluate(context*);
     virtual void required_symbols(std::set<symspec>&) const;
 
     virtual asttype type() const;

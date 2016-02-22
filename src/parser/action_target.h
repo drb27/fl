@@ -7,6 +7,7 @@
 
 class ast;
 class list_node;
+class selector_node;
 
 class action_target
 {
@@ -14,6 +15,7 @@ class action_target
  public:
 
     virtual ast* make_lazy(ast* e)=0;
+    virtual ast* make_raise(ast* clsExpr)=0;
     virtual ast* make_int(int x) const=0;
     virtual ast* make_string(std::string* x) const=0;
     virtual ast* make_null() const=0;
@@ -28,6 +30,7 @@ class action_target
     virtual ast* make_attr( ast* target, std::string* selector)=0;
     virtual ast* make_pair(ast*,ast*)=0;
     virtual ast* make_selector(ast*)=0;
+    virtual ast* start_observed_expression()=0;
     virtual ast* make_equality(ast*,ast*)=0;
     virtual ast* make_index(ast*,ast*)=0;
     virtual ast* make_enum_class(std::string*,ast*)=0;
@@ -36,7 +39,7 @@ class action_target
     virtual ast* make_float(double)=0;
     virtual ast* selector_default(ast*)=0;
     virtual ast* selector_condition(ast*)=0;
-    virtual ast* finish_selector()=0;
+    virtual selector_node* finish_selector()=0;
     virtual ast* make_seq()=0;
     virtual void finish_seq()=0;
     virtual void add_expr(ast* expr)=0;

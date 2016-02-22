@@ -23,6 +23,7 @@ class dat : public action_target
 	);
     virtual ~dat();
 
+    virtual ast* make_raise(ast* clsExpr);
     virtual ast* make_int(int x) const;
     virtual ast* make_lazy(ast* e);
     virtual ast* make_string(std::string* x) const;
@@ -66,9 +67,10 @@ class dat : public action_target
     virtual void done();
     virtual ast* make_pair(ast*,ast*);
     virtual ast* make_selector(ast*);
+    virtual ast* start_observed_expression();
     virtual ast* selector_default(ast*);
     virtual ast* selector_condition(ast*);
-    virtual ast* finish_selector();
+    virtual selector_node* finish_selector();
 
     virtual void push_package();
     virtual void pop_package();

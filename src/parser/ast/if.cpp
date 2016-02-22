@@ -48,7 +48,7 @@ void if_node::required_symbols(set<symspec>& s) const
     _falseExpr->required_symbols(s);
 }
 
-objref if_node::evaluate(context* pContext)
+objref if_node::raw_evaluate(context* pContext)
 {
     boolref cond = object::cast_or_abort<bool_object>(_condition->evaluate(pContext));
     

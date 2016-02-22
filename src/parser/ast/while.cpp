@@ -37,7 +37,7 @@ void while_node::render_dot(int& uuid,
 
 #define BOOL_CAST(x) (object::cast_or_abort<bool_object>(x))->internal_value()
 
-objref while_node::evaluate(context* pContext )
+objref while_node::raw_evaluate(context* pContext )
 {
     objref result( new void_object(pContext) );
 

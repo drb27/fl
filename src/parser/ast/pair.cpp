@@ -13,7 +13,7 @@ pair_node::pair_node(ast* f, ast* s )
 {
 }
 
-objref pair_node::evaluate(context* pContext)
+objref pair_node::raw_evaluate(context* pContext)
 {
     return _second->evaluate(pContext);
 }

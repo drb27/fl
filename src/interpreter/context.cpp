@@ -1,6 +1,5 @@
 #include <string>
 #include <map>
-#include <sstream>
 #include <cassert>
 
 #include <interpreter/context.h>
@@ -13,7 +12,6 @@
 
 using std::string;
 using std::map;
-using std::stringstream;
 
 
 context::context()
@@ -64,27 +62,20 @@ colref context::new_collection( colref pCol)
 colref context::pop_collection()
 {
     wlog_entry();
-    auto r = _collections.front();
-    _collections.pop_front();
-    return r;
+
+    if ( _collections.size()>1 )
+    {
+	auto r = _collections.front();
+	_collections.pop_front();
+	return r;
+    }
+    else
+	throw stack_underflow_exception();
 }
 
 colref context::current_collection()
 {
     return _collections.front();
-}
-
-void context::stash_state()
-{
-    wlog_entry();
-    _states.push_back(_collections);
-}
-
-void context::restore_state()
-{
-    wlog_entry();
-    _collections = std::move( _states.back() );
-    _states.pop_back();
 }
 
 typemgr* context::types()
@@ -117,7 +108,6 @@ void context::reset()
 {
     wlog_entry();
     _collections.clear();
-    _states.clear();
     new_collection();
 }
 
@@ -174,4 +164,23 @@ map<string,string> context::trace() const
     wlog_entry();
     map<string,string> m;
     return m;
+}
+
+bool context::unwind(colref c)
+{
+    // Unwind the stack until the current frame is equal to c
+    try
+    {
+	while ( c!=current_collection() )
+	{
+	    pop_collection();
+	}
+    }
+    catch ( stack_underflow_exception& e )
+    {
+	// Whoops, we were about to pop the global context!!
+	return false;
+    }   
+
+    return true;
 }

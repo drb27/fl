@@ -1,23 +1,23 @@
-#ifndef AST_ATTR
-#define AST_ATTR
+#ifndef AST_RAISE_H
+#define AST_RAISE_H
 
 #include <iostream>
 #include <string>
 #include <list>
-#include <functional>
 #include <inc/references.h>
 #include <parser/ast/ast.h>
-#include <parser/ast/lvalue.h>
 
 class context;
+class fclass;
 
-class attr_node : public lvalue_node
+class raise_node : public ast
 {
 public:
-    attr_node(ast* target, const std::string& selector);
-    virtual objref raw_evaluate(context*);
+    raise_node(ast* classExpr);
+    virtual objref raw_evaluate(context*);    
+    virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
-    virtual std::function<void(objref)> setter(context*);
+    virtual bool calls_and_returns( const std::string& fname) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="",
 			    const std::string& label="",
@@ -25,9 +25,11 @@ public:
     virtual asttype type() const;
     virtual void direct_subordinates( std::list<ast*>& ) const;
 
+    virtual ast* class_expr() const { return _classExpr; }
+
 protected:
-    ast* _target;
-    std::string _selector;
+
+    ast* _classExpr;
 };
 
 #endif

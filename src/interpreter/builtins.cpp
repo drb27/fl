@@ -45,6 +45,7 @@ namespace builtins
     fclass* flenum::_class{nullptr};
     fclass* list::_class{nullptr};
     fclass* lazy::_class{nullptr};
+    fclass* signal::_class{nullptr};
 
     fclass* object::get_class()
     {
@@ -82,6 +83,14 @@ namespace builtins
     {
 	if (!_class)
 	    _class = lazy::build_class();
+
+	return _class; 
+    }
+    
+    fclass* signal::get_class()
+    {
+	if (!_class)
+	    _class = signal::build_class();
 
 	return _class;
     }
@@ -176,6 +185,9 @@ namespace builtins
 	pContext->assign( lazy::get_class()->name(), 
 			  classref(new class_object(pContext, lazy::get_class())) );
 
+	pContext->assign( signal::get_class()->name(), 
+			  classref(new class_object(pContext, signal::get_class())) );
+
 	pContext->assign( flfloat::get_class()->name(), 
 			  classref(new class_object(pContext, flfloat::get_class())) );
 
@@ -224,6 +236,7 @@ namespace builtins
 	pCls->add_method( {"class", make_marshall_mthd(&builtins::obj_class)} );
 	pCls->add_method( {".assign", make_marshall_mthd(&builtins::obj_assign),false});
 	pCls->add_method( {"eq", make_marshall_mthd(&builtins::obj_equate),false} );
+	pCls->add_method( {".selmatch", make_marshall_mthd(&builtins::obj_selmatch),false} );
 	pCls->add_method( {"is", make_marshall_mthd(&builtins::obj_is),true } );
 	pCls->add_method( {"invoke", make_marshall_mthd(&builtins::obj_invoke),true} );
 	pCls->add_method( {"can_convert", make_marshall_mthd(&builtins::obj_convertible_to),true} );	
@@ -310,6 +323,26 @@ namespace builtins
 				    } );
 
 	pCls->add_method({"evaluate", make_marshall_mthd(&builtins::lazy_evaluate)});
+	return pCls;
+
+    }
+
+    fclass* signal::build_class()
+    {
+	fclass* base_cls = object::get_class();
+	typespec spec("signal");
+	fclass* pCls = new fclass(spec,base_cls,false,true,true,false);
+
+	ctorinfo c;
+	c.name="<constructor>";
+	c.fn = make_marshall_mthd(&builtins::signal_ctor);
+	pCls->set_ctor(c);
+
+	factory::get().add_spawner( pCls, [](context* ctx, fclass* cls) 
+				    { 
+					return objref(new ::signal_object(ctx,*cls));
+				    } );
+
 	return pCls;
     }
 
@@ -495,6 +528,11 @@ namespace builtins
     }
 
     objref lazy_ctor(context*,lazyref pThis)
+    {
+	return pThis;
+    }
+
+    objref signal_ctor(context*,sigref pThis)
     {
 	return pThis;
     }
@@ -813,6 +851,12 @@ namespace builtins
 	(*pThis)=pOther;
     }
     
+    objref obj_selmatch(context* pContext, objref pThis,objref pOther)
+    {
+	bool result = pThis->selector_match(pOther);
+	return boolref(new bool_object(pContext, result));
+    }
+    
     objref obj_equate(context* pContext, objref pThis,objref pOther)
     {
 	bool result = (*pThis)==pOther;
@@ -870,9 +914,11 @@ namespace builtins
 	    list_node* pArgList = new list_node();
 	    literal_node* pArg = new literal_node(currentObject);
 	    pArgList->push_element( pArg );
-	    funcall_node* pFnCall = new funcall_node(symspec("(anonymous)"), pArgList);
+	    funcall_node* pFnCall = new funcall_node(symspec("(anonymous)"), 
+						     pArgList,
+						     pFn);
 
-	    auto result = pFnCall->evaluate(pContext,pFn);
+	    auto result = pFnCall->evaluate(pContext);
 
 	    // Add the result of the function to the result list
 	    returnList->append(result);

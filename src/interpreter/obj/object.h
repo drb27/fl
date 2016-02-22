@@ -37,6 +37,8 @@ class object
 			   std::vector<objref>& params);
     
     virtual bool operator==(const objref other) const; 
+    virtual bool selector_match( const objref other) const;
+
     virtual object& operator=(const objref other);
     
     static objref convert_to( objref pThis, fclass* pOther);

@@ -14,7 +14,7 @@ public:
     virtual void render( std::ostream& os, bool abbrev=true);
     virtual bool has_attribute(const std::string&) const;
     virtual objref get_attribute(const std::string&);
-    
+    virtual bool selector_match( const objref other) const;    
     std::map<std::string,objref> class_attributes();
     bool is_sealed() const;
     fclass* internal_value() const { return _value; }

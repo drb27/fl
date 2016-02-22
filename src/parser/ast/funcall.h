@@ -14,9 +14,8 @@ class fclass;
 class funcall_node : public ast
 {
 public:
-    funcall_node(const symspec&,ast* args);
-    virtual objref evaluate(context*);
-    virtual objref evaluate(context*,fnref);
+    funcall_node(const symspec&,ast*,fnref capturedFn=fnref(nullptr) );
+    virtual objref raw_evaluate(context*);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
     virtual void render_dot(int& uuid, 
@@ -34,6 +33,7 @@ protected:
     const symspec _symbol;
     ast* _arg_list;
     mutable objref _result;
+    fnref _captured_fn;
 };
 
 #endif

@@ -40,7 +40,17 @@ protected:
     static fclass* _class;
 };
 
+
 class lazy
+{
+public:
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
+};
+
+class signal
 {
 public:
     static fclass* get_class();
@@ -118,6 +128,7 @@ protected:
     void build_globals(context*);
     objref obj_dump(context*, objref pThis);
     objref obj_equate(context*, objref pThis,objref pOther);
+    objref obj_selmatch(context*, objref pThis,objref pOther);
     objref obj_class(context*, objref pThis);
     objref add_integers(context*,intref a, objref b);
     objref int_dec(context*,intref pThis);
@@ -179,6 +190,7 @@ protected:
     objref float_to_int(context* pContext, floatref pThis);
     objref obj_convertible_to(context* pContet, objref pThis, classref pTargetClass);
     objref obj_convert(context* pContext, objref pThis, classref pTargetClass );
+    objref signal_ctor(context*,sigref pThis);
 }
 
 #endif

@@ -44,6 +44,11 @@ ast* dat::make_lazy(ast* e)
     return new literal_node(l);
 }
 
+ast* dat::make_raise(ast* clsExpr)
+{
+    return new raise_node(clsExpr);
+}
+
 ast* dat::make_int(int x) const
 {
     objref pObject = factory::bootstrap_integer(_current_pkg,x);
@@ -81,14 +86,20 @@ void dat::respond( ast* def, bool abbrev, std::ostream& os)
 
     try
     {
+	_current_pkg->set_root_node(def);
 	objref result = def->evaluate(_current_pkg);
+	_current_pkg->set_root_node(nullptr);
 	result->render(os,abbrev);
 	os << "OK" << std::endl;
 	_current_pkg->assign(std::string("_last"),result);
     }
     catch( eval_exception& e )
     {
+	_current_pkg->set_root_node(nullptr);
 	_symbol_stack.clear();
+	_seq_stack.clear();
+	_sel_stack.clear();
+	_list_stack.clear();
 	throw e;
     }
 }
@@ -347,6 +358,12 @@ ast* dat::make_pair(ast* f,ast* s)
     return new pair_node(f,s);
 }
 
+ast* dat::start_observed_expression()
+{
+    auto s = new symbol_node(".signal");
+    return make_selector(s);
+}
+
 ast* dat::make_selector(ast* pSel)
 {
     auto s = new selector_node(pSel);
@@ -364,9 +381,11 @@ ast* dat::selector_condition(ast* pCondPair)
     (*_sel_stack.begin())->add_condition(pCondPair);
 }
 
-ast* dat::finish_selector()
+selector_node* dat::finish_selector()
 {
+    auto s = _sel_stack.front();
     _sel_stack.pop_front();
+    return s;
 }
 
 ast* dat::finish_symbol()

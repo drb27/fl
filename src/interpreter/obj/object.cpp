@@ -107,6 +107,11 @@ bool object::operator==(const objref other) const
     return false;
 }
 
+bool object::selector_match( const objref other) const
+{
+    return (*this)==other;
+}
+
 object& object::operator=(const objref other)
 {
     throw eval_exception(cerror::invalid_assignment, "Incompatible assignment");

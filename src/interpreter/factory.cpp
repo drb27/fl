@@ -110,7 +110,7 @@ void factory::call_ctor_chain(context* pContext, fclass* pCls, objref pThis, vec
 	// Evaluate the chain params in the current context, with params applied
 	{
 	    state_guard g(pContext);
-	    g.new_collection();
+	    pContext->new_collection();
 
 	    auto paramIdx = c.args.begin();
 	    pContext->assign( *paramIdx, pThis );

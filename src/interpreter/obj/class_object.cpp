@@ -35,3 +35,12 @@ map<string,objref> class_object::class_attributes()
 { 
     return _value->class_attributes();
 }
+
+bool class_object::selector_match( const objref other) const
+{
+    classref pClsOther = std::dynamic_pointer_cast<class_object>(other);
+    if (!pClsOther)
+	return (*this)==other;
+    else
+	return _value->is_in_hierarchy( *(pClsOther->_value) );
+}

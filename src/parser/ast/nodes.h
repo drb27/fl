@@ -1,6 +1,7 @@
 #ifndef AST_NODES
 #define AST_NODES
 
+#include <parser/ast/raise.h>
 #include <parser/ast/list.h>
 #include <parser/ast/lvalue.h>
 #include <parser/ast/assign.h>

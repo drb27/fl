@@ -16,7 +16,7 @@ public:
 
     list_node(bool isLazy=false) : _is_lazy(isLazy) {}
     virtual void push_element(ast*);
-    virtual objref evaluate(context*);    
+    virtual objref raw_evaluate(context*);    
     virtual fclass* type(context*) const;
     virtual std::list<ast*>& raw_elements();
     virtual void required_symbols(std::set<symspec>&) const;
