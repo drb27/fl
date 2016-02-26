@@ -24,6 +24,7 @@ class dat : public action_target
     virtual ~dat();
 
     virtual ast* make_int(int x) const;
+    virtual ast* make_lazy(ast* e);
     virtual ast* make_string(std::string* x) const;
     virtual ast* make_null() const;
     virtual ast* make_float(double);

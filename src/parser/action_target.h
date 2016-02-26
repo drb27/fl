@@ -13,6 +13,7 @@ class action_target
  
  public:
 
+    virtual ast* make_lazy(ast* e)=0;
     virtual ast* make_int(int x) const=0;
     virtual ast* make_string(std::string* x) const=0;
     virtual ast* make_null() const=0;

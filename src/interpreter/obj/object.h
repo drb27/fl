@@ -54,7 +54,6 @@ class object
     }
     
 protected:
-    virtual void construct(context* pContext, std::vector<objref>&);
     std::map<std::string,objref> _attributes;
 
  private:

@@ -1,0 +1,11 @@
+package root::ctor_chains;
+
+defclass vehicle(object)
+	 .addattr( "wheels", 4 )
+	 .addmethod( (t)->t.wheels, "get_wheels" )
+	 .constructor( (t,w)-> t.wheels=>w, $() );
+
+defclass car(vehicle)
+	 .constructor( (t)-> t, $(5) ); 
+
+run=> ()->{ c=>car.new(); c.wheels==5 };

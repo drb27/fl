@@ -29,6 +29,7 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/interpreter/obj/fn_object.cpp \
 			src/interpreter/obj/enum_object.cpp \
 			src/interpreter/obj/float_object.cpp \
+			src/interpreter/obj/lazy_object.cpp \
 			src/interpreter/obj/object.h \
 			src/interpreter/obj/int_object.h \
 			src/interpreter/obj/class_object.h \
@@ -39,6 +40,8 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/interpreter/obj/fn_object.h \
 			src/interpreter/obj/enum_object.h \
 			src/interpreter/obj/float_object.h \
+			src/interpreter/obj/lazy_object.h \
+			src/interpreter/obj/foundation.h \
 			src/interpreter/obj/all.h \
 			src/interpreter/typemgr.cpp \
 			src/interpreter/typemgr.h \
@@ -55,6 +58,8 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/interpreter/marshall.cpp \
 			src/logger/logger.cpp \
 			src/logger/logger.h \
+			src/interpreter/factory.cpp \
+			src/interpreter/factory.h \
 			src/interpreter/smartlist.cpp \
 			src/interpreter/smartlist.h \
 			src/interpreter/optimization.cpp \

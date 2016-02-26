@@ -12,6 +12,7 @@
 #include <interpreter/eval_exception.h>
 #include <logger/logger.h>
 #include <interpreter/builtins.h>
+#include <interpreter/factory.h>
 
 #ifdef HAVE_CHDIR
 #include <unistd.h>
@@ -37,9 +38,15 @@ dat::~dat()
 
 }
 
+ast* dat::make_lazy(ast* e)
+{
+    lazyref l = lazyref(new lazy_object(_current_pkg,e));
+    return new literal_node(l);
+}
+
 ast* dat::make_int(int x) const
 {
-    objref pObject(new int_object(_current_pkg,x));
+    objref pObject = factory::bootstrap_integer(_current_pkg,x);
     literal_node* pNode = new literal_node(pObject);
     return pNode;
 }

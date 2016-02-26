@@ -17,6 +17,7 @@ class string_object;
 class void_object;
 class enum_object;
 class float_object;
+class lazy_object;
 class collection;
 
 typedef std::shared_ptr<object> objref; 
@@ -30,5 +31,6 @@ typedef std::shared_ptr<string_object> stringref;
 typedef std::shared_ptr<void_object> voidref;
 typedef std::shared_ptr<enum_object> enumref;
 typedef std::shared_ptr<collection> colref;
+typedef std::shared_ptr<lazy_object> lazyref;
 
 #endif

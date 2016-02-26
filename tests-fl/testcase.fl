@@ -8,7 +8,7 @@ defclass test(object)
 	 .addattr("name","<anonymous>")
 	 .addattr("fn",()->false)
 	 .addmethod( (t)-> apply(t.fn,()), "run")
-	 .addmethod( (t,n,f)-> {t.name=>n; t.fn=>f; t } , ".ctor" );
+	 .constructor( (t,n,f)-> {t.name=>n; t.fn=>f; t }, $() );
 
 defclass testcase(object)
 	 .addattr("tests",())

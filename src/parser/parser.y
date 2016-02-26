@@ -19,6 +19,7 @@ extern action_target* target;
 %define api.pure full
 %define api.push-pull push
 
+%token LAZY
 %token PKG
 %token SCOPE
 %token CLASS
@@ -75,6 +76,7 @@ extern action_target* target;
     ast* node_val;
 }
 
+%type <node_val> lazy_expr
 %type <int_val> INTEGER
 %type <float_val> FLOAT
 %type <string_val> IDENTIFIER
@@ -130,6 +132,7 @@ extern action_target* target;
 %left OPEN_SQUARE
 %left CLOSE_SQUARE
 %right WHILE
+%right LAZY
 %%
 
 /* INPUTS *****************************************************************/
@@ -171,6 +174,7 @@ items_empty: | items;
 
 expr:   literal
       | if 
+      | lazy_expr
       | funcall
       | fundef
       | attr
@@ -196,6 +200,8 @@ expr:   literal
 
 literal: null | bool | integer | flfloat | str | list_literal;
 funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
+
+lazy_expr: LAZY expr { $$=target->make_lazy($2); }
 
 methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
 attr: expr DOT IDENTIFIER {$$=target->make_attr($1,$3); };

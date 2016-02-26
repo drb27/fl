@@ -40,6 +40,15 @@ protected:
     static fclass* _class;
 };
 
+class lazy
+{
+public:
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
+};
+
 class flfloat
 { 
 public:
@@ -104,6 +113,7 @@ protected:
     static fclass* _class;
 };
 
+    std::function<marshall_mthd_t> make_method_lambda( fnref fn );
     objref make_object(context*,fclass*,std::vector<objref>&); 
     void build_globals(context*);
     objref obj_dump(context*, objref pThis);
@@ -131,8 +141,13 @@ protected:
     objref int_gt(context* pContext, intref pThis, intref pOther);
     objref int_lt(context* pContext, intref pThis, intref pOther);
     objref int_divf(context* pContext, intref pThis, objref divisor);
+    objref int_ctor(context* pContext, intref pThis, objref pOther);
+    objref lazy_ctor(context*,lazyref pThis);
+    objref lazy_evaluate(context*,lazyref);
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
+    objref class_constructor(context* pContext, classref pThis, fnref pCtor, lazyref pChain );
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
+    objref class_addctor(context* pContext, classref pThis, fnref  fn, listref chain);
     objref string_length(context* pContext, stringref pThis);
     objref string_index(context* pContext, stringref pThis, intref index );
     objref string_add(context* pContext, stringref pThis, objref pOther);
