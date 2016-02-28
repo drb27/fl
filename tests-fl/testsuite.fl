@@ -1,6 +1,7 @@
 include "tests-fl/testcase.fl";
 include "tests-fl/ticket-36.fl";
 include "tests-fl/ticket-37.fl";
+include "tests-fl/ticket-44.fl";
 include "tests-fl/ctor_chains.fl";
 
 exit=>1;
@@ -12,8 +13,9 @@ tc=>tests::testcase.new();
 tc.add_test( "int_addition_sane", ()-> 1.add(2).eq(3) );
 tc.add_test( "ticket_36", tickets::t36::run );
 tc.add_test( "ticket_37", tickets::t37::run );
+tc.add_test( "ticket_44", tickets::t44::run );
 tc.add_test( "ctor_chains", ctor_chains::run );
 
 results=>tc.run();
 
-and(results.size()==4,all_passed(results))? exit=>0 : exit=>1;
+and(results.size()==5,all_passed(results))? exit=>0 : exit=>1;

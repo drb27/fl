@@ -5,6 +5,7 @@
 #include <deque>
 #include <set>
 #include <functional>
+#include <sstream>
 #include "builtins.h"
 #include <interpreter/class.h>
 #include <interpreter/context.h>
@@ -25,6 +26,7 @@ using std::vector;
 using std::deque;
 using std::set;
 using std::pair;
+using std::stringstream;
 
 #define N_INT(x) (x->internal_value())
 #define N_BOOL(x) (x->internal_value())
@@ -303,6 +305,7 @@ namespace builtins
 	pCls->add_method({"mod", make_marshall_mthd(&builtins::int_mod)});
 	pCls->add_method({"->float", make_marshall_mthd(&builtins::int_tofloat)});
 	pCls->add_method({"->boolean", make_marshall_mthd(&builtins::int_to_bool)});
+	pCls->add_method({"->string", make_marshall_mthd(&builtins::int_to_string)});
 	return pCls;
     }
 
@@ -510,8 +513,13 @@ namespace builtins
     objref int_dec(context* pContext,intref pThis)
     {
 	return intref( new int_object(pContext, pThis->internal_value()-1));
+    }
 
-	
+    objref int_to_string(context* pContext, intref pThis )
+    {
+	stringstream s;
+	s << (pThis->internal_value());
+	return objref( new string_object(pContext, s.str() ) );
     }
     
     objref int_ctor(context* pContext, intref pThis, objref pOther)

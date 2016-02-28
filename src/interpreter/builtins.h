@@ -136,6 +136,7 @@ protected:
     objref int_mod(context*,intref,intref);
     objref int_tofloat(context* pContext, intref pThis);
     objref int_to_bool(context*, intref);
+    objref int_to_string(context* pContext, intref pThis );
     objref in_range_integers(context* pContext, intref pThis, intref min, intref max);
     objref bool_to_int(context* pContext, boolref pThis);
     objref logical_not(context* pContext,boolref a);
