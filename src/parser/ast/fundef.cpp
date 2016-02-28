@@ -99,7 +99,7 @@ void fundef_node::required_symbols(set<symspec>& s) const
 }
 
 
-objref fundef_node::evaluate(context* pContext)
+objref fundef_node::raw_evaluate(context* pContext)
 {
     wlog_entry();
 

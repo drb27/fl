@@ -16,7 +16,7 @@ class fundef_node : public ast
 {
 public:
     fundef_node(ast* arglist, ast* definition);
-    virtual objref evaluate(context*);
+    virtual objref raw_evaluate(context*);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
     virtual void render_dot(int& uuid, 

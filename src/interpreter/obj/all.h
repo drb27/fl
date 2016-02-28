@@ -11,5 +11,7 @@
 #include <interpreter/obj/string_object.h>
 #include <interpreter/obj/float_object.h>
 #include <interpreter/obj/int_object.h>
+#include <interpreter/obj/lazy_object.h>
+#include <interpreter/obj/signal_object.h>
 
 #endif

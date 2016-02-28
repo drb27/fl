@@ -4,11 +4,14 @@
 #include <iostream>
 #include <functional>
 #include <list>
+#include <map>
 #include <set>
 #include <memory>
 #include <interpreter/marshall.h>
 #include <parser/symspec.h>
+
 class fclass;
+class selector_node;
 
 /// Used by ast::type() to provide run-time type information about a node
 /// object. Useful for pattern matching in optimization. 
@@ -28,7 +31,8 @@ enum class asttype
 	assign,
 	_while,
 	_enum,
-	classdef
+	classdef,
+	raise
 	};
 
 /**
@@ -45,8 +49,10 @@ class ast
 
     virtual ~ast();
 
-    /// Evaluates the AST in the given context hierarchy
-    virtual objref evaluate(context*)=0;
+    /// A call to this method evaluates the expression represented by this node
+    /// tree. Wraps a call to evaluate() with the necessary logic to detect and handle
+    /// the occurence of a raised signal.
+    virtual objref evaluate(context*) final;
 
     /// Returns the type of the evaluated object, if known. Implementations
     /// should return the 'object' class if the type is not known
@@ -76,12 +82,26 @@ class ast
     /// traversing the AST.
     virtual void direct_subordinates( std::list<ast*>& ) const=0;
 
+    /// Attaches a selector node, describing what to do in the event that
+    /// a signal is raised during evaluation of this node.
+    void set_observer(selector_node* pSelNode);
+
+    /// Returns a pointer to the observer currently attached to this node. 
+    /// If there is no observer, this function returns nullptr.
+    selector_node* observer() { return _observer; }
+
     /// Gets the type hint for this node
     /// @returns the type hint if any, or nullptr if there isn't one
     ast* get_typehint() const { return _typehint; }
 
     /// Sets the type hint for this node, discarding the previous value
     void set_typehint(ast* v) { _typehint=v; }
+
+    /// Computes a map of ast nodes to parent nodes, for each node \em below this node in
+    /// the ast.
+    /// @note This node may have a parent, but it is \em not \em included in the map. It
+    /// is considered to be the root node for the purposes of this calculation. 
+    void compute_parent_map( std::map<ast*,ast*>& );
 
     /// Helper function used by render() to carry state information between
     /// parent nodes and subordinates during the generation of dot output. 
@@ -93,11 +113,18 @@ class ast
  protected:
 
     ast();
+
+    /// Evaluates the AST in the given context hierarchy
+    virtual objref raw_evaluate(context*)=0;
+
     ast* _typehint{nullptr}; ///< Stores the type hint for this node. @note the
 			     ///reason this is an ast* rather than an flcass* is
 			     ///that type hints should be evaluated at the time
 			     ///they are referenced - allowing for some
 			     ///interesting specifications.
+
+    selector_node* _observer{nullptr};
+    sigref _signal;
 };
 
 

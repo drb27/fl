@@ -40,6 +40,25 @@ protected:
     static fclass* _class;
 };
 
+
+class lazy
+{
+public:
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
+};
+
+class signal
+{
+public:
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
+};
+
 class flfloat
 { 
 public:
@@ -104,10 +123,12 @@ protected:
     static fclass* _class;
 };
 
+    std::function<marshall_mthd_t> make_method_lambda( fnref fn );
     objref make_object(context*,fclass*,std::vector<objref>&); 
     void build_globals(context*);
     objref obj_dump(context*, objref pThis);
     objref obj_equate(context*, objref pThis,objref pOther);
+    objref obj_selmatch(context*, objref pThis,objref pOther);
     objref obj_class(context*, objref pThis);
     objref add_integers(context*,intref a, objref b);
     objref int_dec(context*,intref pThis);
@@ -115,6 +136,7 @@ protected:
     objref int_mod(context*,intref,intref);
     objref int_tofloat(context* pContext, intref pThis);
     objref int_to_bool(context*, intref);
+    objref int_to_string(context* pContext, intref pThis );
     objref in_range_integers(context* pContext, intref pThis, intref min, intref max);
     objref bool_to_int(context* pContext, boolref pThis);
     objref logical_not(context* pContext,boolref a);
@@ -131,11 +153,16 @@ protected:
     objref int_gt(context* pContext, intref pThis, intref pOther);
     objref int_lt(context* pContext, intref pThis, intref pOther);
     objref int_divf(context* pContext, intref pThis, objref divisor);
+    objref int_ctor(context* pContext, intref pThis, objref pOther);
+    objref lazy_ctor(context*,lazyref pThis);
+    objref lazy_evaluate(context*,lazyref);
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
+    objref class_constructor(context* pContext, classref pThis, fnref pCtor, lazyref pChain );
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
+    objref class_addctor(context* pContext, classref pThis, fnref  fn, listref chain);
     objref string_length(context* pContext, stringref pThis);
     objref string_index(context* pContext, stringref pThis, intref index );
-    objref string_add(context* pContext, stringref pThis, stringref pOther);
+    objref string_add(context* pContext, stringref pThis, objref pOther);
     objref string_join(context* pContext, stringref pThis, stringref pOther);
     objref class_methods(context* pContext, classref pThis);
     objref class_attributes(context* pContext, classref pThis);
@@ -148,6 +175,7 @@ protected:
     objref obj_assign(context* pContext, objref pThis, objref pOther);
     objref void_equate(context* pContext, objref pThis, objref pOther);
     objref rnd(context* pContext, intref a, intref b);
+    objref print(context* pContext, objref a);
     objref I(context* pContext, objref a);
     objref foreach(context* pContext, objref pObj, fnref pFn );
     objref obj_is(context*,objref,objref);
@@ -163,6 +191,7 @@ protected:
     objref float_to_int(context* pContext, floatref pThis);
     objref obj_convertible_to(context* pContet, objref pThis, classref pTargetClass);
     objref obj_convert(context* pContext, objref pThis, classref pTargetClass );
+    objref signal_ctor(context*,sigref pThis);
 }
 
 #endif

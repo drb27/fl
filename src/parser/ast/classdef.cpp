@@ -17,7 +17,7 @@ classdef_node::classdef_node(const string& name, ast* pDeriveList)
 {
 }
 
-objref classdef_node::evaluate(context* pContext)
+objref classdef_node::raw_evaluate(context* pContext)
 {
     // Ensure that exactly one parameter has been given
     listref paramList = 

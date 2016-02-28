@@ -14,7 +14,7 @@ class methodcall_node : public ast
 {
 public:
     methodcall_node(const std::string&);
-    virtual objref evaluate(context*);
+    virtual objref raw_evaluate(context*);
 
     virtual void add_target(ast* pObj);
     virtual void add_param(ast*);

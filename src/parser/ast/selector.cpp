@@ -33,7 +33,7 @@ bool selector_node::calls_and_returns( const std::string& fname) const
     return false;
 }
 
-objref selector_node::evaluate(context* pContext)
+objref selector_node::raw_evaluate(context* pContext)
 {
     // Evaluate the selector
     objref selResult = _selector->evaluate(pContext);
@@ -51,7 +51,7 @@ objref selector_node::evaluate(context* pContext)
 	vector<objref> params{firstResult};
 
 	boolref is_equal = object::cast_or_abort<bool_object>
-	    (selResult->invoke("eq",pContext,params));
+	    (selResult->invoke(".selmatch",pContext,params));
 
 	if ( is_equal->internal_value() )
 	{

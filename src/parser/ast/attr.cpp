@@ -21,7 +21,7 @@ attr_node::attr_node(ast* target, const string& selector)
 
 }
 
-objref attr_node::evaluate(context* pContext)
+objref attr_node::raw_evaluate(context* pContext)
 {
     // Get the target
     objref target = _target->evaluate(pContext);

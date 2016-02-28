@@ -15,7 +15,7 @@ class sequence_node : public ast
 {
 public:
     sequence_node(bool isolated=false);
-    virtual objref evaluate(context*);
+    virtual objref raw_evaluate(context*);
     virtual objref evaluate_isolated(context* pContext);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;

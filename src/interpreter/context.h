@@ -2,6 +2,7 @@
 #define CONTEXT_H
 
 #include <iostream>
+#include <exception>
 #include <string>
 #include <map>
 #include <deque>
@@ -11,6 +12,13 @@
 #include <parser/ast/ast.h>
 
 class symbol_node;
+class state_guard;
+
+class stack_underflow_exception : public std::exception
+{
+public:
+    const char* what() const throw() { return "Context stack underflow"; }
+};
 
 class context
 {
@@ -24,8 +32,6 @@ public:
     virtual colref new_collection();
     virtual colref new_collection(colref pCol);
     virtual colref pop_collection();
-    virtual void stash_state();
-    virtual void restore_state();
     virtual typemgr* types(); 
 
     virtual colref current_collection();
@@ -39,24 +45,33 @@ public:
     virtual void dump(std::ostream& os=std::cout);
     virtual void debug() const { std::cout << (*this) << std::endl; }
 
+    virtual ast* root_node() { return _root_node; }
+    virtual void set_root_node(ast* n) { _root_node=n; }
+
+    virtual bool unwind(colref);
+
 private:
     typemgr* _types;
     std::deque<colref> _collections;
-    std::deque<std::deque<colref>> _states;
+    ast* _root_node{nullptr};
 };
 
 class state_guard
 {
 public:
-    state_guard(context* pContext) : _context(pContext) {}
-    virtual ~state_guard() { while(newCount>0) { _context->pop_collection(); newCount--;  } }
-    virtual colref new_collection() { newCount++; return _context->new_collection(); }
-    virtual colref new_collection(colref pCol) { newCount++; return _context->new_collection(pCol); }
+    state_guard(context* pContext) : _context(pContext)
+    {
+	_orig_colref = pContext->current_collection();
+    }
 
+    virtual ~state_guard() 
+    {
+	_context->unwind(_orig_colref);
+    }
 
 private:
     context* _context;
-    int newCount{0};
+    colref _orig_colref;
 };
 
 

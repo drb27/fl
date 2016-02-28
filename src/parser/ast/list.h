@@ -13,8 +13,10 @@ class fclass;
 class list_node : public ast
 {
 public:
+
+    list_node(bool isLazy=false) : _is_lazy(isLazy) {}
     virtual void push_element(ast*);
-    virtual objref evaluate(context*);    
+    virtual objref raw_evaluate(context*);    
     virtual fclass* type(context*) const;
     virtual std::list<ast*>& raw_elements();
     virtual void required_symbols(std::set<symspec>&) const;
@@ -27,6 +29,7 @@ public:
 
 private:
     std::list<ast*> _elements;
+    bool _is_lazy;
 };
 
 #endif

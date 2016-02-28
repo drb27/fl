@@ -34,6 +34,13 @@ class package final : public context
     virtual bool is_defined( const symspec&);
 
     /**
+     * Assigns a new value to a symbol, complete with relative package specification. Note
+     * that although this method can create new symbols, a reachable package meeting the
+     * given specification must already exist. 
+     */
+    virtual void assign(const symspec&, objref);
+
+    /**
      * Adds a new child package to this package. If a child package with this name already
      * exists, then the existing package is deleted, and a fresh, empty package with the
      * same name takes its place.

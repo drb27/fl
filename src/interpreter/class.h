@@ -6,9 +6,11 @@
 #include <map>
 #include <set>
 #include <deque>
+#include <vector>
 #include <list>
 #include <parser/ast/ast.h>
 #include <interpreter/marshall.h>
+#include <inc/references.h>
 
 class object;
 class typemgr;
@@ -18,6 +20,17 @@ struct methodinfo
     std::string name;
     std::function<marshall_mthd_t> fn;
     bool sealed{false};
+};
+
+struct ctorinfo : methodinfo
+{
+    ctorinfo() 
+    { 
+	fn = [](context*,objref pThis, std::vector<ast*>&) { return pThis;}; 
+	args.push_back("t");
+    }
+    lazyref chain_params;
+    std::list<std::string> args;
 };
 
 class typespec
@@ -89,7 +102,8 @@ class fclass
     virtual fclass* base(void) const { return _base; }
     virtual std::deque<fclass*> hierarchy();
     virtual bool is_in_hierarchy( const fclass& other);
-    virtual const methodinfo& instantiator() { return lookup_method(".ctor"); }
+    virtual ctorinfo& ctor() { return _ctor; }
+    virtual void set_ctor( const ctorinfo& c) { _ctor = c; }
     virtual bool can_convert_to(fclass* pOther);
     virtual bool build_conversion_tree(fclass* pGoal,std::set<ctnoderef>& solutionSet);
 
@@ -114,6 +128,7 @@ class fclass
     const bool _allow_new;
     const bool _is_sealed;
     const typespec _ts;
+    ctorinfo _ctor;
     std::map<std::string,objref> _attributes;
     std::map<std::string,methodinfo> _methods;
 

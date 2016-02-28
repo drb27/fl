@@ -34,8 +34,6 @@ object::object(context* pContext, fclass& c, vector<objref> params)
     for ( auto pCls : c.hierarchy() )
 	fn(pCls);
 
-
-    construct(pContext,params);
 }
 
 objref object::convert_to(objref pThis, fclass* pOther)
@@ -109,6 +107,11 @@ bool object::operator==(const objref other) const
     return false;
 }
 
+bool object::selector_match( const objref other) const
+{
+    return (*this)==other;
+}
+
 object& object::operator=(const objref other)
 {
     throw eval_exception(cerror::invalid_assignment, "Incompatible assignment");
@@ -137,25 +140,26 @@ objref object::invoke( const string& mthdName, context* pContext, vector<objref>
     return result;
 }
 
-void object::construct(context* pContext, vector<objref>& params)
-{
-   // Call the constructor!
-    objref pThis(this, [](object*) {});
-    vector<ast*> ps(2+params.size());
-    int index=2;
-    ps[2]=new literal_node(objref(this));
-    for ( auto p : params )
-    {
-	ps[index++] = new literal_node(p);
-    }
+// TODO: #43 Remove object::construct
+// void object::construct(context* pContext, vector<objref>& params)
+// {
+//    // Call the constructor!
+//     objref pThis(this, [](object*) {});
+//     vector<ast*> ps(2+params.size());
+//     int index=2;
+//     ps[2]=new literal_node(objref(this));
+//     for ( auto p : params )
+//     {
+// 	ps[index++] = new literal_node(p);
+//     }
     
-    _class.instantiator().fn(pContext,pThis,ps);
+//     _class.instantiator().fn(pContext,pThis,ps);
 
-    // Tidy up
-    for ( auto p : ps )
-	delete p;
+//     // Tidy up
+//     for ( auto p : ps )
+// 	delete p;
 
-}
+// }
 
 bool object::has_attribute(const std::string& name) const
 {

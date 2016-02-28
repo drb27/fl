@@ -18,7 +18,7 @@ defclass node(object)
 	 .addattr("higher",null)
 	 .addattr("value",null)
 	 .addattr("tag",null)
-	 .addmethod( (n,v,l,h,t)-> { n.lower=>l; n.higher=>h; n.value=>v; n.tag=>t; n}, ".ctor" ); 
+	 .constructor( (n,v,l,h,t)-> { n.lower=>l; n.higher=>h; n.value=>v; n.tag=>t; n}, $() );
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ keystore.addmethod( (t,k) -> t.store.find(k), "find" );
 
 defclass set(object)
 	 .addattr("store",null)
-	 .addmethod( (t)-> t.store=>keystore.new(), ".ctor")
+	 .constructor( (t)-> t.store=>keystore.new(), $() )
 	 .addmethod( (t,v) -> {t.store.add(v,v); t }, "insert" )
 	 .addmethod( (t,v) -> t.store.find(v).eq(null).not(), "contains" )
 	 .addmethod( (t)-> t.store.store==null? () : all_contents(t.store.store), ".iter" )

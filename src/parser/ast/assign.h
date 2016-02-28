@@ -15,7 +15,7 @@ class assign_node : public ast
 {
 public:
     assign_node(ast*,ast*,bool alias=false);
-    virtual objref evaluate(context*);
+    virtual objref raw_evaluate(context*);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
     virtual void render_dot(int& uuid, 

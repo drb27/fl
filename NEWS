@@ -1,3 +1,19 @@
+fl release 0.0.3 28th February 2016
+
+Here are the interesting commits made since the previous release, v0.0.2. 
+See github for ticket details (the repository is team-fl/fl). 
+
+
+* fdb2a7b Fixed #44: Incorrect function evaluation
+* 23d713b Basic signal functionality up and running
+* b69e76b Fixed #43: Revamped object construction to support inheritance of builtins
+* db4a51f Fixed #36: package scope for lvalues now correctly functional
+* a7b39ea Fixed #41: Adding strings now supports auto conversion
+* 5f5a378 Fixed #40: Added the print function
+* cacb0a9 Fixed #39: Allowed digits in identifiers
+
+--------------------------------------------------------------------------------
+
 fl release 0.0.2 20th February 2016
 
 Here are the commits made since the previous release, v0.0.1. 

@@ -19,7 +19,7 @@ enum_node::enum_node(const string& name, ast* pDefList)
 {
 }
 
-objref enum_node::evaluate(context* pContext)
+objref enum_node::raw_evaluate(context* pContext)
 {
     // Create a new class that derives from enum
 

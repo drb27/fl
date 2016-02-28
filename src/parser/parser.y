@@ -19,6 +19,11 @@ extern action_target* target;
 %define api.pure full
 %define api.push-pull push
 
+
+%token LAZY
+%token RAISE
+%token OBSERVE
+%token HANDLE
 %token PKG
 %token SCOPE
 %token CLASS
@@ -75,6 +80,7 @@ extern action_target* target;
     ast* node_val;
 }
 
+%type <node_val> lazy_expr
 %type <int_val> INTEGER
 %type <float_val> FLOAT
 %type <string_val> IDENTIFIER
@@ -82,11 +88,13 @@ extern action_target* target;
 %type <node_val> integer
 %type <node_val> flfloat
 %type <node_val> if
+%type <node_val> raise
 %type <node_val> null
 %type <node_val> symbol
 %type <node_val> symbol_wip
 %type <node_val> fundef
 %type <node_val> expr
+%type <node_val> observed_expr
 %type <node_val> enumdef
 %type <node_val> classdef
 %type <node_val> alias
@@ -110,6 +118,9 @@ extern action_target* target;
 
 %left SEMICOLON
 %precedence MAPSTO
+%right RAISE
+%right OBSERVE
+%right HANDLE
 %left EQ
 %left COLON
 %left SELECTOR
@@ -130,6 +141,7 @@ extern action_target* target;
 %left OPEN_SQUARE
 %left CLOSE_SQUARE
 %right WHILE
+%right LAZY
 %%
 
 /* INPUTS *****************************************************************/
@@ -170,7 +182,10 @@ items_empty: | items;
 /* EXPRESSIONS ************************************************************/
 
 expr:   literal
-      | if 
+      | lazy_expr
+      | if
+      | observed_expr
+      | raise
       | funcall
       | fundef
       | attr
@@ -197,6 +212,8 @@ expr:   literal
 literal: null | bool | integer | flfloat | str | list_literal;
 funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
 
+lazy_expr: LAZY expr { $$=target->make_lazy($2); }
+
 methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
 attr: expr DOT IDENTIFIER {$$=target->make_attr($1,$3); };
 
@@ -219,7 +236,9 @@ exprs: expr { target->add_expr($1); }
      ;
 
 selector: expr SELECTOR {$<node_val>$=target->make_selector($1); } selset { $$=$<node_val>3; target->finish_selector(); };
+
 selset: selpair | selset BAR selpair;
+
 selpair: expr COLON expr { target->selector_condition( target->make_pair($1,$3) ); }
        | DEFAULT COLON expr { target->selector_default($3); };
 
@@ -230,6 +249,11 @@ enumdef: ENUM IDENTIFIER list { $$=target->make_enum_class($2,$3); }
 classdef: CLASS IDENTIFIER list { $$=target->make_new_class($2,$3); }
 
 flwhile: WHILE OPEN_CURLY expr CLOSE_CURLY expr { $$=target->make_while($3,$5); }
+
+observed_expr: OBSERVE expr HANDLE { target->start_observed_expression(); }
+               selset { $$=$2; $$->set_observer( target->finish_selector()) ; }
+
+raise: RAISE expr { $$=target->make_raise($2); }
 
 /* COMMANDS ***************************************************************/
 

@@ -14,7 +14,7 @@ literal_node::literal_node(objref pObj)
 {
 }
 
-objref literal_node::evaluate(context* pContext)
+objref literal_node::raw_evaluate(context* pContext)
 {
     return _object;
 }

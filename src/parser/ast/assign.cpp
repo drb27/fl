@@ -45,7 +45,7 @@ void assign_node::required_symbols(set<symspec>& s) const
     _rvalue->required_symbols(s);
 }
 
-objref assign_node::evaluate(context* pContext)
+objref assign_node::raw_evaluate(context* pContext)
 {
     // evaluate RHS and LHS
 

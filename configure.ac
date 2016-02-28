@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([fl],[0.0.2],[david.bradshaw.usa@gmail.com])
+AC_INIT([fl],[0.0.3],[david.bradshaw.usa@gmail.com])
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_MACRO_DIR([m4])
@@ -37,8 +37,7 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([chdir getcwd memset strtol])
 
 AC_CHECK_LIB([cppunit],[main])
-AC_CONFIG_LINKS([tests-fl/testsuite.fl:tests-fl/testsuite.fl])
-AC_CONFIG_LINKS([tests-fl/testcase.fl:tests-fl/testcase.fl])
+AC_CONFIG_COMMANDS([tests-fl],[if @<:@ ! -d tests-fl @:>@; then ln -s $ac_top_srcdir/tests-fl tests-fl; fi])
 AC_CONFIG_FILES([Makefile Doxyfile])
 AC_CONFIG_FILES([fl_tests.sh],[chmod +x fl_tests.sh])
 AC_OUTPUT

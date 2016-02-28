@@ -152,7 +152,7 @@ objref fn_object::operator()(context* pContext, vector<argpair_t>& args)
     if (args.size()==_full_args.size() )
     {
 	state_guard g(pContext);
-	g.new_collection();
+	pContext->new_collection();
 	vector<ast*> params;
 
 	// TODO: To support built-in functions, we need to add

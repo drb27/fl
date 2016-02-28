@@ -14,7 +14,7 @@ class if_node : public ast
 {
 public:
     if_node(ast* pCondition, ast* trueExpression, ast* falseExpression);
-    virtual objref evaluate(context*);    
+    virtual objref raw_evaluate(context*);    
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
     virtual bool calls_and_returns( const std::string& fname) const;

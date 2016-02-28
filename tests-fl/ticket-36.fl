@@ -1,0 +1,15 @@
+package root::tickets::t36;
+
+x=>6;
+
+package root::tickets::t36::testdomain;
+
+x=>7;
+
+
+root::tickets::t36::x=>9;
+
+package root::tickets::t36;
+
+# Add this to the test case to run the test
+run=>()-> root::tickets::t36::x.eq(9);

@@ -38,20 +38,6 @@ namespace
 	v_eval_each<I+1,P...>(c,p,t);
     }
 
-    ///
-
-    template<std::size_t I=0, typename... P>
-    inline typename std::enable_if<I==sizeof...(P),void>::type
-    v_tuplerize_each(context*,std::vector<objref>&, std::tuple<P...>&) {}
-
-    template<std::size_t I=0, typename... P>
-    inline typename std::enable_if<I < sizeof...(P), void>::type
-    v_tuplerize_each(context* c,std::vector<objref>& p,std::tuple<P...>& t)
-    {
-	std::get<I>(t) = object::cast_or_abort<typename std::tuple_element<I,std::tuple<P...>>::type::element_type>(p[I]);
-	v_tuplerize_each<I+1,P...>(c,p,t);
-    }
-
     template<typename T> struct ArgTuple;
 
     template<typename R, typename ... Args>
@@ -81,6 +67,11 @@ namespace
     {
 	return [f](context* pContext, objref pThis, std::vector<ast*>& p)
 	{
+	    const size_t expectedArgs = std::tuple_size<typename ArgTuple<F>::type>::value;
+	    if (p.size()!=expectedArgs )
+		throw eval_exception(cerror::incorrect_arg_count,
+				     "Incorrect number of arguments in method call");
+
 	    typename ArgTuple<F>::type evaled_params;
 	    std::get<0>(evaled_params) = pContext;
 	    std::get<1>(evaled_params) = 
@@ -91,20 +82,6 @@ namespace
 	};
     }
 
-    template<typename F>
-    std::function<marshall_ctor_t> make_marshall_ctor( std::function<F> f )
-    {
-	return [f](context* pContext, fclass* pCls, std::vector<objref>& args )
-	{
-	    const size_t expectedArgs = std::tuple_size<typename ArgTuple<F>::type>::value;
-	    if (args.size()!=expectedArgs)
-		throw eval_exception(cerror::incorrect_arg_count,
-				     "Incorrect number of arguments passed to new()");
-	    typename ArgTuple<F>::type evaled_params;
-	    v_tuplerize_each(pContext,args,evaled_params);
-	    return apply(f,evaled_params);
-	};
-    }
 }
 
 

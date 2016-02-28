@@ -40,7 +40,7 @@ void list_node::render_dot(int& uuid,
     }
 }
 
-objref list_node::evaluate(context* pContext)
+objref list_node::raw_evaluate(context* pContext)
 {
     // Make a list of evaluated elements
     list<objref> items;

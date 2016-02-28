@@ -14,7 +14,7 @@ class pair_node : public ast
 {
 public:
     pair_node( ast*,ast*);
-    virtual objref evaluate(context*);
+    virtual objref raw_evaluate(context*);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
     virtual ast* first() const { return _first; }

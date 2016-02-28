@@ -18,7 +18,7 @@ public:
     
     virtual void add_pkg_spec( const std::list<std::string>&);
 
-    virtual objref evaluate(context*);
+    virtual objref raw_evaluate(context*);
     virtual fclass* type(context*) const;
 
     virtual const std::string& name() const;

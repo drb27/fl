@@ -42,8 +42,8 @@ void rawfn::regenerate_function(ast* newDef)
 	    wlog_entry();
 	    wlog(level::debug,"Executing lambda for fl function call...");
 	    wlog(level::debug,"Merging in the closure...");
-	    g.new_collection(pClosure);
-	    g.new_collection();
+	    pContext->new_collection(pClosure);
+	    pContext->new_collection();
 	    wlog(level::debug,"Evaluating function definition...");
 	    auto retVal = localDef->def()->evaluate(pContext);
 	    wlog(level::debug,"About to return result from fl function call lambda...");

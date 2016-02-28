@@ -45,7 +45,7 @@ bool sequence_node::calls_and_returns( const string& fname) const
     return _sequence.back()->calls_and_returns( fname );
 }
 
-objref sequence_node::evaluate(context* pContext)
+objref sequence_node::raw_evaluate(context* pContext)
 {
     if (_isolated)
 	return evaluate_isolated(pContext);

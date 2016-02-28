@@ -25,7 +25,7 @@ defenum rank (two,three,four,five,six,seven,eight,nine,ten,jack,queen,king,ace);
 defclass card(object);
 card.addattr( "suit", suit.hearts );
 card.addattr( "rank", rank.ace );
-card.addmethod( (t,s,r)-> {t.suit=>s; t.rank=>r; t}, ".ctor" );
+card.constructor( (t,s,r)-> {t.suit=>s; t.rank=>r; t}, $() );
 card.addmethod( (t,o)-> {t.rank==o.rank}.and(t.suit==o.suit) , "eq" );
 card.addmethod( (t,o)-> { t.suit=>o.suit; t.rank=>o.rank; t }, ".assign" );
 

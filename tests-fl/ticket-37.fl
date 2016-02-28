@@ -1,0 +1,7 @@
+package root::tickets::t37;
+
+# This is the function that doesn't do what it is supposed to
+all_true=>(l)-> { l.size().eq(0) } ? true : l.head()? { all_true(l.tail()) } : false;
+
+# Add this to the test case to run the test
+run=>()-> all_true( (true,true,true) ).eq(true);

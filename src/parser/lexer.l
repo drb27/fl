@@ -27,6 +27,10 @@ BANANA (-{0,1}{DIGIT}+[.]{DIGIT}+)
 
 %%
 
+\$       { return LAZY; }
+raise    { return RAISE; }
+observe  { return OBSERVE; }
+handle   { return HANDLE; }
 package  { return PKG; }
 ::       { return SCOPE; }
 {BANANA} { yylval->float_val = FLT(yytext); return FLOAT; }
@@ -74,7 +78,7 @@ typedef  { return TYPEDEF; }
 -{0,1}0x{HEXDIGIT}+ { yylval->int_val = strtol(yytext,NULL,16); return INTEGER; }
 #.*
 {WS}     
-{LETTER}+ { yylval->string_val = STR(yytext); return IDENTIFIER; }
+{LETTER}({LETTER}|{DIGIT})* { yylval->string_val = STR(yytext); return IDENTIFIER; }
 \/\/[^\n]*
 =        { return EQ; }
 \n
