@@ -72,7 +72,7 @@ objref funcall_node::raw_evaluate(context* pContext)
     if (!fn)
     {
 	fn = object::cast_or_abort<fn_object>(pContext->resolve_symbol(_symbol));
-	_captured_fn=fn;
+	//_captured_fn=fn;
     }
 
     assert(fn);
