@@ -67,13 +67,15 @@ objref funcall_node::raw_evaluate(context* pContext)
 
     // The function can either be captured (embedded in this object), or
     // looked up in the context.
+    fnref fn;
 
-    fnref fn = _captured_fn;
-    if (!fn)
+    if (pContext->is_defined(_symbol) )
     {
 	fn = object::cast_or_abort<fn_object>(pContext->resolve_symbol(_symbol));
-	//_captured_fn=fn;
+	_captured_fn = fn;
     }
+    else
+	fn = _captured_fn;
 
     assert(fn);
 
