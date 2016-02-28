@@ -1,3 +1,10 @@
+fl hotfix 0.0.3-p1 28th February 2016
+
+* dfd2711 Fixed #45: Signals now don't crash
+
+
+--------------------------------------------------------------------------------
+
 fl release 0.0.3 28th February 2016
 
 Here are the interesting commits made since the previous release, v0.0.2. 
@@ -11,6 +18,7 @@ See github for ticket details (the repository is team-fl/fl).
 * a7b39ea Fixed #41: Adding strings now supports auto conversion
 * 5f5a378 Fixed #40: Added the print function
 * cacb0a9 Fixed #39: Allowed digits in identifiers
+
 
 --------------------------------------------------------------------------------
 
