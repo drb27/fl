@@ -31,7 +31,7 @@ object::object(context* pContext, fclass& c, vector<objref> params)
 	    }
 	};
 
-    for ( auto pCls : c.hierarchy() )
+    for ( auto pCls : c.upstream_hierarchy() )
 	fn(pCls);
 
 }
@@ -43,7 +43,7 @@ objref object::convert_to(objref pThis, fclass* pOther)
 	return pThis;
 
     // ... or already a decendant of pOther?
-    if ( pThis->get_class().is_in_hierarchy(*pOther) )
+    if ( pThis->get_class().is_a(*pOther) )
 	return pThis;
 
     set<ctnoderef> solutionSet;

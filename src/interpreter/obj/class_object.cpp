@@ -36,11 +36,19 @@ map<string,objref> class_object::class_attributes()
     return _value->class_attributes();
 }
 
+/**
+ *  Called when a class object is used as the guard in a selector statement (and also in
+ *  the handle clause of an observe statement, which is implemented internally as a
+ *  selector). The philosophy is that the guard makes the decision as to what matches. In
+ *  the case of a class object, this implementation matches itself, but also any class
+ *  downstream in the class hierarchy. 
+ *
+ */
 bool class_object::selector_match( const objref other) const
 {
     classref pClsOther = std::dynamic_pointer_cast<class_object>(other);
     if (!pClsOther)
 	return (*this)==other;
     else
-	return _value->is_in_hierarchy( *(pClsOther->_value) );
+	return pClsOther->_value->is_a( *_value );
 }

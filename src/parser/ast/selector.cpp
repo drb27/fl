@@ -33,6 +33,22 @@ bool selector_node::calls_and_returns( const std::string& fname) const
     return false;
 }
 
+boolref selector_node::eval_predicate(context* pContext,
+				      objref value,
+				      objref guard)
+{
+    if ( !_predicate)
+    {
+	vector<objref> params{value};
+	return object::cast_or_abort<bool_object>
+	    (guard->invoke(".selmatch",pContext,params));
+    }
+    else
+    {
+	return boolref( new bool_object(pContext,false) );
+    }
+}
+
 objref selector_node::raw_evaluate(context* pContext)
 {
     // Evaluate the selector
@@ -45,13 +61,10 @@ objref selector_node::raw_evaluate(context* pContext)
     for ( auto pair : _conditions )
     {
 	// Evaluate the guard
-	auto firstResult = pair->first()->evaluate(pContext);
+	auto guardResult = pair->first()->evaluate(pContext);
 
 	// Compare the guard to the selector value
-	vector<objref> params{firstResult};
-
-	boolref is_equal = object::cast_or_abort<bool_object>
-	    (selResult->invoke(".selmatch",pContext,params));
+	boolref is_equal = eval_predicate(pContext,selResult,guardResult);
 
 	if ( is_equal->internal_value() )
 	{
@@ -102,6 +115,9 @@ void selector_node::required_symbols(set<symspec>& s ) const
 	pair->first()->required_symbols(s);
 	pair->second()->required_symbols(s);
     }
+
+    if (_predicate)
+	_predicate->required_symbols(s);
 }
 
 void selector_node::add_condition(ast* pair)
@@ -131,4 +147,9 @@ void selector_node::direct_subordinates( list<ast*>& subs ) const
 	subs.push_back(p->first());
 	subs.push_back(p->second());
     }
+}
+
+void selector_node::set_predicate(ast* pred )
+{
+    _predicate = pred;
 }

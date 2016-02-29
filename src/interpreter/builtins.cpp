@@ -48,6 +48,7 @@ namespace builtins
     fclass* list::_class{nullptr};
     fclass* lazy::_class{nullptr};
     fclass* signal::_class{nullptr};
+    fclass* eval_signal::_class{nullptr};
 
     fclass* object::get_class()
     {
@@ -93,6 +94,14 @@ namespace builtins
     {
 	if (!_class)
 	    _class = signal::build_class();
+
+	return _class;
+    }
+
+    fclass* eval_signal::get_class()
+    {
+	if (!_class)
+	    _class = eval_signal::build_class();
 
 	return _class;
     }
@@ -189,6 +198,9 @@ namespace builtins
 
 	pContext->assign( signal::get_class()->name(), 
 			  classref(new class_object(pContext, signal::get_class())) );
+
+	pContext->assign( eval_signal::get_class()->name(), 
+			  classref(new class_object(pContext, eval_signal::get_class())) );
 
 	pContext->assign( flfloat::get_class()->name(), 
 			  classref(new class_object(pContext, flfloat::get_class())) );
@@ -344,6 +356,24 @@ namespace builtins
 	factory::get().add_spawner( pCls, [](context* ctx, fclass* cls) 
 				    { 
 					return objref(new ::signal_object(ctx,*cls));
+				    } );
+
+	return pCls;
+    }
+    fclass* eval_signal::build_class()
+    {
+	fclass* base_cls = signal::get_class();
+	typespec spec("evalsignal");
+	fclass* pCls = new fclass(spec,base_cls,false,true,true,false);
+
+	ctorinfo c;
+	c.name="<constructor>";
+	c.fn = make_marshall_mthd(&builtins::eval_signal_ctor);
+	pCls->set_ctor(c);
+
+	factory::get().add_spawner( pCls, [](context* ctx, fclass* cls) 
+				    { 
+					return objref(new ::eval_signal_object(ctx,nullptr,*cls));
 				    } );
 
 	return pCls;
@@ -541,6 +571,11 @@ namespace builtins
     }
 
     objref signal_ctor(context*,sigref pThis)
+    {
+	return pThis;
+    }
+
+    objref eval_signal_ctor(context*,evalsigref pThis)
     {
 	return pThis;
     }

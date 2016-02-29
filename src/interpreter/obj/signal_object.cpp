@@ -31,9 +31,9 @@ objref signal_object::handle(context* pContext,ast* rootNode)
     // Starting from the node which raised the signal, look for an upstream node which
     // advertises the ability to handle this signal
     ast* currentNode = _source_node;
-    bool found=false;
+    bool more=true;
 
-    while (!found)
+    while (more)
     {
 	// Try to get an observer
 	selector_node* pSelNode = currentNode->observer();
@@ -48,7 +48,7 @@ objref signal_object::handle(context* pContext,ast* rootNode)
 	    try
 	    {
 		// Reference the signal in the current context
-		pContext->assign( string(".signal"),
+		pContext->assign( string("_signal"),
 				  objref( new class_object(pContext,
 							   &get_class()) ) 
 				  );
@@ -65,12 +65,24 @@ objref signal_object::handle(context* pContext,ast* rootNode)
 	    }
 	}
 
-	currentNode = parent[currentNode];
+	auto i = parent.find(currentNode);
 
-	// TODO: Termination of this loop when no handler is successful
-	
-    }
-    
+	if ( i==parent.end() )
+	    more=false;
+	else
+	    currentNode=(*i).second;
+    }    
 
     return objref(nullptr);
+}
+
+eval_signal_object::eval_signal_object(context* pContext, eval_exception* pEx, fclass& cls)
+    : signal_object(pContext,cls), _exception(pEx)
+{
+}
+
+eval_signal_object::~eval_signal_object()
+{
+    if (_exception)
+	delete _exception;
 }

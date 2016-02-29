@@ -55,17 +55,31 @@ objref ast::evaluate(context* pContext )
     if (_observer)
 	_observer->set_unwind_stack_frame(pContext->current_collection());
 
-    objref result = raw_evaluate(pContext);
+    objref result;
+    try
+    {
+	result = raw_evaluate(pContext);
+    }
+    catch ( eval_exception& e )
+    {
+	// Whoops! An eval exception occurred. If it isn't a fatal one, 
+	// inject a signal
+	if ( !e.fatal()  )
+	{    
+	    _signal = sigref(new eval_signal_object( pContext, new eval_exception(e) ));
+	    _signal->set_source_node(this);
+	}
+	else
+	    throw;
+    }
 
     // Was a signal raised?
     if (_signal)
     {
 	// Get the result from the signal handler instead
-	// TODO: The root node (this, below) is wrong. Need the root ast node
-	// of the highest level node being evaluated
 	result = _signal->handle(pContext,pContext->root_node());
 
-	// TODO: What if the signal couldn't be handled?
+	// What if the signal couldn't be handled?
 	if (!result)
 	    throw eval_exception(cerror::unhandled_signal, "Unhandled signal", true );			     
     }

@@ -17,6 +17,7 @@ public:
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
     virtual void add_condition(ast* pair);
+    virtual void set_predicate(ast* pred);
     virtual void set_default(ast* defaultExpr);
     virtual bool calls_and_returns( const std::string& fname) const;
     virtual asttype type() const;
@@ -26,7 +27,11 @@ public:
     colref unwind_stack_frame() { return _unwind_stack_frame; }
 
 protected:
+
+    boolref eval_predicate(context*,objref value, objref guard);
+
     ast* _selector;
+    ast* _predicate{nullptr};
     ast* _default{nullptr};
     std::list<pair_node*> _conditions;
     colref _unwind_stack_frame;

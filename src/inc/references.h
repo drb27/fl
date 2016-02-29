@@ -34,5 +34,6 @@ typedef std::shared_ptr<enum_object> enumref;
 typedef std::shared_ptr<collection> colref;
 typedef std::shared_ptr<lazy_object> lazyref;
 typedef std::shared_ptr<signal_object> sigref;
+typedef std::shared_ptr<signal_object> evalsigref;
 
 #endif

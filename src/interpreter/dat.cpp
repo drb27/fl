@@ -100,7 +100,7 @@ void dat::respond( ast* def, bool abbrev, std::ostream& os)
 	_seq_stack.clear();
 	_sel_stack.clear();
 	_list_stack.clear();
-	throw e;
+	throw;
     }
 }
 void dat::show_cmd( ast* def, std::ostream& os)
@@ -360,7 +360,7 @@ ast* dat::make_pair(ast* f,ast* s)
 
 ast* dat::start_observed_expression()
 {
-    auto s = new symbol_node(".signal");
+    auto s = new symbol_node("_signal");
     return make_selector(s);
 }
 

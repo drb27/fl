@@ -59,6 +59,15 @@ protected:
     static fclass* _class;
 };
 
+class eval_signal
+{
+public:
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
+};
+
 class flfloat
 { 
 public:
@@ -192,6 +201,7 @@ protected:
     objref obj_convertible_to(context* pContet, objref pThis, classref pTargetClass);
     objref obj_convert(context* pContext, objref pThis, classref pTargetClass );
     objref signal_ctor(context*,sigref pThis);
+    objref eval_signal_ctor(context*,evalsigref pThis);
 }
 
 #endif

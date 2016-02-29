@@ -3,6 +3,8 @@
 
 #include <interpreter/obj/object.h>
 
+class eval_exception;
+
 class context;
 
 /**
@@ -42,6 +44,28 @@ public:
 protected:
 
     ast* _source_node{nullptr};	///< Pointer to the node which raised the signal 
+};
+
+/**
+ * Represents an eval_exception signal. Allows the program to catch and handle non-fatal
+ * evaluation exceptions via the signal mechanism.
+ */
+class eval_signal_object : public signal_object
+{
+ public:
+
+    eval_signal_object(context*,
+			  eval_exception* pEx=nullptr,
+			  fclass& = *builtins::eval_signal::get_class());
+
+    virtual ~eval_signal_object();
+
+    eval_exception* exception() { return _exception; }
+    void set_exception( eval_exception* pEx ) { _exception = pEx; }
+
+ protected:
+
+    eval_exception* _exception{nullptr};
 };
 
 #endif

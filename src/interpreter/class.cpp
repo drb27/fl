@@ -189,7 +189,7 @@ list<string> fclass::str_attributes() const
     return attrs;
 }
 
-deque<fclass*> fclass::hierarchy()
+deque<fclass*> fclass::upstream_hierarchy()
 {
     deque<fclass*> h;
     fclass* p = this;
@@ -203,9 +203,9 @@ deque<fclass*> fclass::hierarchy()
     return h;
 }
 
-bool fclass::is_in_hierarchy( const fclass& other)
+bool fclass::is_a( const fclass& other)
 {
-    auto h = hierarchy();
+    auto h = upstream_hierarchy();
     for ( auto c : h )
     {
 	if ( c == &other )
@@ -221,8 +221,8 @@ bool fclass::build_conversion_tree(fclass* pGoal,set<ctnoderef>& solutionSet)
     if (pGoal==this)
 	return true;
 
-    // Is this class a decendant of pOther?
-    if ( is_in_hierarchy(*pGoal) )
+    // Is this class a decendant of pGoal?
+    if ( is_a(*pGoal) )
 	return true;
 
     // A set of classes already in the tree
