@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <list>
+#include <initializer_list>
 #include <inc/references.h>
 #include <parser/ast/ast.h>
 
@@ -15,6 +16,7 @@ class list_node : public ast
 public:
 
     list_node(bool isLazy=false) : _is_lazy(isLazy) {}
+    list_node( std::initializer_list<ast*> l);
     virtual void push_element(ast*);
     virtual objref raw_evaluate(context*);    
     virtual fclass* type(context*) const;

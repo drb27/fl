@@ -11,6 +11,12 @@ using std::string;
 using std::set;
 using std::list;
 
+list_node::list_node( std::initializer_list<ast*> l ) : list_node(false)
+{
+    for ( auto el : l )
+	push_element(el);
+}
+
 void list_node::push_element(ast* pNode)
 {
     _elements.push_back(pNode);
