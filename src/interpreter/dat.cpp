@@ -381,6 +381,11 @@ ast* dat::selector_predicate(ast* e)
     (*_sel_stack.begin())->set_predicate(e);
 }
 
+void dat::selector_handle_predicate(void)
+{
+    (*_sel_stack.begin())->use_handle_predicate();
+}
+
 ast* dat::selector_condition(ast* pCondPair)
 {
     (*_sel_stack.begin())->add_condition(pCondPair);

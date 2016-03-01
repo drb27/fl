@@ -17,6 +17,9 @@ class signal_object : public object
 {
 public:
     signal_object(context*,fclass& = *builtins::signal::get_class());
+
+    virtual ~signal_object() {}
+
     virtual void render( std::ostream& os, bool abbrev=true );
 
     /**
@@ -39,7 +42,7 @@ public:
      * @note If a handler cannot be found, a bare eval_exception is raised, terminating
      * the evaluation of the expression, and no result of the evaluation is evailable.
      */ 
-    objref handle(context* pContext,ast* rootNode);
+    objref handle(context* pContext,ast* rootNode, sigref pThis);
 
 protected:
 

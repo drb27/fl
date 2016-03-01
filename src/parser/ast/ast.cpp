@@ -77,7 +77,7 @@ objref ast::evaluate(context* pContext )
     if (_signal)
     {
 	// Get the result from the signal handler instead
-	result = _signal->handle(pContext,pContext->root_node());
+	result = _signal->handle(pContext,pContext->root_node(),_signal);
 
 	// What if the signal couldn't be handled?
 	if (!result)

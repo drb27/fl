@@ -25,11 +25,11 @@ public:
     virtual asttype type() const;
     virtual void direct_subordinates( std::list<ast*>& ) const;
 
-    virtual ast* class_expr() const { return _classExpr; }
+    virtual ast* sigobj_expr() const { return _sigObjExpr; }
 
 protected:
 
-    ast* _classExpr;
+    ast* _sigObjExpr;
 };
 
 #endif

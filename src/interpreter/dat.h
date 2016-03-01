@@ -71,6 +71,7 @@ class dat : public action_target
     virtual ast* selector_default(ast*);
     virtual ast* selector_predicate(ast*);
     virtual ast* selector_condition(ast*);
+    virtual void selector_handle_predicate(void);
     virtual selector_node* finish_selector();
 
     virtual void push_package();

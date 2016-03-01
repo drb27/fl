@@ -40,6 +40,7 @@ class action_target
     virtual ast* selector_default(ast*)=0;
     virtual ast* selector_predicate(ast*)=0;
     virtual ast* selector_condition(ast*)=0;
+    virtual void selector_handle_predicate(void)=0;
     virtual selector_node* finish_selector()=0;
     virtual ast* make_seq()=0;
     virtual void finish_seq()=0;

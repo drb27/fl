@@ -22,7 +22,7 @@ void signal_object::set_source_node( ast* n)
     _source_node=n;
 }
 
-objref signal_object::handle(context* pContext,ast* rootNode)
+objref signal_object::handle(context* pContext,ast* rootNode,sigref pThis)
 {
     // Compute the parent map for the root node
     map<ast*,ast*> parent;
@@ -48,10 +48,7 @@ objref signal_object::handle(context* pContext,ast* rootNode)
 	    try
 	    {
 		// Reference the signal in the current context
-		pContext->assign( string("_signal"),
-				  objref( new class_object(pContext,
-							   &get_class()) ) 
-				  );
+		pContext->assign( string("_signal"), pThis );
 
 		auto result = pSelNode->evaluate(pContext);
 

@@ -239,7 +239,8 @@ exprs: expr { target->add_expr($1); }
 
 selector: expr SELECTOR {$<node_val>$=target->make_selector($1); } selpred selset { $$=$<node_val>3; target->finish_selector(); };
 
-selpred: | PREDICATE OPEN_CURLY expr CLOSE_CURLY { target->selector_predicate($3); };
+selpred: 
+       | PREDICATE OPEN_CURLY expr CLOSE_CURLY { target->selector_predicate($3); };
 
 selset: selpair | selset BAR selpair;
 
@@ -255,7 +256,9 @@ classdef: CLASS IDENTIFIER list { $$=target->make_new_class($2,$3); }
 flwhile: WHILE OPEN_CURLY expr CLOSE_CURLY expr { $$=target->make_while($3,$5); }
 
 observed_expr: OBSERVE expr HANDLE { target->start_observed_expression(); }
-               selset { $$=$2; $$->set_observer( target->finish_selector()) ; }
+               selset { $$=$2; 
+		        target->selector_handle_predicate();
+		        $$->set_observer( target->finish_selector()) ; }
 
 raise: RAISE expr { $$=target->make_raise($2); }
 

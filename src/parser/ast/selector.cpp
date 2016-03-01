@@ -8,6 +8,9 @@
 #include <parser/ast/list.h>
 #include <parser/ast/literal.h>
 #include <parser/ast/funcall.h>
+#include <parser/ast/fundef.h>
+#include <parser/ast/methodcall.h>
+#include <parser/ast/symbol.h>
 #include <interpreter/obj/bool_object.h>
 #include <interpreter/obj/fn_object.h>
 #include <interpreter/eval_exception.h>
@@ -16,6 +19,8 @@ using std::string;
 using std::list;
 using std::set;
 using std::vector;
+
+ast* selector_node::_handle_predicate{nullptr};
 
 selector_node::selector_node(ast* selector)
     : _selector(selector)
@@ -177,7 +182,36 @@ void selector_node::direct_subordinates( list<ast*>& subs ) const
     }
 }
 
+void selector_node::use_handle_predicate() 
+{
+    _predicate = get_handle_predicate();
+}
+
 void selector_node::set_predicate(ast* pred )
 {
     _predicate = pred;
+}
+
+ast* selector_node::make_handle_predicate()
+{
+    // Arguments
+    list_node* arglist = new list_node({new symbol_node("guard"), new symbol_node("value")});
+
+    // Function body
+    methodcall_node* definition = new methodcall_node("member");
+    definition->add_target( new symbol_node("guard") );
+    definition->add_param( new symbol_node("value") );
+
+    return new fundef_node(arglist,definition);
+}
+
+ast* selector_node::get_handle_predicate()
+{
+    // TODO
+    // (guard,value)-> guard.member(value)
+
+    if (!_handle_predicate)
+	_handle_predicate = make_handle_predicate();
+
+    return _handle_predicate;
 }

@@ -23,18 +23,25 @@ public:
     virtual asttype type() const;
     virtual void direct_subordinates( std::list<ast*>& ) const;
 
+    void use_handle_predicate();
     void set_unwind_stack_frame(colref c) { _unwind_stack_frame=c; }
     colref unwind_stack_frame() { return _unwind_stack_frame; }
 
 protected:
 
     boolref eval_predicate(context*,objref value, objref guard);
+    static ast* get_handle_predicate();
 
     ast* _selector;
     ast* _predicate{nullptr};
     ast* _default{nullptr};
     std::list<pair_node*> _conditions;
     colref _unwind_stack_frame;
+
+private:
+    static ast* make_handle_predicate();
+    static ast* _handle_predicate;
+
 };
 
 #endif
