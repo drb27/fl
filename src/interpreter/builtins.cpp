@@ -366,6 +366,7 @@ namespace builtins
 	fclass* base_cls = signal::get_class();
 	typespec spec("evalsignal");
 	fclass* pCls = new fclass(spec,base_cls,false,true,true,false);
+	pCls->add_attribute("msg", nullptr );
 
 	ctorinfo c;
 	c.name="<constructor>";

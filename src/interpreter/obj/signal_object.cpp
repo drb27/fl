@@ -1,6 +1,7 @@
 #include <map>
 #include <interpreter/obj/signal_object.h>
 #include <interpreter/obj/class_object.h>
+#include <interpreter/obj/string_object.h>
 #include <parser/ast/selector.h>
 #include <interpreter/context.h>
 
@@ -76,6 +77,16 @@ objref signal_object::handle(context* pContext,ast* rootNode,sigref pThis)
 eval_signal_object::eval_signal_object(context* pContext, eval_exception* pEx, fclass& cls)
     : signal_object(pContext,cls), _exception(pEx)
 {
+    if (pEx)
+	set_attribute("msg", stringref( new string_object(pContext, pEx->what() ) ) );
+}
+
+void eval_signal_object::set_exception( eval_exception* pEx )
+{
+    _exception = pEx;
+
+    if (pEx)
+	set_attribute("msg", stringref( new string_object(get_context(), pEx->what() ) ) );
 }
 
 eval_signal_object::~eval_signal_object()

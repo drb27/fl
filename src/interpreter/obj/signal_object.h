@@ -64,7 +64,7 @@ class eval_signal_object : public signal_object
     virtual ~eval_signal_object();
 
     eval_exception* exception() { return _exception; }
-    void set_exception( eval_exception* pEx ) { _exception = pEx; }
+    void set_exception( eval_exception* pEx );
 
  protected:
 

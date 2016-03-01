@@ -23,11 +23,12 @@ object::object(context* pContext, fclass& c, vector<objref> params)
     // Create the attributes for this class, and the base chain
     fclass* pCurrentClass = &c;
 
-    auto fn = [this](fclass* pClass)
+    auto fn = [this,pContext](fclass* pClass)
 	{
 	    for ( auto a : pClass->attributes() )
 	    {
-		_attributes[a.first] = a.second;
+		objref value = a.second;
+		_attributes[a.first] = (value)? value : objref( new void_object(pContext) );
 	    }
 	};
 
