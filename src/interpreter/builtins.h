@@ -169,6 +169,7 @@ protected:
     objref class_constructor(context* pContext, classref pThis, fnref pCtor, lazyref pChain );
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
     objref class_addctor(context* pContext, classref pThis, fnref  fn, listref chain);
+    objref class_member(context* pContext, classref pThis, objref pObj);
     objref string_length(context* pContext, stringref pThis);
     objref string_index(context* pContext, stringref pThis, intref index );
     objref string_add(context* pContext, stringref pThis, objref pOther);

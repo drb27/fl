@@ -273,6 +273,7 @@ namespace builtins
 	pCls->add_method({"addattr",make_marshall_mthd(&builtins::class_addattr),true});
 	pCls->add_method({"eq", make_marshall_mthd(&builtins::class_equate),false} );
 	pCls->add_method({"clsattrs", make_marshall_mthd(&builtins::class_attrlist)});
+	pCls->add_method({"member", make_marshall_mthd(&builtins::class_member)});
 
 	return pCls;
     }
@@ -832,6 +833,12 @@ namespace builtins
 	    return (*fn)(pContext,evaled_params);
 	};
     }
+
+    objref class_member(context* pContext, classref pThis, objref pObj)
+    {
+	bool result = pObj->get_class().is_a( *pThis->internal_value() );
+	return boolref( new bool_object(pContext,result) );
+    };
     
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name)
     {
