@@ -376,6 +376,11 @@ ast* dat::selector_default(ast* pDefault)
     (*_sel_stack.begin())->set_default(pDefault);
 }
 
+ast* dat::selector_predicate(ast* e)
+{
+    (*_sel_stack.begin())->set_predicate(e);
+}
+
 ast* dat::selector_condition(ast* pCondPair)
 {
     (*_sel_stack.begin())->add_condition(pCondPair);

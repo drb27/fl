@@ -43,6 +43,7 @@ defclass { return CLASS; }
 ==       { return EQUALITY; }
 \?\?     { return SELECTOR; }
 \|       { return BAR; }
+predicate: { return PREDICATE; }
 default  { return DEFAULT; }
 \;       { return SEMICOLON; }
 \{       { return OPEN_CURLY; }

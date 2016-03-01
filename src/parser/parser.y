@@ -38,6 +38,7 @@ extern action_target* target;
 %token BAR
 %token SELECTOR
 %token DEFAULT
+%token PREDICATE
 %token OPEN_CURLY
 %token CLOSE_CURLY
 %token TRACE
@@ -142,6 +143,7 @@ extern action_target* target;
 %left CLOSE_SQUARE
 %right WHILE
 %right LAZY
+%left PREDICATE
 %%
 
 /* INPUTS *****************************************************************/
@@ -235,7 +237,9 @@ exprs: expr { target->add_expr($1); }
      | exprs SEMICOLON expr { target->add_expr($3); }
      ;
 
-selector: expr SELECTOR {$<node_val>$=target->make_selector($1); } selset { $$=$<node_val>3; target->finish_selector(); };
+selector: expr SELECTOR {$<node_val>$=target->make_selector($1); } selpred selset { $$=$<node_val>3; target->finish_selector(); };
+
+selpred: | PREDICATE OPEN_CURLY expr CLOSE_CURLY { target->selector_predicate($3); };
 
 selset: selpair | selset BAR selpair;
 

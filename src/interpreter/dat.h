@@ -69,6 +69,7 @@ class dat : public action_target
     virtual ast* make_selector(ast*);
     virtual ast* start_observed_expression();
     virtual ast* selector_default(ast*);
+    virtual ast* selector_predicate(ast*);
     virtual ast* selector_condition(ast*);
     virtual selector_node* finish_selector();
 

@@ -5,7 +5,11 @@
 #include <inc/references.h>
 #include <parser/ast/selector.h>
 #include <parser/ast/pair.h>
+#include <parser/ast/list.h>
+#include <parser/ast/literal.h>
+#include <parser/ast/funcall.h>
 #include <interpreter/obj/bool_object.h>
+#include <interpreter/obj/fn_object.h>
 #include <interpreter/eval_exception.h>
 
 using std::string;
@@ -45,7 +49,31 @@ boolref selector_node::eval_predicate(context* pContext,
     }
     else
     {
-	return boolref( new bool_object(pContext,false) );
+	// Evaluate the predicate expression to yield a function
+	fnref pPredicate = object::cast_or_abort<fn_object>
+	    ( _predicate->evaluate(pContext) );
+
+	// Call the function with (guard,value) as parameters
+	list_node* pArgList = new list_node();
+	literal_node* pGuardArg = new literal_node(guard);
+	literal_node* pValueArg = new literal_node(value);
+
+	pArgList->push_element(pGuardArg);
+	pArgList->push_element(pValueArg);
+
+	funcall_node* pFnCall = new funcall_node(symspec("(anonymous)"), 
+						 pArgList,
+						 pPredicate);
+
+	auto result = object::cast_or_abort<bool_object>
+	    ( pFnCall->evaluate(pContext) );
+
+	delete pFnCall;
+	delete pArgList;
+	delete pGuardArg;
+	delete pValueArg;
+
+	return result;
     }
 }
 
