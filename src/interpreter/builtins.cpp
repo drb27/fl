@@ -255,6 +255,7 @@ namespace builtins
 	pCls->add_method( {"invoke", make_marshall_mthd(&builtins::obj_invoke),true} );
 	pCls->add_method( {"can_convert", make_marshall_mthd(&builtins::obj_convertible_to),true} );	
 	pCls->add_method( {"convert", make_marshall_mthd(&builtins::obj_convert),true} );
+	pCls->add_method( {"hash", make_marshall_mthd(&builtins::obj_hash),false} );
 	return pCls;
     }
 
@@ -625,6 +626,11 @@ namespace builtins
     {
 	pThis->dump(std::cout);
 	return pThis;
+    }
+
+    objref obj_hash(context* pContext, objref pThis)
+    {
+	return intref( new int_object(pContext, (long)pThis.get() ));
     }
 
     objref obj_class(context* pContext, objref pThis)

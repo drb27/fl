@@ -139,6 +139,7 @@ protected:
     objref obj_equate(context*, objref pThis,objref pOther);
     objref obj_selmatch(context*, objref pThis,objref pOther);
     objref obj_class(context*, objref pThis);
+    objref obj_hash(context*, objref pThis);
     objref add_integers(context*,intref a, objref b);
     objref int_dec(context*,intref pThis);
     objref int_div(context*,intref,intref);
