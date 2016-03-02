@@ -4,9 +4,9 @@ package root::tickets::t44;
 // Returns true if n is perfectly divisible by d
 //
 
-debug_de=>(n,d,r)-> { s=> "DE(" + n + "," + d + ")=" + r; s.dump(); null};
+debug_de=>(n,d,r)-> { s=> "DE(" + n + "," + d + ")=" + r; s.dump(); null; };
 
-divides_exactly=>(n,d)-> { r=>n.mod(d)==0; debug_de(n,d,r); r };
+divides_exactly=>(n,d)-> { r=>n.mod(d)==0; debug_de(n,d,r); r; };
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,6 @@ is_prime=>(n)->
 		  | 2: true 
 		  | default: any_true( divides_exactly(n), range(2,n.dec()) ).not();
 
-primes=>(b,e)-> { l=>(); foreach( range(b,e), { (x)-> is_prime(x)? l.append(x) : null } ); l };
+primes=>(b,e)-> { l=>(); foreach( range(b,e), { (x)-> is_prime(x)? l.append(x) : null } ); l; };
 
 run=>()-> primes(1,10).size()==4;

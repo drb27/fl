@@ -198,7 +198,7 @@ describe=> (c)-> c ?? coffee.espresso: "Strong and dark" | coffee.cappuccino: "F
 // Sequences are just sequences of expressions. They get executed in order, and 
 // the return value of the sequence is the last expression evaluated. For example:
 
-{ n=>4; n+1 }; 	    // This is a 'sequence' expression, which returns the value 5. 
+{ n=>4; n+1; };     // This is a 'sequence' expression, which returns the value 5. 
   	    	    // Note that sequences do not have their own variable scope, so
 		    // n now exists at the global level ...
 
@@ -207,7 +207,7 @@ n;		    // ... returns 4.
 // On the other hand, functions do have their own variable scope. In the following 
 // example, we define a new function, f(), that takes an argument x and returns 
 // x+1:
-f=>(x)->{ q=>x; q+1 };
+f=>(x)->{ q=>x; q+1; };
 
 f(5);	  	    // ... returns 6. 
 

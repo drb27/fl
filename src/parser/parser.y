@@ -233,9 +233,10 @@ listbuild: expr BUILDER expr { $$ = target->build_list($1,$3); };
 
 sequence: OPEN_CURLY { $<node_val>$ = target->make_seq(); } exprs CLOSE_CURLY { $$=$<node_val>2; target->finish_seq(); };
 
-exprs: expr { target->add_expr($1); }
-     | exprs SEMICOLON expr { target->add_expr($3); }
-     ;
+exprs: expr {target->add_expr($1); } | sexpr;
+
+sexpr: expr SEMICOLON { target->add_expr($1); }
+     | sexpr expr SEMICOLON { target->add_expr($2); };
 
 selector: expr SELECTOR {$<node_val>$=target->make_selector($1); } selpred selset { $$=$<node_val>3; target->finish_selector(); };
 

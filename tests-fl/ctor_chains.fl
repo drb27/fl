@@ -8,4 +8,4 @@ defclass vehicle(object)
 defclass car(vehicle)
 	 .constructor( (t)-> t, $(5) ); 
 
-run=> ()->{ c=>car.new(); c.wheels==5 };
+run=> ()->{ c=>car.new(); c.wheels==5; };

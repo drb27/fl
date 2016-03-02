@@ -36,7 +36,7 @@ main=>()->
 	results=> tc.run();
 
 	# Return true if all tests gave a result, and all passed (false otherwise)
-	and(results.size()==tc.tests.size(),all_passed(results))
+	and(results.size()==tc.tests.size(),all_passed(results));
 };
 
 # Run the main function, and set the exit code to 0 if all tests passed,

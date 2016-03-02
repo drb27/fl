@@ -65,5 +65,5 @@ car.addmethod( (t,v)-> t.wheels=>v, "setwheels");
 car.addmethod( (t,x,y) -> t.wheels=>x+y, "setfrontback" );
 c=>car.new();
 
-do=>(f,l) -> empty(l)? null : { f(l.head()); do(f,l.tail()); null };
+do=>(f,l) -> empty(l)? null : { f(l.head()); do(f,l.tail()); null; };
 

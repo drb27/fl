@@ -35,5 +35,5 @@ is_prime=>(n)-> n.lt(0)? is_prime( n.div(-1)) :
               | 2: true 
 	      | default: any_true( divides_exactly(n), range(2,n.dec()) ).not() };
 
-primes=>(b,e)-> { l=>(); foreach( range(b,e), (x)-> is_prime(x)? l.append(x) : null); l };
+primes=>(b,e)-> { l=>(); foreach( range(b,e), (x)-> is_prime(x)? l.append(x) : null); l; };
 

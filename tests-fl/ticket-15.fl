@@ -7,4 +7,4 @@ defclass tester(object)
 args=>(4);
 
 # Add this to the test case to run the test
-run=>()-> { t=>tester.new(); t.setvalue 'args; t.value==4 }; 
+run=>()-> { t=>tester.new(); t.setvalue 'args; t.value==4; }; 

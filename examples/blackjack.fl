@@ -25,9 +25,9 @@ defenum rank (two,three,four,five,six,seven,eight,nine,ten,jack,queen,king,ace);
 defclass card(object);
 card.addattr( "suit", suit.hearts );
 card.addattr( "rank", rank.ace );
-card.constructor( (t,s,r)-> {t.suit=>s; t.rank=>r; t}, $() );
+card.constructor( (t,s,r)-> {t.suit=>s; t.rank=>r; t; }, $() );
 card.addmethod( (t,o)-> {t.rank==o.rank}.and(t.suit==o.suit) , "eq" );
-card.addmethod( (t,o)-> { t.suit=>o.suit; t.rank=>o.rank; t }, ".assign" );
+card.addmethod( (t,o)-> { t.suit=>o.suit; t.rank=>o.rank; t; }, ".assign" );
 
 card.addmethod( (t) -> t.rank??   rank.two: 2 
 		       		| rank.three: 3 
@@ -44,7 +44,7 @@ card.addmethod( (t) -> t.rank??   rank.two: 2
 
 card.addmethod( (t)->  t.rank.convert("".class()) + ":" + t.suit.convert("".class())[0], ".render" );
 
-make_card=>(l)-> { c=>card.new(); c.suit=>l[0]; c.rank=>l[1]; c };
+make_card=>(l)-> { c=>card.new(); c.suit=>l[0]; c.rank=>l[1]; c; };
 make_suit_pairs=>(s)-> combine(s,foreach(rank,I));
 make_suit=>(s)-> foreach( make_suit_pairs(s), (p)->make_card(p) );
 make_deck=>()-> flatten( foreach( foreach(suit,I), (s)->make_suit(s)), () );
@@ -53,8 +53,8 @@ rep=>(x,y)-> y.size()==0? x: rep(x.join(y.head()),y.tail());
 
 defclass deck(object);
 deck.addattr("cards", () );
-deck.addmethod( (t)-> { t.cards=>make_deck(); t }, ".ctor" );
-deck.addmethod( (t) -> { rval=>t.cards.head(); t.cards=>t.cards.tail(); rval }, "deal" );
+deck.addmethod( (t)-> { t.cards=>make_deck(); t; }, ".ctor" );
+deck.addmethod( (t) -> { rval=>t.cards.head(); t.cards=>t.cards.tail(); rval; }, "deal" );
 deck.addmethod( (t,i) -> t.cards[i], ".index" );
 deck.addmethod( (t) -> t.cards, ".iter" );
 
