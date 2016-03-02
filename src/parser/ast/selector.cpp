@@ -197,10 +197,14 @@ ast* selector_node::make_handle_predicate()
     // Arguments
     list_node* arglist = new list_node({new symbol_node("guard"), new symbol_node("value")});
 
+    // Arg to method call
+    list_node* pMethodCallArgs = new list_node();
+    pMethodCallArgs->push_element( new symbol_node("value" ) );
+
     // Function body
     methodcall_node* definition = new methodcall_node("member");
     definition->add_target( new symbol_node("guard") );
-    definition->add_param( new symbol_node("value") );
+    definition->add_param_list(pMethodCallArgs);
 
     return new fundef_node(arglist,definition);
 }

@@ -40,7 +40,7 @@ class dat : public action_target
     virtual void include_cmd( ast* fname);
     virtual void eval_cmd( ast* stmtString);
     virtual void cd_cmd( ast* fname);
-    virtual ast* make_methodcall( ast* target, ast* method, list_node* args);
+    virtual ast* make_methodcall( ast* target, ast* method, ast* args);
     virtual ast* make_assign_node(ast* lvalue, ast* rvalue,bool);
     virtual ast* make_attr( ast* target, std::string* selector);
     virtual ast* make_seq();

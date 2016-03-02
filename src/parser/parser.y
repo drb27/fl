@@ -205,10 +205,10 @@ expr:   literal
       | expr EQUALITY expr { $$=target->make_equality($1,$3); }
       | expr ADD expr  { auto as = new std::string(add_str); 
 	                 $$=target->make_methodcall($1, target->make_symbol(as), 
-				       (list_node*)(target->make_single_list($3))); }
+				       (target->make_single_list($3))); }
       | expr DECREMENT { auto ds = new std::string(dec_str); 
                          $$=target->make_methodcall($1, target->make_symbol(ds),
-				       (list_node*)(target->make_empty_list())); }
+				       (target->make_empty_list())); }
       ;
 
 literal: null | bool | integer | flfloat | str | list_literal;
@@ -216,7 +216,7 @@ funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
 
 lazy_expr: LAZY expr { $$=target->make_lazy($2); }
 
-methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
+methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,$4);}; 
 attr: expr DOT IDENTIFIER {$$=target->make_attr($1,$3); };
 
 bool: TRUE {$$=target->make_bool(true); } 

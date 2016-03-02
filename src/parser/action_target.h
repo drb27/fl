@@ -26,7 +26,7 @@ class action_target
     virtual void switch_package( ast* symbol )=0;
     virtual ast* make_alias(ast* alias, ast* existing) const=0;
     virtual ast* make_assign_node(ast* lvalue, ast* rvalue,bool alias=false)=0;
-    virtual ast* make_methodcall( ast* target, ast* method,list_node* args)=0;
+    virtual ast* make_methodcall( ast* target, ast* method,ast* args)=0;
     virtual ast* make_attr( ast* target, std::string* selector)=0;
     virtual ast* make_pair(ast*,ast*)=0;
     virtual ast* make_selector(ast*)=0;

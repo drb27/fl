@@ -17,7 +17,7 @@ public:
     virtual objref raw_evaluate(context*);
 
     virtual void add_target(ast* pObj);
-    virtual void add_param(ast*);
+    virtual void add_param_list(ast*);
     virtual void required_symbols(std::set<symspec>&) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="",
@@ -29,7 +29,7 @@ public:
 protected:
     const std::string _name;
     ast* _target;
-    std::list<ast*> _params;
+    ast* _param_list{nullptr};
 };
 
 #endif

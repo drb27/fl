@@ -188,11 +188,12 @@ ast* dat::make_index(ast* target, ast* index)
     return make_methodcall(target,method,args);
 }
 
-ast* dat::make_methodcall( ast* target, ast* method,list_node* args)
+ast* dat::make_methodcall( ast* target, ast* method, ast* args)
 {
     symbol_node* pMethodNameNode = dynamic_cast<symbol_node*>(method);
     auto r = new methodcall_node(pMethodNameNode->name());
 
+    // Hack calls to new
     if ( pMethodNameNode->name()=="new")
     {
 	// Syntactic hack: To allow the user to write: 
@@ -201,15 +202,12 @@ ast* dat::make_methodcall( ast* target, ast* method,list_node* args)
 	//     <class>.new( (1,2,3) )
 	// we need to encapsulate the parameters into another list node
 	
-	list_node* originalArgList = args;
+	ast* originalArgList = args;
 	args = new list_node();
-	args->push_element(originalArgList);
+	((list_node*)args)->push_element(originalArgList);
     }
 
-    for ( auto p : args->raw_elements() )
-    {
-	r->add_param(p);
-    }
+    r->add_param_list(args);
     r->add_target(target);
     delete method;
     return r;
@@ -275,9 +273,11 @@ ast* dat::finish_list()
 
 ast* dat::build_list( ast* list, ast* element)
 {
+    auto argList = new list_node();
+    argList->push_element(element);
     auto r = new methodcall_node("duplicate_and_append");
     r->add_target(list);
-    r->add_param(element);
+    r->add_param_list(argList);
     return r;
 }
 

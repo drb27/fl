@@ -6,9 +6,11 @@
 #include <inc/references.h>
 #include <interpreter/marshall.h>
 #include <parser/ast/methodcall.h>
+#include <parser/ast/literal.h>
 #include <interpreter/eval_exception.h>
 #include <interpreter/context.h>
 #include <interpreter/obj/class_object.h>
+#include <interpreter/obj/list_object.h>
 
 using std::string;
 using std::set;
@@ -40,11 +42,7 @@ void methodcall_node::render_dot(int& uuid,
     _target->render_dot(uuid,myid," target",out);
 
     int paramCount=0;
-    for (auto arg : _params)
-    {
-	auto pc = paramCount++;
-	arg->render_dot(uuid,myid," param" + std::to_string(pc),out);
-    }
+    _param_list->render_dot(uuid,myid," params",out);
 }
 
 objref methodcall_node::raw_evaluate(context* pContext)
@@ -72,19 +70,31 @@ objref methodcall_node::raw_evaluate(context* pContext)
     if (!m)
 	throw eval_exception(cerror::undefined_method,"Undefined method " + _name);
 
+    // Evaluate the params list
+    listref pEvaledParams;
+
+    if (_param_list)
+	pEvaledParams = object::cast_or_abort<list_object>( _param_list->evaluate(pContext) );
+    else
+	pEvaledParams = listref(new list_object(pContext));
+
     // Prepare the parameter vector
-    auto params = vector<ast*>(_params.size()+2);
+    auto params = vector<ast*>(pEvaledParams->size()+2);
 
     int index=2;
-    for ( auto p : _params )
+    for (int pidx=0; pidx<pEvaledParams->size(); pidx++)
     {
-	params[index++] = p;
+	params[index++] = new literal_node(pEvaledParams->get_element(pidx));
     }
 
     pContext->new_collection();
 
     // Dispatch the call
     auto retVal =  m(pContext,target,params);
+
+    // Delete the new literal_nodes we created
+    for( index=2; index< params.size(); index++ )
+	delete params[index];
 
     // Return result
     return retVal;
@@ -94,10 +104,7 @@ objref methodcall_node::raw_evaluate(context* pContext)
 void methodcall_node::required_symbols(set<symspec>& s) const
 {
     _target->required_symbols(s);
-    for (auto p : _params)
-    {
-	p->required_symbols(s);
-    }
+    _param_list->required_symbols(s);
 }
 
 void methodcall_node::add_target(ast* pObj)
@@ -105,16 +112,15 @@ void methodcall_node::add_target(ast* pObj)
     _target = pObj;
 }
 
-void methodcall_node::add_param(ast* pNode)
+void methodcall_node::add_param_list(ast* pNode)
 {
-    _params.push_back(pNode);
+    _param_list = pNode;
 }
 
 void methodcall_node::direct_subordinates( list<ast*>& subs ) const
 {
     subs.push_back(_target);
-    for ( auto n : _params )
-	subs.push_back(n);
+    subs.push_back(_param_list);
 }
 
 asttype methodcall_node::type() const

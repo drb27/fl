@@ -7,6 +7,7 @@
 #include <logger/logger.h>
 #include <parser/ast/methodcall.h>
 #include <parser/ast/literal.h>
+#include <parser/ast/list.h>
 
 using std::deque;
 using std::string;
@@ -131,36 +132,25 @@ objref object::invoke( const string& mthdName, context* pContext, vector<objref>
     // Set up the node here
     pCallNode->add_target( new literal_node( objref(this) ));
 
+    auto pArgList = new list_node();
+
     for ( auto param : params )
     {
-	pCallNode->add_param( new literal_node( param ) );
+	pArgList->push_element( new literal_node( param ) );
     }
 
+    pCallNode->add_param_list(pArgList);
+
     objref result = pCallNode->evaluate(pContext);
+
+    for( auto param : pArgList->raw_elements() )
+	delete param;
+
     delete pCallNode;
+    delete pArgList;
+
     return result;
 }
-
-// TODO: #43 Remove object::construct
-// void object::construct(context* pContext, vector<objref>& params)
-// {
-//    // Call the constructor!
-//     objref pThis(this, [](object*) {});
-//     vector<ast*> ps(2+params.size());
-//     int index=2;
-//     ps[2]=new literal_node(objref(this));
-//     for ( auto p : params )
-//     {
-// 	ps[index++] = new literal_node(p);
-//     }
-    
-//     _class.instantiator().fn(pContext,pThis,ps);
-
-//     // Tidy up
-//     for ( auto p : ps )
-// 	delete p;
-
-// }
 
 bool object::has_attribute(const std::string& name) const
 {
