@@ -6,18 +6,24 @@ include "tests-fl/ticket-44.fl";
 include "tests-fl/ctor_chains.fl";
 
 exit=>1;
-all_passed=>(l)-> l.size().eq(0)? true : l.head()? all_passed(l.tail()) : false;
-and=>(x:integer,y:integer)->{x+y}.gt(1);
 
-tc=>tests::testcase.new();
+main=>()->
+{
+	all_passed=>(l)-> l.size().eq(0)? true : l.head()? all_passed(l.tail()) : false;
+	and=>(x:integer,y:integer)->{x+y}.gt(1);
 
-tc.add_test( "int_addition_sane", ()-> 1.add(2).eq(3) );
-tc.add_test( "ticket_15", tickets::t36::run );
-tc.add_test( "ticket_36", tickets::t36::run );
-tc.add_test( "ticket_37", tickets::t37::run );
-tc.add_test( "ticket_44", tickets::t44::run );
-tc.add_test( "ctor_chains", ctor_chains::run );
+	tc=>tests::testcase.new();
 
-results=>tc.run();
+	tc.add_test( "int_addition_sane", ()-> 1.add(2).eq(3) );
+	tc.add_test( "ticket_15", tickets::t36::run );
+	tc.add_test( "ticket_36", tickets::t36::run );
+	tc.add_test( "ticket_37", tickets::t37::run );
+	tc.add_test( "ticket_44", tickets::t44::run );
+	tc.add_test( "ctor_chains", ctor_chains::run );
 
-and(results.size()==6,all_passed(results))? exit=>0 : exit=>1;
+	results=> observe tc.run() handle signal:{exit=>1;()};
+
+	and(results.size()==6,all_passed(results))
+};
+
+observe exit=>{main()? 0 : 1} handle signal: exit=>1;
