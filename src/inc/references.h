@@ -19,6 +19,7 @@ class enum_object;
 class float_object;
 class lazy_object;
 class signal_object;
+class eval_signal_object;
 class collection;
 
 typedef std::shared_ptr<object> objref; 
@@ -34,6 +35,6 @@ typedef std::shared_ptr<enum_object> enumref;
 typedef std::shared_ptr<collection> colref;
 typedef std::shared_ptr<lazy_object> lazyref;
 typedef std::shared_ptr<signal_object> sigref;
-typedef std::shared_ptr<signal_object> evalsigref;
+typedef std::shared_ptr<eval_signal_object> evalsigref;
 
 #endif
