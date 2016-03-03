@@ -1,4 +1,7 @@
 #include <config.h>
+#ifdef AST_MONITOR_LEAKS
+#include <cxxabi.h>
+#endif
 #include <algorithm>
 #include <iostream>
 #include <list>
@@ -83,6 +86,20 @@ void process_string(const std::string& inputString,
 	callbacks.pop_front();
 	fn();
     }
+
+    #ifdef AST_MONITOR_LEAKS
+
+    for ( auto n : ast::leak_set() )
+    {
+	int status;
+	char * demangled = abi::__cxa_demangle(typeid(n).name(),0,0,&status);
+	std::cout << "LEAK: " << demangled << std::endl;
+	free(demangled);
+    } 
+
+    ast::reset_leak_set();
+
+    #endif
 }
 
 void read_file(const std::string& fname,
@@ -144,9 +161,9 @@ int main(int argc, char** argv)
 
     deque<function<objref(void)>> callbacks;
     target = new dat(pRootPackage,
-		     [&callbacks,&scanner](const std::string& fname)
+		     [&callbacks,&scanner](std::string fname)
 		     {
-			 callbacks.push_back( [&fname,&scanner,&callbacks]()
+			 callbacks.push_back( [fname,&scanner,&callbacks]()
 	                                      {
 						  read_file(fname,scanner,g_ps,callbacks);
 						  return objref(nullptr);
@@ -154,9 +171,9 @@ int main(int argc, char** argv)
 					     
 					     );
 		     },
-		     [&callbacks,&scanner,&pRootPackage](const std::string& flStatement)
+		     [&callbacks,&scanner,&pRootPackage](std::string flStatement)
 		     {
-			 callbacks.push_back( [&flStatement,&scanner,&callbacks,&pRootPackage]()
+			 callbacks.push_back( [flStatement,&scanner,&callbacks,&pRootPackage]()
 	                                      {
 						  process_string(flStatement,scanner,g_ps,callbacks);
 						  return pRootPackage->resolve_symbol(std::string("_last"));

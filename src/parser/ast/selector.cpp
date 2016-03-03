@@ -20,9 +20,9 @@ using std::list;
 using std::set;
 using std::vector;
 
-ast* selector_node::_handle_predicate{nullptr};
+astref selector_node::_handle_predicate{nullptr};
 
-selector_node::selector_node(ast* selector)
+selector_node::selector_node(const astref& selector)
     : _selector(selector)
 {
 }
@@ -59,12 +59,12 @@ boolref selector_node::eval_predicate(context* pContext,
 	    ( _predicate->evaluate(pContext) );
 
 	// Call the function with (guard,value) as parameters
-	list_node* pArgList = new list_node();
+	listnoderef pArgList(new list_node());
 	literal_node* pGuardArg = new literal_node(guard);
 	literal_node* pValueArg = new literal_node(value);
 
-	pArgList->push_element(pGuardArg);
-	pArgList->push_element(pValueArg);
+	pArgList->push_element(astref(pGuardArg));
+	pArgList->push_element(astref(pValueArg));
 
 	funcall_node* pFnCall = new funcall_node(symspec("(anonymous)"), 
 						 pArgList,
@@ -74,10 +74,6 @@ boolref selector_node::eval_predicate(context* pContext,
 	    ( pFnCall->evaluate(pContext) );
 
 	delete pFnCall;
-	delete pArgList;
-	delete pGuardArg;
-	delete pValueArg;
-
 	return result;
     }
 }
@@ -153,13 +149,12 @@ void selector_node::required_symbols(set<symspec>& s ) const
 	_predicate->required_symbols(s);
 }
 
-void selector_node::add_condition(ast* pair)
+void selector_node::add_condition(const pairnoderef& pair)
 {
-    pair_node* pPairNode = dynamic_cast<pair_node*>(pair);
-    _conditions.push_back(pPairNode);
+    _conditions.push_back(pair);
 }
 
-void selector_node::set_default(ast* defaultExpr)
+void selector_node::set_default(const astref& defaultExpr)
 {
     _default = defaultExpr;
 }
@@ -168,7 +163,7 @@ asttype selector_node::type() const
     return asttype::selector;
 }
 
-void selector_node::direct_subordinates( list<ast*>& subs ) const
+void selector_node::direct_subordinates( list<astref>& subs ) const
 {
     subs.push_back(_selector);
 
@@ -187,33 +182,32 @@ void selector_node::use_handle_predicate()
     _predicate = get_handle_predicate();
 }
 
-void selector_node::set_predicate(ast* pred )
+void selector_node::set_predicate(const astref& pred )
 {
     _predicate = pred;
 }
 
-ast* selector_node::make_handle_predicate()
+astref selector_node::make_handle_predicate()
 {
     // Arguments
-    list_node* arglist = new list_node({new symbol_node("guard"), new symbol_node("value")});
+    list_node* arglist = 
+	new list_node({astref(new symbol_node("guard")), 
+		    astref(new symbol_node("value"))});
 
     // Arg to method call
     list_node* pMethodCallArgs = new list_node();
-    pMethodCallArgs->push_element( new symbol_node("value" ) );
+    pMethodCallArgs->push_element( astref(new symbol_node("value" )) );
 
     // Function body
     methodcall_node* definition = new methodcall_node("member");
-    definition->add_target( new symbol_node("guard") );
-    definition->add_param_list(pMethodCallArgs);
+    definition->add_target( astref(new symbol_node("guard") ));
+    definition->add_param_list(astref(pMethodCallArgs));
 
-    return new fundef_node(arglist,definition);
+    return astref(new fundef_node(astref(arglist),astref(definition)));
 }
 
-ast* selector_node::get_handle_predicate()
+const astref& selector_node::get_handle_predicate()
 {
-    // TODO
-    // (guard,value)-> guard.member(value)
-
     if (!_handle_predicate)
 	_handle_predicate = make_handle_predicate();
 

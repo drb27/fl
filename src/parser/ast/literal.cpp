@@ -33,6 +33,6 @@ asttype literal_node::type() const
     return asttype::literal;
 }
 
-void literal_node::direct_subordinates( list<ast*>& subs ) const
+void literal_node::direct_subordinates( list<astref>& subs ) const
 {
 }

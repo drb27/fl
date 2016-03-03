@@ -9,7 +9,9 @@ using std::string;
 using std::list;
 using std::set;
 
-if_node::if_node(ast* pCondition, ast* trueExpression, ast* falseExpression)
+if_node::if_node(const astref& pCondition, 
+		 const astref& trueExpression, 
+		 const astref& falseExpression)
     : _condition(pCondition), _trueExpr(trueExpression), _falseExpr(falseExpression)
 {
 }
@@ -68,7 +70,7 @@ asttype if_node::type() const
     return asttype::_if;
 }
 
-void if_node::direct_subordinates( list<ast*>& subs ) const
+void if_node::direct_subordinates( list<astref>& subs ) const
 {
     subs.push_back(_condition);
     subs.push_back(_trueExpr);

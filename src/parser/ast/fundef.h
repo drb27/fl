@@ -15,7 +15,7 @@ class fclass;
 class fundef_node : public ast
 {
 public:
-    fundef_node(ast* arglist, ast* definition);
+    fundef_node(const astref& arglist, const astref& definition);
     virtual objref raw_evaluate(context*);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
@@ -26,14 +26,20 @@ public:
 
     virtual bool is_tail_recursive(const std::string& name) const;
     virtual asttype type() const;
-    virtual void direct_subordinates( std::list<ast*>& ) const;
+    virtual void direct_subordinates( std::list<astref>& ) const;
 
-    virtual list_node* args() const { return dynamic_cast<list_node*>(_arglist); }
-    virtual ast* def() const { return _definition; }
-    virtual void replace_definition(ast* pNewDef) { _definition = pNewDef; }
+    virtual listnoderef args() const 
+    { 
+	return std::dynamic_pointer_cast<list_node>(_arglist); 
+    }
+    
+    virtual astref def() const { return _definition; }
+    virtual void replace_definition(const astref& pNewDef) { _definition = pNewDef; }
+
 protected:
-    ast* _arglist;
-    ast* _definition;
+
+    astref _arglist;
+    astref _definition;
 };
 
 #endif

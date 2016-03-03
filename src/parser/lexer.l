@@ -27,6 +27,7 @@ BANANA (-{0,1}{DIGIT}+[.]{DIGIT}+)
 
 %%
 
+nodecount { return NODECOUNT; }
 \$       { return LAZY; }
 raise    { return RAISE; }
 observe  { return OBSERVE; }

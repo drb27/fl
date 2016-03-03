@@ -21,7 +21,7 @@ using std::vector;
 using std::map;
 using std::stringstream;
 
-funcall_node::funcall_node(const symspec& ss, ast* args, fnref pFn)
+funcall_node::funcall_node(const symspec& ss, const astref& args, fnref pFn)
     : _symbol(ss), _arg_list(args),_captured_fn(pFn)
 {
     wlog_entry();
@@ -77,10 +77,11 @@ objref funcall_node::raw_evaluate(context* pContext)
     else
 	fn = _captured_fn;
 
+    // TODO: If the function doesn't exist, this asset fails (rather than missing symbol)
     assert(fn);
 
     // Evaluate the argument list
-    listref args = object::cast_or_abort<list_object>(_arg_list->evaluate(pContext));
+    listref args(object::cast_or_abort<list_object>(_arg_list->evaluate(pContext)));
 
     // Get a list of argument names expected by the function
     auto argnames(fn->arglist());
@@ -156,9 +157,8 @@ asttype funcall_node::type() const
     return asttype::funcall;
 }
 
-void funcall_node::direct_subordinates( list<ast*>& subs ) const
+void funcall_node::direct_subordinates( list<astref>& subs ) const
 {
     subs.push_back(_arg_list);
-    if (_captured_fn && _captured_fn->raw().def() )
-	_captured_fn->raw().def()->direct_subordinates(subs);
+
 }

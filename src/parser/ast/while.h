@@ -13,12 +13,12 @@ class context;
 class while_node : public ast
 {
 public:
-    while_node(ast* pCond,ast* pAction);
+    while_node(const astref& pCond, const astref& pAction);
     virtual objref raw_evaluate(context*);
     virtual void required_symbols(std::set<symspec>&) const;
 
     virtual asttype type() const;
-    virtual void direct_subordinates( std::list<ast*>& ) const;
+    virtual void direct_subordinates( std::list<astref>& ) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="", 
 			    const std::string& label="",
@@ -26,8 +26,8 @@ public:
 
 private:
 
-    ast* _cond;
-    ast* _action;
+    astref _cond;
+    astref _action;
 
 };
 

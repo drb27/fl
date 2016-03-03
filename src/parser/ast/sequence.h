@@ -19,17 +19,17 @@ public:
     virtual objref evaluate_isolated(context* pContext);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
-    virtual void add_expr(ast*);
+    virtual void add_expr(const astref&);
     virtual  bool calls_and_returns( const std::string& fname) const;
     virtual asttype type() const;
-    virtual void direct_subordinates( std::list<ast*>& ) const;
+    virtual void direct_subordinates( std::list<astref>& ) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="", 
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
 
 protected:
-    std::list<ast*> _sequence;
+    std::list<astref> _sequence;
     const bool _isolated;
 };
 

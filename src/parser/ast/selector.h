@@ -12,16 +12,16 @@ class pair_node;
 class selector_node : public ast
 {
 public:
-    selector_node( ast* selector);
+    selector_node( const astref& selector);
     virtual objref raw_evaluate(context*);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
-    virtual void add_condition(ast* pair);
-    virtual void set_predicate(ast* pred);
-    virtual void set_default(ast* defaultExpr);
+    virtual void add_condition(const pairnoderef& pair);
+    virtual void set_predicate(const astref& pred);
+    virtual void set_default(const astref& defaultExpr);
     virtual bool calls_and_returns( const std::string& fname) const;
     virtual asttype type() const;
-    virtual void direct_subordinates( std::list<ast*>& ) const;
+    virtual void direct_subordinates( std::list<astref>& ) const;
 
     void use_handle_predicate();
     void set_unwind_stack_frame(colref c) { _unwind_stack_frame=c; }
@@ -30,17 +30,17 @@ public:
 protected:
 
     boolref eval_predicate(context*,objref value, objref guard);
-    static ast* get_handle_predicate();
+    static const astref& get_handle_predicate();
 
-    ast* _selector;
-    ast* _predicate{nullptr};
-    ast* _default{nullptr};
-    std::list<pair_node*> _conditions;
+    astref _selector;
+    astref _predicate{nullptr};
+    astref _default{nullptr};
+    std::list<pairnoderef> _conditions;
     colref _unwind_stack_frame;
 
 private:
-    static ast* make_handle_predicate();
-    static ast* _handle_predicate;
+    static astref make_handle_predicate();
+    static astref _handle_predicate;
 
 };
 

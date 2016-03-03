@@ -38,13 +38,13 @@ dat::~dat()
 
 }
 
-ast* dat::make_lazy(ast* e)
+ast* dat::make_lazy(const astref& e)
 {
     lazyref l = lazyref(new lazy_object(_current_pkg,e));
     return new literal_node(l);
 }
 
-ast* dat::make_raise(ast* clsExpr)
+ast* dat::make_raise(const astref& clsExpr)
 {
     return new raise_node(clsExpr);
 }
@@ -76,39 +76,47 @@ ast* dat::make_null() const
     return pNode;
 }
 
-ast* dat::make_fundef( ast* arglist,  ast* def) const
+ast* dat::make_fundef( const astref& arglist,  const astref& def) const
 {
     return new fundef_node(arglist,def);
 }
 
-void dat::respond( ast* def, bool abbrev, std::ostream& os)
+void dat::respond( const astref& def, bool abbrev, std::ostream& os)
 {
-
-    try
+    
     {
-	_current_pkg->set_root_node(def);
-	objref result = def->evaluate(_current_pkg);
-	_current_pkg->set_root_node(nullptr);
-	result->render(os,abbrev);
-	os << "OK" << std::endl;
-	_current_pkg->assign(std::string("_last"),result);
-    }
-    catch( eval_exception& e )
-    {
-	_current_pkg->set_root_node(nullptr);
-	_symbol_stack.clear();
-	_seq_stack.clear();
-	_sel_stack.clear();
-	_list_stack.clear();
-	throw;
+	astref pDef(def);
+	try
+	{
+	    _current_pkg->set_root_node(pDef);
+	    objref result = pDef->evaluate(_current_pkg);
+	    _current_pkg->set_root_node(nullptr);
+	    result->render(os,abbrev);
+	    os << "OK" << std::endl;
+	    _current_pkg->assign(std::string("_last"),result);
+	}
+	catch( eval_exception& e )
+	{
+	    _current_pkg->set_root_node(nullptr);
+	    _symbol_stack.clear();
+	    _seq_stack.clear();
+	    _sel_stack.clear();
+	    _list_stack.clear();
+	    throw;
+	}
     }
 }
-void dat::show_cmd( ast* def, std::ostream& os)
+void dat::show_cmd( const astref& def, std::ostream& os)
 {
     respond(def,false,os);
 }
 
-void dat::include_cmd( ast* fname)
+void dat::nodecount_cmd()
+{
+    std::cout << "Nodes: " << ast::count() << std::endl;
+}
+
+void dat::include_cmd( const astref& fname)
 {
     // Evaluate the filename
     objref result = fname->evaluate(_current_pkg);
@@ -124,13 +132,12 @@ void dat::include_cmd( ast* fname)
     _include_fn( pFnameStr->internal_value() );
 }
 
-void dat::cd_cmd( ast* fname)
+void dat::cd_cmd( const astref& fname)
 {
 #ifdef HAVE_CHDIR
     
     stringref newDir = object::cast_or_abort<string_object>(fname->evaluate(_current_pkg));
     auto result = chdir(newDir->internal_value().c_str());
-    delete fname;
 
 #ifdef HAVE_GETCWD
     
@@ -142,14 +149,13 @@ void dat::cd_cmd( ast* fname)
 
 #else
 
-    delete fname;
     throw eval_exception(cerror::unsupported_feature,
 			 "This feature is not supported by the build environment" );
 #endif
 
 }
 
-void dat::eval_cmd( ast* stmtString)
+void dat::eval_cmd( const astref& stmtString)
 {
     // Evaluate the string argument
     objref result = stmtString->evaluate(_current_pkg);
@@ -165,32 +171,32 @@ void dat::eval_cmd( ast* stmtString)
     _eval_fn(pStmt->internal_value() );
 }
 
-ast* dat::make_attr( ast* target, std::string* selector)
+ast* dat::make_attr( const astref& target, std::string* selector)
 {
     attr_node* pAttrNode = new attr_node(target,*selector);
     delete selector;
     return pAttrNode;
 }
 
-ast* dat::make_equality(ast* target, ast* other)
+ast* dat::make_equality(const astref& target, const astref& other)
 {
-    list_node* args = new list_node();
-    symbol_node* method = new symbol_node("eq");
+    listnoderef args = listnoderef(new list_node());
+    symnoderef method = symnoderef(new symbol_node("eq"));
     args->push_element(other);
     return make_methodcall(target,method,args);
 }
 
-ast* dat::make_index(ast* target, ast* index)
+ast* dat::make_index(const astref& target, const astref& index)
 {
-    list_node* args = new list_node();
-    symbol_node* method = new symbol_node(".index");
+    listnoderef args = listnoderef(new list_node());
+    symnoderef method = symnoderef(new symbol_node(".index"));
     args->push_element(index);
     return make_methodcall(target,method,args);
 }
 
-ast* dat::make_methodcall( ast* target, ast* method, ast* args)
+ast* dat::make_methodcall( const astref& target, const astref& method, const astref& args)
 {
-    symbol_node* pMethodNameNode = dynamic_cast<symbol_node*>(method);
+    symnoderef pMethodNameNode(std::dynamic_pointer_cast<symbol_node>(method));
     auto r = new methodcall_node(pMethodNameNode->name());
 
     // Hack calls to new
@@ -202,14 +208,14 @@ ast* dat::make_methodcall( ast* target, ast* method, ast* args)
 	//     <class>.new( (1,2,3) )
 	// we need to encapsulate the parameters into another list node
 	
-	ast* originalArgList = args;
-	args = new list_node();
-	((list_node*)args)->push_element(originalArgList);
+	listnoderef newArgList(new list_node() );
+	newArgList->push_element(args);
+	r->add_param_list(newArgList);
     }
-
-    r->add_param_list(args);
+    else
+	r->add_param_list(args);
+    
     r->add_target(target);
-    delete method;
     return r;
 }
 
@@ -222,24 +228,24 @@ ast* dat::make_symbol( std::string* name, const list<string>& scopespec) const
     return r;
 }
 
-ast* dat::make_alias(ast* alias, ast* existing) const
+ast* dat::make_alias(const astref& alias, const astref& existing) const
 {
     return new assign_node(alias,existing,true);
 }
 
-ast* dat::make_assign_node(ast* lvalue, ast* rvalue,bool alias)
+ast* dat::make_assign_node(const astref& lvalue, const astref& rvalue,bool alias)
 {
     return new assign_node(lvalue,rvalue,alias);
 }
 
-ast* dat::make_enum_class(string* name,ast* pDefList)
+ast* dat::make_enum_class(string* name,const astref& pDefList)
 {
     auto r = new enum_node(*name,pDefList);
     delete name;
     return r;
 }
 
-ast* dat::make_new_class(std::string* name,ast* pDeriveList)
+ast* dat::make_new_class(std::string* name,const astref& pDeriveList)
 {
     auto r = new classdef_node(*name,pDeriveList);
     delete name;
@@ -253,12 +259,12 @@ ast* dat::start_list()
     return n;
 }
 
-void dat::push_list_element(ast* n)
+void dat::push_list_element(const astref& n)
 {
     (*_list_stack.begin())->push_element(n);
 }
 
-void dat::push_list_element_with_typehint(ast* n,ast* t)
+void dat::push_list_element_with_typehint(const astref& n,const astref& t)
 {
     n->set_typehint(t);
     (*_list_stack.begin())->push_element(n);
@@ -271,13 +277,13 @@ ast* dat::finish_list()
     return n;
 }
 
-ast* dat::build_list( ast* list, ast* element)
+ast* dat::build_list( const astref& list, const astref& element)
 {
     auto argList = new list_node();
     argList->push_element(element);
     auto r = new methodcall_node("duplicate_and_append");
     r->add_target(list);
-    r->add_param_list(argList);
+    r->add_param_list(astref(argList));
     return r;
 }
 
@@ -286,7 +292,7 @@ ast* dat::make_empty_list()
     return new list_node();
 }
 
-ast* dat::make_single_list(ast* item)
+ast* dat::make_single_list(const astref& item)
 {
     auto nl = new list_node();
     nl->push_element(item);
@@ -300,13 +306,14 @@ ast* dat::make_bool(bool b)
     return pNode;
 }
 
-ast* dat::make_funcall( ast* fn,  ast* args) const
+ast* dat::make_funcall( const astref& fn,  const astref& args) const
 {
-    symbol_node* snode = dynamic_cast<symbol_node*>(fn);
-    return new funcall_node(snode->sym_spec(),args);
+    symnoderef snode = std::dynamic_pointer_cast<symbol_node>(fn);
+    auto r =  new funcall_node(snode->sym_spec(),args);
+    return r;
 }
 
-ast* dat::make_ifnode( ast* condExpr,  ast* trueExpr, ast* falseExpr) const
+ast* dat::make_ifnode( const astref& condExpr,  const astref& trueExpr, const astref& falseExpr) const
 {
     return new if_node(condExpr, trueExpr, falseExpr);
 }
@@ -318,7 +325,7 @@ ast* dat::make_seq()
     return s;
 }
 
-void dat::add_expr(ast* expr)
+void dat::add_expr(const astref& expr)
 {
     (*_seq_stack.begin())->add_expr(expr);
 }
@@ -328,7 +335,7 @@ void dat::finish_seq()
     _seq_stack.pop_front();
 }
 
-void dat::render(ast* node)
+void dat::render(const astref& node)
 {
     auto& out = std::cout;
     int uuid=0;
@@ -353,30 +360,30 @@ void dat::done()
     throw terminate_exception();
 }
 
-ast* dat::make_pair(ast* f,ast* s)
+ast* dat::make_pair(const astref& f,const astref& s)
 {
     return new pair_node(f,s);
 }
 
 ast* dat::start_observed_expression()
 {
-    auto s = new symbol_node("_signal");
+    auto s = astref(new symbol_node("_signal"));
     return make_selector(s);
 }
 
-ast* dat::make_selector(ast* pSel)
+ast* dat::make_selector(const astref& pSel)
 {
     auto s = new selector_node(pSel);
     _sel_stack.push_front(s);
     return s;
 }
 
-ast* dat::selector_default(ast* pDefault)
+void dat::selector_default(const astref& pDefault)
 {
     (*_sel_stack.begin())->set_default(pDefault);
 }
 
-ast* dat::selector_predicate(ast* e)
+void dat::selector_predicate(const astref& e)
 {
     (*_sel_stack.begin())->set_predicate(e);
 }
@@ -386,9 +393,10 @@ void dat::selector_handle_predicate(void)
     (*_sel_stack.begin())->use_handle_predicate();
 }
 
-ast* dat::selector_condition(ast* pCondPair)
+void dat::selector_condition(const astref& pCondPair)
 {
-    (*_sel_stack.begin())->add_condition(pCondPair);
+    
+    (*_sel_stack.begin())->add_condition(std::dynamic_pointer_cast<pair_node>(pCondPair));
 }
 
 selector_node* dat::finish_selector()
@@ -414,18 +422,18 @@ void dat::push_symbol_identifier(std::string* s)
     delete s;
 }
 
-ast* dat::make_while(ast* pCond,ast* pAction)
+ast* dat::make_while(const astref& pCond,const astref& pAction)
 {
     return new while_node(pCond,pAction);
 }
 
-void dat::switch_package( ast* symbol )
+void dat::switch_package( const astref& symbol )
 {
     if ( symbol->type()!=asttype::symbol)
 	throw eval_exception(cerror::unsupported_argument,
 			     "The package command requires a symbolic argument, e.g. root::mypackage");
 
-    auto pSymNode = dynamic_cast<symbol_node*>(symbol);
+    auto pSymNode = std::dynamic_pointer_cast<symbol_node>(symbol);
     package* currentPkg = _root_pkg;
     list<string> package_specs = pSymNode->pkg_spec();
     package_specs.push_back( pSymNode->name() );

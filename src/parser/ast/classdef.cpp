@@ -12,7 +12,7 @@ using std::string;
 using std::list;
 using std::set;
 
-classdef_node::classdef_node(const string& name, ast* pDeriveList)
+classdef_node::classdef_node(const string& name, const astref& pDeriveList)
     :_derive_list(pDeriveList), _name(name)
 {
 }
@@ -81,7 +81,7 @@ asttype classdef_node::type() const
     return asttype::classdef;
 }
 
-void classdef_node::direct_subordinates( list<ast*>& s) const
+void classdef_node::direct_subordinates( list<astref>& s) const
 {
     s.push_back(_derive_list);
 }

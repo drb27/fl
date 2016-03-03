@@ -130,24 +130,20 @@ objref object::invoke( const string& mthdName, context* pContext, vector<objref>
     methodcall_node* pCallNode = new methodcall_node(mthdName);
 
     // Set up the node here
-    pCallNode->add_target( new literal_node( objref(this) ));
+    pCallNode->add_target( astref(new literal_node( objref(this,[](object*){}) )));
 
     auto pArgList = new list_node();
 
     for ( auto param : params )
     {
-	pArgList->push_element( new literal_node( param ) );
+	pArgList->push_element( astref(new literal_node( param ) ) );
     }
 
-    pCallNode->add_param_list(pArgList);
+    pCallNode->add_param_list(astref(pArgList));
 
     objref result = pCallNode->evaluate(pContext);
 
-    for( auto param : pArgList->raw_elements() )
-	delete param;
-
     delete pCallNode;
-    delete pArgList;
 
     return result;
 }
@@ -191,10 +187,9 @@ void object::render( std::ostream& os, bool abbrev )
     	objref pThis(this, [](object* o) {} );
     	literal_node* pThisLiteral = new literal_node(pThis);
     	methodcall_node* pMethodCall = new methodcall_node(".render");
-    	pMethodCall->add_target(pThisLiteral);
+    	pMethodCall->add_target(astref(pThisLiteral));
     	stringref pRendered = object::cast_or_abort<string_object>(pMethodCall->evaluate(get_context()));
     	os << pRendered->internal_value() << " ";
-    	delete pThisLiteral;
     	delete pMethodCall;
     }
     os << "[" << _class.name() << "]"; 

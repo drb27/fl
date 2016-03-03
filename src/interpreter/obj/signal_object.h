@@ -26,14 +26,14 @@ public:
      * Call this to set the node that caused the signal to be raised. This is needed for
      * handlers to be traced back and invoked. 
      */
-    void set_source_node( ast* );
+    void set_source_node( const astref& );
 
     /**
      * Returns a pointer to the node that caused the signal to be raised. 
      * Can be nullptr if the source of the signal is unknown. This should be considered 
      * to be a fatal error, as no handlers can be called. 
      */ 
-    ast* source() const { return _source_node; }
+    astref source() const { return _source_node; }
 
     /**
      * Attempts to handle the singal, by tracing back from the node that caused the signal
@@ -42,11 +42,11 @@ public:
      * @note If a handler cannot be found, a bare eval_exception is raised, terminating
      * the evaluation of the expression, and no result of the evaluation is evailable.
      */ 
-    objref handle(context* pContext,ast* rootNode, sigref pThis);
+    objref handle(context* pContext,const astref& rootNode, sigref pThis);
 
 protected:
 
-    ast* _source_node{nullptr};	///< Pointer to the node which raised the signal 
+    astref _source_node{nullptr};	///< Pointer to the node which raised the signal 
 };
 
 /**

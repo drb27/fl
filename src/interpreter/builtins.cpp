@@ -16,7 +16,6 @@
 #include <parser/ast/funcall.h>
 #include <logger/logger.h>
 #include <interpreter/eval_exception.h>
-#include <parser/rawfn.h>
 #include <interpreter/obj/all.h>
 #include <interpreter/factory.h>
 
@@ -164,28 +163,26 @@ namespace builtins
 
 	pContext->assign(std::string("rnd"), 
 			 fnref( new fn_object(pContext,
-					      rawfn(make_marshall(&builtins::rnd)),
-					      args,args,
-					      {}) 
-				) );
+					      make_marshall(&builtins::rnd),
+					      args,args, {}) ));
 
 	pContext->assign(std::string("foreach"),
 			 fnref( new fn_object(pContext,
-					      rawfn(make_marshall(&builtins::foreach)),
+					      make_marshall(&builtins::foreach),
 					      args,args,
-					      {} ) ));
+					      {}) ));
 
 	args.pop_back();
 	pContext->assign(std::string("I"), 
 			 fnref( new fn_object(pContext,
-					      rawfn(make_marshall(&builtins::I)),
+					      make_marshall(&builtins::I),
 					      args,args,
 					      {}) 
 				) );
 
 	pContext->assign(std::string("print"), 
 			 fnref( new fn_object(pContext,
-					      rawfn(make_marshall(&builtins::print)),
+					      make_marshall(&builtins::print),
 					      args,args,
 					      {}) 
 				) );
@@ -434,7 +431,6 @@ namespace builtins
 	fclass* base_cls = object::get_class();
 
 	fclass* pCls = new fclass(spec,base_cls,false,true,false,true);
-	pCls->add_method({"itr", make_marshall_mthd(&builtins::fn_itr)});
 	pCls->add_method({"name", make_marshall_mthd(&builtins::fn_name)});
 	return pCls;
     }
@@ -961,10 +957,9 @@ namespace builtins
     {
 	// Call .iter on the object to yield a list object
 	auto m = methodcall_node(".iter");
-	ast* t = new literal_node(pObj);
+	astref t(new literal_node(pObj));
 	m.add_target(t);
 	listref l = std::dynamic_pointer_cast<list_object>( m.evaluate(pContext) );
-	delete t;
 
 	// We now have a list of things to apply the function to.
 	listref returnList = listref( new list_object(pContext) );
@@ -975,10 +970,10 @@ namespace builtins
 	    
 	    // Apply the function
 	    list_node* pArgList = new list_node();
-	    literal_node* pArg = new literal_node(currentObject);
+	    astref pArg(new literal_node(currentObject));
 	    pArgList->push_element( pArg );
 	    funcall_node* pFnCall = new funcall_node(symspec("(anonymous)"), 
-						     pArgList,
+						     astref(pArgList),
 						     pFn);
 
 	    auto result = pFnCall->evaluate(pContext);
@@ -987,8 +982,6 @@ namespace builtins
 	    returnList->append(result);
 
 	    delete pFnCall;
-	    delete pArg;
-	    delete pArgList;
 	    
 	}
 
@@ -1044,11 +1037,6 @@ namespace builtins
 
     }
     
-    objref fn_itr(context* pContext, fnref pThis )
-    {
-	return objref(new bool_object(pContext, pThis->is_tail_recursive()) );
-    }
-
     objref fn_name(context* pContext, fnref pThis )
     {
 	return stringref(new string_object(pContext, pThis->name() ));

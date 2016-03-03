@@ -13,7 +13,7 @@ using std::list;
 using std::set;
 using std::vector;
 
-assign_node::assign_node(ast* lvalue,ast* rvalue, bool alias)
+assign_node::assign_node(const astref& lvalue, const astref& rvalue, bool alias)
     : _lvalue(lvalue),_rvalue(rvalue),_alias(alias)
 {
 
@@ -56,7 +56,7 @@ objref assign_node::raw_evaluate(context* pContext)
     {
 	if ( _lvalue->is_lvalue())
 	{
-	    lvalue_node* pLvalue = dynamic_cast<lvalue_node*>(_lvalue);
+	    lvalue_node* pLvalue = dynamic_cast<lvalue_node*>(_lvalue.get());
 	    auto setfn = pLvalue->setter(pContext);
 	    setfn(rhs);
 	    auto lhs = _lvalue->evaluate(pContext);
@@ -73,7 +73,7 @@ objref assign_node::raw_evaluate(context* pContext)
 	// Call the assign method on the lhs
 	methodinfo m = lhs->get_class().lookup_method(".assign");
 	vector<ast*> params(3);
-	params[2] = _rvalue;
+	params[2] = _rvalue.get();
 	m.fn(pContext,lhs,params);
 	return lhs;
     }
@@ -90,7 +90,7 @@ asttype assign_node::type() const
     return asttype::assign;
 }
 
-void assign_node::direct_subordinates( list<ast*>& subs ) const
+void assign_node::direct_subordinates( list<astref>& subs ) const
 {
     subs.push_back(_lvalue);
     subs.push_back(_rvalue);

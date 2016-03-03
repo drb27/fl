@@ -8,7 +8,7 @@ using std::string;
 using std::list;
 using std::set;
 
-pair_node::pair_node(ast* f, ast* s )
+pair_node::pair_node(const astref& f, const astref& s )
     : _first(f), _second(s)
 {
 }
@@ -34,7 +34,7 @@ asttype pair_node::type() const
     return asttype::pair;
 }
 
-void pair_node::direct_subordinates( list<ast*>& subs ) const
+void pair_node::direct_subordinates( list<astref>& subs ) const
 {
     subs.push_back(_first);
     subs.push_back(_second);

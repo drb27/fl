@@ -83,7 +83,10 @@ objref factory::make_object( context*, fclass*, vector<objref>& )
 objref factory::make_object( context* ctx, fclass* cls, listref l )
 {
     vector<ast*> a_params = list_to_ast(l);
-    return make_object(ctx,cls,a_params);
+    auto r = make_object(ctx,cls,a_params);
+    for ( auto p : a_params)
+	delete p;
+    return r;
 }
 
 vector<ast*> factory::list_to_ast(listref l )
@@ -133,7 +136,7 @@ void factory::call_ctor_chain(context* pContext, fclass* pCls, objref pThis, vec
 	    if (!c.chain_params )
 	    {
 		list_node* pEmptyList = new list_node();
-		c.chain_params = lazyref( new lazy_object( pContext,pEmptyList ) );
+		c.chain_params = lazyref( new lazy_object( pContext,astref(pEmptyList) ) );
 	    }
 	    auto evaluatedChain = c.chain_params->internal_value()->evaluate(pContext);
 	    listref evaluatedChainList = object::cast_or_abort<list_object>(evaluatedChain);
@@ -141,6 +144,8 @@ void factory::call_ctor_chain(context* pContext, fclass* pCls, objref pThis, vec
 
 	}
 	call_ctor_chain(pContext,pCls->base(),pThis,chained_params);
+	for ( auto p : chained_params)
+	    delete p;
     }
     
     if (c.defined)

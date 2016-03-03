@@ -13,12 +13,27 @@ using std::string;
 using std::map;
 using std::list;
 
+unsigned long ast::_count{0};
+
+#ifdef AST_MONITOR_LEAKS
+std::set<ast*> ast::_leakSet;
+#endif
+
 ast::ast()
 {
+    _count++;
+
+    #ifdef AST_MONITOR_LEAKS
+    monitor_for_leak(this);
+    #endif
 }
 
 ast::~ast()
 {
+    _count--;
+    #ifdef AST_MONITOR_LEAKS
+    clear_from_leak_set(this);
+    #endif
 
 }
 
@@ -67,7 +82,7 @@ objref ast::evaluate(context* pContext )
 	if ( !e.fatal()  )
 	{    
 	    _signal = sigref(new eval_signal_object( pContext, new eval_exception(e) ));
-	    _signal->set_source_node(this);
+	    _signal->set_source_node(shared_from_this());
 	}
 	else
 	    throw;
@@ -87,16 +102,16 @@ objref ast::evaluate(context* pContext )
     return result;
 }
 
-void ast::compute_parent_map( map<ast*,ast*>& m )
+void ast::compute_parent_map( map<astref,astref>& m )
 {
     // Get the list of direct subordinates for this node
-    list<ast*> my_subordinates;
+    list<astref> my_subordinates;
     direct_subordinates(my_subordinates);
 
     for ( auto node : my_subordinates )
     {
 	// Set the direct subordinates to have 'this' as a parent
-	m[node] = this;
+	m[node] = shared_from_this();
 
 	// Repeat this operation for this subordinate
 	node->compute_parent_map(m);
@@ -104,7 +119,7 @@ void ast::compute_parent_map( map<ast*,ast*>& m )
 
 }
 
-void ast::set_observer(selector_node* pSelNode)
+void ast::set_observer(selectorref pSelNode)
 {
     _observer = pSelNode;
 }

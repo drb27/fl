@@ -10,6 +10,7 @@
 #include <logger/logger.h>
 #include <interpreter/obj/fn_object.h>
 #include <interpreter/context.h>
+#include <parser/ast/fundef.h>
 
 using std::string;
 using std::set;
@@ -33,18 +34,18 @@ function<void(objref)> symbol_node::setter(context* pContext)
 	    // Yep!
 	    fnref pFn = std::dynamic_pointer_cast<fn_object>(pNewVal);
 
-	    if ( pFn->is_anonymous() && !pFn->raw().is_builtin() )
+	    if ( pFn->is_anonymous() && !pFn->is_builtin() )
 	    {
 		pFn->set_name(_name);
 
-		ast* head;
+		astref head;
 		opt::if_tailcall o(_name);
-		if ( head = o.search( pFn->raw().def() ) )
+		if ( head = o.search( pFn->def() ) )
 		{
 		    if ( o.execute(head) )
 		    {
-			pFn->raw().regenerate_function(pFn->raw().def());
-			wlog(level::info,"Optmized " + _name);
+		    	pFn->regenerate_function(pFn->def());
+		    	wlog(level::info,"Optmized " + _name);
 		    }
 		}
 	    }
@@ -110,7 +111,7 @@ asttype symbol_node::type() const
     return asttype::symbol;
 }
 
-void symbol_node::direct_subordinates( list<ast*>& subs ) const
+void symbol_node::direct_subordinates( list<astref>& subs ) const
 {
 }
 void symbol_node::add_pkg_spec( const list<string>& spec)

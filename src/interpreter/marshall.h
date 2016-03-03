@@ -5,6 +5,7 @@
 #include <vector>
 #include <inc/references.h>
 
+class context;
 class fclass;
 
 typedef objref (marshall_fn_t)(context*,std::vector<ast*>&);

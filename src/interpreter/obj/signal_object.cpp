@@ -18,26 +18,26 @@ void signal_object::render( std::ostream& os, bool abbrev)
     object::render(os,abbrev);
 }
 
-void signal_object::set_source_node( ast* n)
+void signal_object::set_source_node( const astref& n)
 {
     _source_node=n;
 }
 
-objref signal_object::handle(context* pContext,ast* rootNode,sigref pThis)
+objref signal_object::handle(context* pContext,const astref& rootNode,sigref pThis)
 {
     // Compute the parent map for the root node
-    map<ast*,ast*> parent;
+    map<astref,astref> parent;
     rootNode->compute_parent_map(parent);
 
     // Starting from the node which raised the signal, look for an upstream node which
     // advertises the ability to handle this signal
-    ast* currentNode = _source_node;
+    astref currentNode = _source_node;
     bool more=true;
 
     while (more)
     {
 	// Try to get an observer
-	selector_node* pSelNode = currentNode->observer();
+	selectorref pSelNode(currentNode->observer());
 
 	// Is there one?
 	if (pSelNode)

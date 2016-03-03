@@ -13,12 +13,12 @@ class context;
 class classdef_node : public ast
 {
 public:
-    classdef_node(const std::string& name, ast* pDeriveList);
+    classdef_node(const std::string& name, const astref& pDeriveList);
     virtual objref raw_evaluate(context*);
     virtual void required_symbols(std::set<symspec>&) const;
 
     virtual asttype type() const;
-    virtual void direct_subordinates( std::list<ast*>& ) const;
+    virtual void direct_subordinates( std::list<astref>& ) const;
     virtual void render_dot(int& uuid, 
 			    const std::string& parent="", 
 			    const std::string& label="",
@@ -26,7 +26,7 @@ public:
 
 private:
 
-    ast* _derive_list;
+    astref _derive_list;
     const std::string _name;
 };
 

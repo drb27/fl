@@ -107,17 +107,17 @@ void methodcall_node::required_symbols(set<symspec>& s) const
     _param_list->required_symbols(s);
 }
 
-void methodcall_node::add_target(ast* pObj)
+void methodcall_node::add_target(const astref& pObj)
 {
     _target = pObj;
 }
 
-void methodcall_node::add_param_list(ast* pNode)
+void methodcall_node::add_param_list(const astref& pNode)
 {
     _param_list = pNode;
 }
 
-void methodcall_node::direct_subordinates( list<ast*>& subs ) const
+void methodcall_node::direct_subordinates( list<astref>& subs ) const
 {
     subs.push_back(_target);
     subs.push_back(_param_list);

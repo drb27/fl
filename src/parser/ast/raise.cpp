@@ -14,7 +14,7 @@ using std::list;
 using std::set;
 using std::vector;
 
-raise_node::raise_node(ast* sigObjExpr)
+raise_node::raise_node(const astref& sigObjExpr)
     : _sigObjExpr(sigObjExpr)
 {
 }
@@ -52,7 +52,7 @@ objref raise_node::raw_evaluate(context* pContext)
 {
     // Evaluate the signal object expression
     _signal = object::cast_or_abort<signal_object>( _sigObjExpr->evaluate(pContext) );
-    _signal->set_source_node(this);
+    _signal->set_source_node(shared_from_this());
 
     return objref(_signal);
 }
@@ -67,7 +67,7 @@ asttype raise_node::type() const
     return asttype::raise;
 }
 
-void raise_node::direct_subordinates( list<ast*>& subs ) const
+void raise_node::direct_subordinates( list<astref>& subs ) const
 {
     subs.push_back(_sigObjExpr);
 }

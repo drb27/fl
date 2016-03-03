@@ -14,7 +14,7 @@ using std::string;
 using std::list;
 using std::set;
 
-enum_node::enum_node(const string& name, ast* pDefList)
+enum_node::enum_node(const string& name, const astref& pDefList)
     :_def_list(pDefList), _name(name)
 {
 }
@@ -24,7 +24,7 @@ objref enum_node::raw_evaluate(context* pContext)
     // Create a new class that derives from enum
 
     // First check the inputs
-    auto pList = dynamic_cast<list_node*>(_def_list);
+    auto pList = dynamic_cast<list_node*>(_def_list.get());
 
     for ( auto e : pList->raw_elements() )
     {
@@ -43,7 +43,7 @@ objref enum_node::raw_evaluate(context* pContext)
 
     for ( auto e : pList->raw_elements() )
     {
-	auto pSym = dynamic_cast<symbol_node*>(e);
+	auto pSym = std::dynamic_pointer_cast<symbol_node>(e);
 	enumref i = enumref( new enum_object(pContext,index++,pSym->name(),*pNewClass) );
 	pNewClass->add_class_attribute(pSym->name(),i);
     }
@@ -85,7 +85,7 @@ asttype enum_node::type() const
     return asttype::_enum;
 }
 
-void enum_node::direct_subordinates( list<ast*>& s) const
+void enum_node::direct_subordinates( list<astref>& s) const
 {
     s.push_back(_def_list);
 }

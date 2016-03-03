@@ -13,7 +13,7 @@ class fclass;
 class raise_node : public ast
 {
 public:
-    raise_node(ast* classExpr);
+    raise_node(const astref& classExpr);
     virtual objref raw_evaluate(context*);    
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
@@ -23,13 +23,11 @@ public:
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
     virtual asttype type() const;
-    virtual void direct_subordinates( std::list<ast*>& ) const;
-
-    virtual ast* sigobj_expr() const { return _sigObjExpr; }
+    virtual void direct_subordinates( std::list<astref>& ) const;
 
 protected:
 
-    ast* _sigObjExpr;
+    astref _sigObjExpr;
 };
 
 #endif

@@ -99,7 +99,7 @@ void sequence_node::required_symbols(set<symspec>& s) const
     }
 }
 
-void sequence_node::add_expr(ast* expr)
+void sequence_node::add_expr(const astref& expr)
 {
     _sequence.push_back(expr);
 }
@@ -114,7 +114,7 @@ asttype sequence_node::type() const
     return asttype::sequence;
 }
 
-void sequence_node::direct_subordinates( list<ast*>& subs ) const
+void sequence_node::direct_subordinates( list<astref>& subs ) const
 {
     for ( auto n : _sequence)
 	subs.push_back(n);
