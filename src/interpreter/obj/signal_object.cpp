@@ -1,6 +1,7 @@
 #include <map>
 #include <interpreter/obj/signal_object.h>
 #include <interpreter/obj/class_object.h>
+#include <interpreter/obj/string_object.h>
 #include <parser/ast/selector.h>
 #include <interpreter/context.h>
 
@@ -17,26 +18,26 @@ void signal_object::render( std::ostream& os, bool abbrev)
     object::render(os,abbrev);
 }
 
-void signal_object::set_source_node( ast* n)
+void signal_object::set_source_node( const astref& n)
 {
     _source_node=n;
 }
 
-objref signal_object::handle(context* pContext,ast* rootNode)
+objref signal_object::handle(context* pContext,const astref& rootNode,sigref pThis)
 {
     // Compute the parent map for the root node
-    map<ast*,ast*> parent;
+    map<astref,astref> parent;
     rootNode->compute_parent_map(parent);
 
     // Starting from the node which raised the signal, look for an upstream node which
     // advertises the ability to handle this signal
-    ast* currentNode = _source_node;
-    bool found=false;
+    astref currentNode = _source_node;
+    bool more=true;
 
-    while (!found)
+    while (more)
     {
 	// Try to get an observer
-	selector_node* pSelNode = currentNode->observer();
+	selectorref pSelNode(currentNode->observer());
 
 	// Is there one?
 	if (pSelNode)
@@ -48,10 +49,7 @@ objref signal_object::handle(context* pContext,ast* rootNode)
 	    try
 	    {
 		// Reference the signal in the current context
-		pContext->assign( string(".signal"),
-				  objref( new class_object(pContext,
-							   &get_class()) ) 
-				  );
+		pContext->assign( string("_signal"), pThis );
 
 		auto result = pSelNode->evaluate(pContext);
 
@@ -65,12 +63,34 @@ objref signal_object::handle(context* pContext,ast* rootNode)
 	    }
 	}
 
-	currentNode = parent[currentNode];
+	auto i = parent.find(currentNode);
 
-	// TODO: Termination of this loop when no handler is successful
-	
-    }
-    
+	if ( i==parent.end() )
+	    more=false;
+	else
+	    currentNode=(*i).second;
+    }    
 
     return objref(nullptr);
+}
+
+eval_signal_object::eval_signal_object(context* pContext, eval_exception* pEx, fclass& cls)
+    : signal_object(pContext,cls), _exception(pEx)
+{
+    if (pEx)
+	set_attribute("msg", stringref( new string_object(pContext, pEx->what() ) ) );
+}
+
+void eval_signal_object::set_exception( eval_exception* pEx )
+{
+    _exception = pEx;
+
+    if (pEx)
+	set_attribute("msg", stringref( new string_object(get_context(), pEx->what() ) ) );
+}
+
+eval_signal_object::~eval_signal_object()
+{
+    if (_exception)
+	delete _exception;
 }

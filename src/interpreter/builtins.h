@@ -59,6 +59,15 @@ protected:
     static fclass* _class;
 };
 
+class eval_signal
+{
+public:
+    static fclass* get_class();
+protected:
+    static fclass* build_class();
+    static fclass* _class;
+};
+
 class flfloat
 { 
 public:
@@ -130,6 +139,7 @@ protected:
     objref obj_equate(context*, objref pThis,objref pOther);
     objref obj_selmatch(context*, objref pThis,objref pOther);
     objref obj_class(context*, objref pThis);
+    objref obj_hash(context*, objref pThis);
     objref add_integers(context*,intref a, objref b);
     objref int_dec(context*,intref pThis);
     objref int_div(context*,intref,intref);
@@ -160,6 +170,7 @@ protected:
     objref class_constructor(context* pContext, classref pThis, fnref pCtor, lazyref pChain );
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
     objref class_addctor(context* pContext, classref pThis, fnref  fn, listref chain);
+    objref class_member(context* pContext, classref pThis, objref pObj);
     objref string_length(context* pContext, stringref pThis);
     objref string_index(context* pContext, stringref pThis, intref index );
     objref string_add(context* pContext, stringref pThis, objref pOther);
@@ -182,7 +193,6 @@ protected:
     objref obj_invoke(context*,objref,stringref,listref params);
     objref list_optimise(context*,listref);
     objref list_chunks(context* pContext, listref pThis );
-    objref fn_itr(context* pContext, fnref pThis );
     objref fn_name(context* pContext, fnref pThis );
     objref enum_iter(context* pContext, classref pThis );
     objref enum_str(context* pContext, enumref pThis );
@@ -192,6 +202,7 @@ protected:
     objref obj_convertible_to(context* pContet, objref pThis, classref pTargetClass);
     objref obj_convert(context* pContext, objref pThis, classref pTargetClass );
     objref signal_ctor(context*,sigref pThis);
+    objref eval_signal_ctor(context*,evalsigref pThis);
 }
 
 #endif

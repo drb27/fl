@@ -4,6 +4,8 @@
 #include <string>
 #include <stdexcept>
 
+class ast;
+
 enum class cerror
 {
     internal_error =   0,
@@ -38,17 +40,21 @@ class eval_exception : public std::runtime_error
 {
 
  public:
-    eval_exception(cerror errCode, const std::string& arg, bool fatal=false);
+    eval_exception(cerror errCode, const std::string& arg, bool fatal=false, ast* srcNode=nullptr);
+    eval_exception( const eval_exception& e );
     virtual ~eval_exception();
     virtual cerror code() const;
     virtual const char* what() const noexcept;
     bool fatal() const { return _fatal; }
+
+    ast* source_node() const { return _source_node; }
 
  protected:
 
  private:
     const cerror _errcode;
     const bool _fatal;
+    ast* const _source_node;
 };
 
 class terminate_exception : public std::runtime_error

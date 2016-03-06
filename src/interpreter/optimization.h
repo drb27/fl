@@ -12,7 +12,7 @@ namespace opt
     struct pattern
     {
 	std::vector<asttype> typestack;
-	ast* matchedHead;
+	astref matchedHead;
 	int index;
 	bool anchor;
     };
@@ -25,12 +25,11 @@ namespace opt
 	virtual ~optimization();
 	
 	
-	virtual ast* search( ast* pRootNode) const;
-	virtual bool execute(ast* pHeadNode) const=0;
-	virtual bool search_and_destroy(ast* pRootNode) const;
+	virtual astref search(const fundefnoderef& pRootNode) const;
+	virtual bool execute(astref pHeadNode) const=0;
     protected:
 	virtual void get_pattern( pattern& p ) const=0;
-	virtual ast* recursive_search( ast* pRootNode, pattern p ) const;
+	virtual astref recursive_search( astref pRootNode, pattern p ) const;
     private:
 	
     };
@@ -41,7 +40,7 @@ namespace opt
     public:
 	if_tailcall(const std::string& name) : _name(name) {}
 	virtual void get_pattern( pattern& p ) const;
-	virtual bool execute(ast* pHeadNode) const;
+	virtual bool execute(astref pHeadNode) const;
 
     private:
 

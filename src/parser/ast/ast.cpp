@@ -13,12 +13,27 @@ using std::string;
 using std::map;
 using std::list;
 
+unsigned long ast::_count{0};
+
+#ifdef AST_MONITOR_LEAKS
+std::set<ast*> ast::_leakSet;
+#endif
+
 ast::ast()
 {
+    _count++;
+
+    #ifdef AST_MONITOR_LEAKS
+    monitor_for_leak(this);
+    #endif
 }
 
 ast::~ast()
 {
+    _count--;
+    #ifdef AST_MONITOR_LEAKS
+    clear_from_leak_set(this);
+    #endif
 
 }
 
@@ -55,17 +70,31 @@ objref ast::evaluate(context* pContext )
     if (_observer)
 	_observer->set_unwind_stack_frame(pContext->current_collection());
 
-    objref result = raw_evaluate(pContext);
+    objref result;
+    try
+    {
+	result = raw_evaluate(pContext);
+    }
+    catch ( eval_exception& e )
+    {
+	// Whoops! An eval exception occurred. If it isn't a fatal one, 
+	// inject a signal
+	if ( !e.fatal()  )
+	{    
+	    _signal = sigref(new eval_signal_object( pContext, new eval_exception(e) ));
+	    _signal->set_source_node(shared_from_this());
+	}
+	else
+	    throw;
+    }
 
     // Was a signal raised?
     if (_signal)
     {
 	// Get the result from the signal handler instead
-	// TODO: The root node (this, below) is wrong. Need the root ast node
-	// of the highest level node being evaluated
-	result = _signal->handle(pContext,pContext->root_node());
+	result = _signal->handle(pContext,pContext->root_node(),_signal);
 
-	// TODO: What if the signal couldn't be handled?
+	// What if the signal couldn't be handled?
 	if (!result)
 	    throw eval_exception(cerror::unhandled_signal, "Unhandled signal", true );			     
     }
@@ -73,16 +102,16 @@ objref ast::evaluate(context* pContext )
     return result;
 }
 
-void ast::compute_parent_map( map<ast*,ast*>& m )
+void ast::compute_parent_map( map<astref,astref>& m )
 {
     // Get the list of direct subordinates for this node
-    list<ast*> my_subordinates;
+    list<astref> my_subordinates;
     direct_subordinates(my_subordinates);
 
     for ( auto node : my_subordinates )
     {
 	// Set the direct subordinates to have 'this' as a parent
-	m[node] = this;
+	m[node] = shared_from_this();
 
 	// Repeat this operation for this subordinate
 	node->compute_parent_map(m);
@@ -90,7 +119,7 @@ void ast::compute_parent_map( map<ast*,ast*>& m )
 
 }
 
-void ast::set_observer(selector_node* pSelNode)
+void ast::set_observer(selectorref pSelNode)
 {
     _observer = pSelNode;
 }

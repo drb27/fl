@@ -11,7 +11,13 @@ using std::string;
 using std::set;
 using std::list;
 
-void list_node::push_element(ast* pNode)
+list_node::list_node( std::initializer_list<astref> l ) : list_node(false)
+{
+    for ( auto el : l )
+	push_element(el);
+}
+
+void list_node::push_element(astref pNode)
 {
     _elements.push_back(pNode);
 }
@@ -48,7 +54,7 @@ objref list_node::raw_evaluate(context* pContext)
 
     for ( auto e : _elements )
     {
-	ast* pTypeHintNode = e->get_typehint();
+	astref pTypeHintNode(e->get_typehint());
 	if (pTypeHintNode)
 	{
 	    // Evaluate the type hint in the context
@@ -84,7 +90,7 @@ void list_node::required_symbols(set<symspec>& s) const
     }
 }
 
-list<ast*>& list_node::raw_elements()
+list<astref>& list_node::raw_elements()
 {
     return _elements;
 }
@@ -99,7 +105,7 @@ asttype list_node::type() const
     return asttype::list;
 }
 
-void list_node::direct_subordinates( list<ast*>& subs ) const
+void list_node::direct_subordinates( list<astref>& subs ) const
 {
     for ( auto e : _elements)
 	subs.push_back(e);

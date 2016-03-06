@@ -15,7 +15,7 @@ public:
     virtual objref raw_evaluate(context*);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
-    virtual void direct_subordinates( std::list<ast*>& ) const;
+    virtual void direct_subordinates( std::list<astref>& ) const;
 
 protected:
     const objref _object;

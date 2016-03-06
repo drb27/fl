@@ -10,7 +10,7 @@ using std::string;
 using std::list;
 using std::set;
 
-while_node::while_node(ast* pCond, ast* pAction)
+while_node::while_node(const astref& pCond, const astref& pAction)
     : _cond(pCond), _action(pAction)
 {
 
@@ -61,7 +61,7 @@ asttype while_node::type() const
     return asttype::_while;
 }
 
-void while_node::direct_subordinates( list<ast*>& subs ) const
+void while_node::direct_subordinates( list<astref>& subs ) const
 {
     subs.push_back(_cond);
     subs.push_back(_action);

@@ -32,7 +32,7 @@ public:
 			    std::ostream& out=std::cout) const;
     virtual std::function<void(objref)> setter(context*);
     virtual asttype type() const;
-    virtual void direct_subordinates( std::list<ast*>& ) const;
+    virtual void direct_subordinates( std::list<astref>& ) const;
 
 protected:
     const std::string _name;

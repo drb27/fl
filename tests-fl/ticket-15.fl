@@ -1,0 +1,10 @@
+package root::tickets::t15;
+
+defclass tester(object)
+	 .addattr( "value", 0 )
+	 .addmethod( (t,v)->t.value=>v, "setvalue");
+
+args=>(4);
+
+# Add this to the test case to run the test
+run=>()-> { t=>tester.new(); t.setvalue 'args; t.value==4; }; 

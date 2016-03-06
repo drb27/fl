@@ -45,15 +45,15 @@ public:
     virtual void dump(std::ostream& os=std::cout);
     virtual void debug() const { std::cout << (*this) << std::endl; }
 
-    virtual ast* root_node() { return _root_node; }
-    virtual void set_root_node(ast* n) { _root_node=n; }
+    virtual const astref& root_node() { return _root_node; }
+    virtual void set_root_node(const astref& n) { _root_node=n; }
 
     virtual bool unwind(colref);
 
 private:
     typemgr* _types;
     std::deque<colref> _collections;
-    ast* _root_node{nullptr};
+    astref _root_node{nullptr};
 };
 
 class state_guard

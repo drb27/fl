@@ -1,21 +1,44 @@
+//////////////////////////////////////////////////////////////////////////////////////////
+// testsuit.fl
+//
+// Runs a suite of unit tests, written in fl
+//
+
+# Include each of the unit test definitions
 include "tests-fl/testcase.fl";
+include "tests-fl/ticket-15.fl";
 include "tests-fl/ticket-36.fl";
 include "tests-fl/ticket-37.fl";
 include "tests-fl/ticket-44.fl";
 include "tests-fl/ctor_chains.fl";
 
 exit=>1;
-all_passed=>(l)-> l.size().eq(0)? true : l.head()? all_passed(l.tail()) : false;
-and=>(x:integer,y:integer)->{x+y}.gt(1);
 
-tc=>tests::testcase.new();
+# Main function. Adds all tests, and then runs them. 
+main=>()->
+{
+	# Useful functions
+	all_passed=>(l)-> l.size().eq(0)? true : l.head()? all_passed(l.tail()) : false;
+	and=>(x:integer,y:integer)->{x+y}.gt(1);
 
-tc.add_test( "int_addition_sane", ()-> 1.add(2).eq(3) );
-tc.add_test( "ticket_36", tickets::t36::run );
-tc.add_test( "ticket_37", tickets::t37::run );
-tc.add_test( "ticket_44", tickets::t44::run );
-tc.add_test( "ctor_chains", ctor_chains::run );
+	# Create a new testcase object
+	tc=>tests::testcase.new();
 
-results=>tc.run();
+	# Add the unit tests we want to run
+	tc.add_test( "int_addition_sane", ()-> 1.add(2).eq(3) );
+	tc.add_test( "ticket_15", tickets::t36::run );
+	tc.add_test( "ticket_36", tickets::t36::run );
+	tc.add_test( "ticket_37", tickets::t37::run );
+	tc.add_test( "ticket_44", tickets::t44::run );
+	tc.add_test( "ctor_chains", ctor_chains::run );
 
-and(results.size()==5,all_passed(results))? exit=>0 : exit=>1;
+	# Runs the tests, and collate the results into a list
+	results=> tc.run();
+
+	# Return true if all tests gave a result, and all passed (false otherwise)
+	and(results.size()==tc.tests.size(),all_passed(results));
+};
+
+# Run the main function, and set the exit code to 0 if all tests passed,
+# or 1 if any of the tests failed, or an unhandled signal was raised. 
+observe exit=>{main()? 0 : 1} handle signal: exit=>1;

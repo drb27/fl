@@ -31,6 +31,7 @@ struct ctorinfo : methodinfo
     }
     lazyref chain_params;
     std::list<std::string> args;
+    bool defined{false};
 };
 
 class typespec
@@ -100,8 +101,8 @@ class fclass
     virtual const methodinfo& lookup_method(const std::string& name) const;
     virtual const methodinfo& lookup_class_method(const std::string& name) const;
     virtual fclass* base(void) const { return _base; }
-    virtual std::deque<fclass*> hierarchy();
-    virtual bool is_in_hierarchy( const fclass& other);
+    virtual std::deque<fclass*> upstream_hierarchy();
+    virtual bool is_a( const fclass& other);
     virtual ctorinfo& ctor() { return _ctor; }
     virtual void set_ctor( const ctorinfo& c) { _ctor = c; }
     virtual bool can_convert_to(fclass* pOther);

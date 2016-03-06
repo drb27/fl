@@ -18,7 +18,7 @@ using std::pair;
 using std::find_if;
 using std::for_each;
 
-fundef_node::fundef_node(ast* arglist, ast* definition)
+fundef_node::fundef_node(const astref& arglist, const astref& definition)
     : _arglist(arglist), _definition(definition)
 {
     wlog_entry();
@@ -111,12 +111,12 @@ objref fundef_node::raw_evaluate(context* pContext)
 	wlog(level::debug, "Required symbol: " + s.rqn() );
     }
 
-    deque<pair<string,ast*>> argnames;
+    deque<pair<string,astref>> argnames;
 
-    list_node* pArgList = dynamic_cast<list_node*>(_arglist);
+    auto pArgList(args());
     for ( auto sn : pArgList->raw_elements() )
     {
-	symbol_node* pSymNode = dynamic_cast<symbol_node*>(sn);
+	symnoderef pSymNode = std::dynamic_pointer_cast<symbol_node>(sn);
 	argnames.push_back({pSymNode->name(),pSymNode->get_typehint()});
     }
 
@@ -127,7 +127,10 @@ objref fundef_node::raw_evaluate(context* pContext)
 	    pClosure->define_symbol(s, pContext->resolve_symbol(s) );
     }
 
-    return objref( new fn_object(pContext,rawfn(this,pClosure),argnames,argnames,{}) );
+    return objref( new fn_object(pContext,
+				 std::dynamic_pointer_cast<fundef_node>(shared_from_this()),
+				 pClosure,
+				 argnames,argnames,{}) );
 }
 
 fclass* fundef_node::type(context* pContext) const
@@ -140,7 +143,7 @@ asttype fundef_node::type() const
     return asttype::fundef;
 }
 
-void fundef_node::direct_subordinates( list<ast*>& subs ) const
+void fundef_node::direct_subordinates( list<astref>& subs ) const
 {
     subs.push_back(_arglist);
     subs.push_back(_definition);

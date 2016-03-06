@@ -1,8 +1,10 @@
 #ifndef OBJ_FN_H
 #define OBJ_FN_H
 
+#include <functional>
+#include <inc/references.h>
+#include <interpreter/marshall.h>
 #include <interpreter/obj/object.h>
-#include <parser/rawfn.h>
 #include <interpreter/collection.h>
 
 /**
@@ -14,18 +16,30 @@
 class fn_object : public object
 {
 public:
-
+    
     typedef std::pair<std::string,objref> argpair_t;
-    typedef std::deque<std::pair<std::string,ast*>> hinted_args_t;
+    typedef std::deque<std::pair<std::string,astref>> hinted_args_t;
 
+    /// For built-in functions
     fn_object(context*, 
-	      rawfn impl, 
+	      std::function<marshall_fn_t> fn,
 	      hinted_args_t fullArgs,
 	      hinted_args_t origArgs,
 	      collection&& appliedArgs,
 	      fclass& = *builtins::function::get_class() );
 
+    /// For fl functions
+    fn_object(context*, 
+	      const fundefnoderef& def,
+	      colref closure,
+	      hinted_args_t fullArgs,
+	      hinted_args_t origArgs,
+	      collection&& appliedArgs,
+	      fclass& = *builtins::function::get_class() );
+    
     fn_object( context*, const fn_object&);
+
+    virtual ~fn_object() {}
     virtual void render( std::ostream& os, bool abbrev=true);
     
     virtual fnref partial_application( context*,const std::vector<argpair_t>& args ) const;
@@ -33,23 +47,26 @@ public:
     virtual objref operator()(context*,std::vector<objref>&);
     virtual const hinted_args_t& arglist() const;
     virtual void dump(std::ostream& out = std::cout );
-    virtual bool is_tail_recursive();
     virtual bool is_anonymous() const;
-
+    
     virtual void set_name(const std::string& fname);
     virtual const std::string& name() const;
-    virtual rawfn& raw();
-    virtual void optimise_tail_recursion(context*);
+    virtual bool is_builtin() const { return _is_builtin; }
+    virtual void regenerate_function( const fundefnoderef& def);
+    virtual const fundefnoderef& def() { return _definition; }
 
 protected:
-
-    rawfn _fn;
+    
+    std::function<marshall_fn_t> _fn;
     collection _applied_arguments;
     hinted_args_t _expected_args;
     hinted_args_t _full_args;
     hinted_args_t _orig_args;
     std::string _name{"(anonymous)"};
     bool _is_anon;
+    bool _is_builtin;
+    fundefnoderef _definition;
+    colref _closure{nullptr};
 };
 
 #endif

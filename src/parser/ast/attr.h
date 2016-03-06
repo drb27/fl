@@ -14,7 +14,7 @@ class context;
 class attr_node : public lvalue_node
 {
 public:
-    attr_node(ast* target, const std::string& selector);
+    attr_node(const astref& target, const std::string& selector);
     virtual objref raw_evaluate(context*);
     virtual void required_symbols(std::set<symspec>&) const;
     virtual std::function<void(objref)> setter(context*);
@@ -23,10 +23,10 @@ public:
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
     virtual asttype type() const;
-    virtual void direct_subordinates( std::list<ast*>& ) const;
+    virtual void direct_subordinates( std::list<astref>& ) const;
 
 protected:
-    ast* _target;
+    astref _target;
     std::string _selector;
 };
 

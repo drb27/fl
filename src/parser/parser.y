@@ -3,8 +3,10 @@
 #include <string>
 #include <iostream>
 #include <ostream>
+#include <inc/references.h>
 #include <parser/ast/ast.h>
 #include <parser/action_target.h>
+#include <parser/ast/selector.h>
 
 int yylex(void);
 extern "C" void yyerror(const char*);
@@ -14,12 +16,14 @@ extern action_target* target;
  static std::string add_str("add");
  static std::string dec_str("dec");
 
+#define _r(x) astref(x)
+
 %}
 
 %define api.pure full
 %define api.push-pull push
 
-
+%token NODECOUNT
 %token LAZY
 %token RAISE
 %token OBSERVE
@@ -38,6 +42,7 @@ extern action_target* target;
 %token BAR
 %token SELECTOR
 %token DEFAULT
+%token PREDICATE
 %token OPEN_CURLY
 %token CLOSE_CURLY
 %token TRACE
@@ -142,7 +147,9 @@ extern action_target* target;
 %left CLOSE_SQUARE
 %right WHILE
 %right LAZY
+%left PREDICATE
 %%
+
 
 /* INPUTS *****************************************************************/
 
@@ -161,7 +168,7 @@ str: STRING { $$=target->make_string($1); }
 
 /* DEFINITIONS ************************************************************/
 
-fundef: list MAPSTO expr { $$ = target->make_fundef($1,$3); };
+fundef: list MAPSTO expr { $$ = target->make_fundef(_r($1),_r($3)); };
 
 /* LISTS ******************************************************************/
 
@@ -173,10 +180,10 @@ list_symbol: QUOTE symbol { $$=$2; };
 
 items_empty: | items;
 
- items:       expr { target->push_list_element($1); }
-      | expr COLON symbol { target->push_list_element_with_typehint($1,$3); }
-      | items COMMA expr { target->push_list_element($3); }
-      | items COMMA expr COLON symbol { target->push_list_element_with_typehint($3,$5); }
+items:       expr { target->push_list_element(_r($1)); }
+      | expr COLON symbol { target->push_list_element_with_typehint(_r($1),_r($3)); }
+      | items COMMA expr { target->push_list_element(_r($3)); }
+      | items COMMA expr COLON symbol { target->push_list_element_with_typehint(_r($3),_r($5)); }
       ;
 
 /* EXPRESSIONS ************************************************************/
@@ -200,22 +207,22 @@ expr:   literal
       | selector
       | flwhile
       | symbol %prec LOWEST 
-      | expr EQUALITY expr { $$=target->make_equality($1,$3); }
+      | expr EQUALITY expr { $$=target->make_equality(_r($1),_r($3)); }
       | expr ADD expr  { auto as = new std::string(add_str); 
-	                 $$=target->make_methodcall($1, target->make_symbol(as), 
-				       (list_node*)(target->make_single_list($3))); }
+                         $$=target->make_methodcall(_r($1), _r(target->make_symbol(as)), 
+						    _r(target->make_single_list(_r($3)))); }
       | expr DECREMENT { auto ds = new std::string(dec_str); 
-                         $$=target->make_methodcall($1, target->make_symbol(ds),
-				       (list_node*)(target->make_empty_list())); }
+                         $$=target->make_methodcall(_r($1), _r(target->make_symbol(ds)),
+				       _r(target->make_empty_list())); }
       ;
 
 literal: null | bool | integer | flfloat | str | list_literal;
-funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall($1,$2); };
+funcall: symbol list %prec OPEN_PAREN { $$=target->make_funcall(_r($1),_r($2)); };
 
-lazy_expr: LAZY expr { $$=target->make_lazy($2); }
+lazy_expr: LAZY expr { $$=target->make_lazy(_r($2)); }
 
-methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall($1,$3,(list_node*)$4);}; 
-attr: expr DOT IDENTIFIER {$$=target->make_attr($1,$3); };
+methodcall: expr DOT symbol list %prec OPEN_PAREN {$$=target->make_methodcall(_r($1),_r($3),_r($4));}; 
+attr: expr DOT IDENTIFIER {$$=target->make_attr(_r($1),$3); };
 
 bool: TRUE {$$=target->make_bool(true); } 
     | FALSE { $$=target->make_bool(false); }
@@ -223,65 +230,73 @@ bool: TRUE {$$=target->make_bool(true); }
 
 null: NULLVAL { $$=target->make_null(); }
  
-alias: expr ALIAS expr { $$ = target->make_assign_node($1,$3,true);};
+alias: expr ALIAS expr { $$ = target->make_assign_node(_r($1),_r($3),true);};
 
-if: expr QUESTION expr COLON expr { $$ = target->make_ifnode($1,$3,$5); };
+if: expr QUESTION expr COLON expr { $$ = target->make_ifnode(_r($1),_r($3),_r($5)); };
 
-listbuild: expr BUILDER expr { $$ = target->build_list($1,$3); };
+listbuild: expr BUILDER expr { $$ = target->build_list(_r($1),_r($3)); };
 
 sequence: OPEN_CURLY { $<node_val>$ = target->make_seq(); } exprs CLOSE_CURLY { $$=$<node_val>2; target->finish_seq(); };
 
-exprs: expr { target->add_expr($1); }
-     | exprs SEMICOLON expr { target->add_expr($3); }
-     ;
+exprs: expr {target->add_expr(_r($1)); } | sexpr;
 
-selector: expr SELECTOR {$<node_val>$=target->make_selector($1); } selset { $$=$<node_val>3; target->finish_selector(); };
+sexpr: expr SEMICOLON { target->add_expr(_r($1)); }
+     | sexpr expr SEMICOLON { target->add_expr(_r($2)); };
+
+selector: expr SELECTOR {$<node_val>$=target->make_selector(_r($1)); } selpred selset { $$=$<node_val>3; target->finish_selector(); };
+
+selpred: 
+      | PREDICATE OPEN_CURLY expr CLOSE_CURLY { target->selector_predicate(_r($3)); };
 
 selset: selpair | selset BAR selpair;
 
-selpair: expr COLON expr { target->selector_condition( target->make_pair($1,$3) ); }
-       | DEFAULT COLON expr { target->selector_default($3); };
+selpair: expr COLON expr { target->selector_condition( _r(target->make_pair(_r($1),_r($3))) ); }
+       | DEFAULT COLON expr { target->selector_default(_r($3)); };
 
-index: expr OPEN_SQUARE expr CLOSE_SQUARE { $$=target->make_index($1,$3); }
+index: expr OPEN_SQUARE expr CLOSE_SQUARE { $$=target->make_index(_r($1),_r($3)); }
 
-enumdef: ENUM IDENTIFIER list { $$=target->make_enum_class($2,$3); }
+enumdef: ENUM IDENTIFIER list { $$=target->make_enum_class($2,_r($3)); }
 
-classdef: CLASS IDENTIFIER list { $$=target->make_new_class($2,$3); }
+classdef: CLASS IDENTIFIER list { $$=target->make_new_class($2,_r($3)); }
 
-flwhile: WHILE OPEN_CURLY expr CLOSE_CURLY expr { $$=target->make_while($3,$5); }
+flwhile: WHILE OPEN_CURLY expr CLOSE_CURLY expr { $$=target->make_while(_r($3),_r($5)); }
 
 observed_expr: OBSERVE expr HANDLE { target->start_observed_expression(); }
-               selset { $$=$2; $$->set_observer( target->finish_selector()) ; }
+               selset { $$=$2; 
+		        target->selector_handle_predicate();
+		        $$->set_observer( selectorref(target->finish_selector())) ; }
 
-raise: RAISE expr { $$=target->make_raise($2); }
+raise: RAISE expr { $$=target->make_raise(_r($2)); }
 
 /* COMMANDS ***************************************************************/
 
 command: trace_cmd | debug_cmd | render_cmd | quit_cmd | show_cmd | include_cmd | eval_cmd 
-       | cd_cmd | pkg_cmd;
+       | cd_cmd | pkg_cmd | nodecount_cmd;
 
-render_cmd: RENDER expr {target->render($2); };
+render_cmd: RENDER expr {target->render(_r($2)); };
 
-debug_cmd: DEBUG_CMD expr { target->enable_debug(); target->respond($2); target->enable_debug(false); };
+debug_cmd: DEBUG_CMD expr { target->enable_debug(); target->respond(_r($2)); target->enable_debug(false); };
 
-trace_cmd: TRACE expr { target->enable_trace(); target->respond($2); target->enable_trace(false); };
+trace_cmd: TRACE expr { target->enable_trace(); target->respond(_r($2)); target->enable_trace(false); };
 
 quit_cmd: QUIT { target->done(); };
 
-show_cmd: SHOW expr { target->show_cmd($2); };
+show_cmd: SHOW expr { target->show_cmd(_r($2)); };
 
-include_cmd: INCLUDE expr { target->include_cmd($2); };
+include_cmd: INCLUDE expr { target->include_cmd(_r($2)); };
 
-eval_cmd: EVAL expr { target->eval_cmd($2); };
+eval_cmd: EVAL expr { target->eval_cmd(_r($2)); };
 
-cd_cmd: CD_CMD expr { target->cd_cmd($2); };
+cd_cmd: CD_CMD expr { target->cd_cmd(_r($2)); };
 
-pkg_cmd: PKG symbol { target->switch_package($2); };
+pkg_cmd: PKG symbol { target->switch_package(_r($2)); };
+
+nodecount_cmd: NODECOUNT { target->nodecount_cmd(); };
 
 /* STATEMENTS *************************************************************/
 
-stmt : expr SEMICOLON {target->respond($1); YYACCEPT; }
+stmt : expr SEMICOLON {target->respond(_r($1)); YYACCEPT; }
 | command SEMICOLON {};
 //     | {};
 
-assign: expr EQ expr { $$=target->make_assign_node($1,$3); };
+assign: expr EQ expr { $$=target->make_assign_node(_r($1),_r($3)); };

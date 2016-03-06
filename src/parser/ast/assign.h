@@ -14,7 +14,7 @@ class fclass;
 class assign_node : public ast
 {
 public:
-    assign_node(ast*,ast*,bool alias=false);
+    assign_node(const astref&,const astref&,bool alias=false);
     virtual objref raw_evaluate(context*);
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
@@ -23,11 +23,11 @@ public:
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
     virtual asttype type() const;
-    virtual void direct_subordinates( std::list<ast*>& ) const;
+    virtual void direct_subordinates( std::list<astref>& ) const;
 
 private:
-    ast* _lvalue;
-    ast* _rvalue;
+    astref _lvalue;
+    astref _rvalue;
     const bool _alias;
 };
 

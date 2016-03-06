@@ -42,7 +42,7 @@ enum class asttype
  * subclasses, such as the ability to render a graph of the AST, or determining
  * which symbols are required for evaluation. 
  */
-class ast
+class ast : public std::enable_shared_from_this<ast>
 {
 
  public:
@@ -80,28 +80,28 @@ class ast
 
     /// Returns the *direct* subordinate ast nodes of this node. Used for
     /// traversing the AST.
-    virtual void direct_subordinates( std::list<ast*>& ) const=0;
+    virtual void direct_subordinates( std::list<astref>& ) const=0;
 
     /// Attaches a selector node, describing what to do in the event that
     /// a signal is raised during evaluation of this node.
-    void set_observer(selector_node* pSelNode);
+    void set_observer(selectorref pSelNode);
 
     /// Returns a pointer to the observer currently attached to this node. 
     /// If there is no observer, this function returns nullptr.
-    selector_node* observer() { return _observer; }
+    selectorref observer() { return _observer; }
 
     /// Gets the type hint for this node
     /// @returns the type hint if any, or nullptr if there isn't one
-    ast* get_typehint() const { return _typehint; }
+    astref get_typehint() const { return _typehint; }
 
     /// Sets the type hint for this node, discarding the previous value
-    void set_typehint(ast* v) { _typehint=v; }
+    void set_typehint(const astref& v) { _typehint=v; }
 
     /// Computes a map of ast nodes to parent nodes, for each node \em below this node in
     /// the ast.
     /// @note This node may have a parent, but it is \em not \em included in the map. It
     /// is considered to be the root node for the purposes of this calculation. 
-    void compute_parent_map( std::map<ast*,ast*>& );
+    void compute_parent_map( std::map<astref,astref>& );
 
     /// Helper function used by render() to carry state information between
     /// parent nodes and subordinates during the generation of dot output. 
@@ -110,6 +110,8 @@ class ast
 			    const std::string& label = "",
 			    std::ostream& os = std::cout) const;
 
+    static inline unsigned long count() { return _count; }
+
  protected:
 
     ast();
@@ -117,14 +119,34 @@ class ast
     /// Evaluates the AST in the given context hierarchy
     virtual objref raw_evaluate(context*)=0;
 
-    ast* _typehint{nullptr}; ///< Stores the type hint for this node. @note the
+    astref _typehint;        ///< Stores the type hint for this node. @note the
 			     ///reason this is an ast* rather than an flcass* is
 			     ///that type hints should be evaluated at the time
 			     ///they are referenced - allowing for some
 			     ///interesting specifications.
 
-    selector_node* _observer{nullptr};
+    selectorref _observer;
     sigref _signal;
+
+ private:
+
+    static unsigned long _count;
+
+
+#ifdef AST_MONITOR_LEAKS
+
+public:
+    static void reset_leak_set() { _leakSet.clear(); }
+    static const std::set<ast*>& leak_set() { return _leakSet; }
+
+private:
+    static void clear_from_leak_set( ast* n ) { _leakSet.erase(n); }
+    static void monitor_for_leak( ast* n ) { _leakSet.insert(n); }
+
+    static std::set<ast*> _leakSet;
+
+#endif
+
 };
 
 

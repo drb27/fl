@@ -18,7 +18,7 @@ defclass node(object)
 	 .addattr("higher",null)
 	 .addattr("value",null)
 	 .addattr("tag",null)
-	 .constructor( (n,v,l,h,t)-> { n.lower=>l; n.higher=>h; n.value=>v; n.tag=>t; n}, $() );
+	 .constructor( (n,v,l,h,t)-> { n.lower=>l; n.higher=>h; n.value=>v; n.tag=>t; n; }, $() );
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ all_contents=>(n)-> and(n.lower==null,n.higher==null)?
 //
 
 insert=>(n,v,t)-> n.value.eq(v)?				# Does this node match?
-		  { n.tag=>t ; null } 				# Yes, done. 
+		  { n.tag=>t ; null; } 				# Yes, done. 
                 : { v.lt(n.value)?  				# No - is v lower?
 		    {n.lower.eq(null)?				   # Yes - is there a lower?
 			n.lower=>node.new(v,null,null,t) 	     # No, add one
@@ -71,8 +71,8 @@ node.addmethod(find,"find");
 defclass keystore(object);
 keystore.addattr("store",null);
 keystore.addmethod( (t,k,v)-> t.store.eq(null)?					# Do we have a store?
-		  	      { t.store=>node.new(k,null,null,v) ; t } 		# No, create one
-			    : { insert( t.store, k, v ) ; t } , "add");		# Yes, use 'insert'
+		  	      { t.store=>node.new(k,null,null,v) ; t; } 		# No, create one
+			    : { insert( t.store, k, v ) ; t; } , "add");		# Yes, use 'insert'
 
 keystore.addmethod( (t,k) -> t.store.find(k), "find" );
 
@@ -83,9 +83,9 @@ keystore.addmethod( (t,k) -> t.store.find(k), "find" );
 defclass set(object)
 	 .addattr("store",null)
 	 .constructor( (t)-> t.store=>keystore.new(), $() )
-	 .addmethod( (t,v) -> {t.store.add(v,v); t }, "insert" )
+	 .addmethod( (t,v) -> {t.store.add(v,v); t; }, "insert" )
 	 .addmethod( (t,v) -> t.store.find(v).eq(null).not(), "contains" )
 	 .addmethod( (t)-> t.store.store==null? () : all_contents(t.store.store), ".iter" )
 	 .addmethod( (t)-> foreach(t,(x)->x).size(), "size" );
 
-sort=>(l)-> { s=>set.new(); foreach(l,(x)->s.insert(x)); foreach(s,(x)->x) };
+sort=>(l)-> { s=>set.new(); foreach(l,(x)->s.insert(x)); foreach(s,(x)->x); };

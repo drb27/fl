@@ -16,7 +16,6 @@
 #include <parser/ast/funcall.h>
 #include <logger/logger.h>
 #include <interpreter/eval_exception.h>
-#include <parser/rawfn.h>
 #include <interpreter/obj/all.h>
 #include <interpreter/factory.h>
 
@@ -48,6 +47,7 @@ namespace builtins
     fclass* list::_class{nullptr};
     fclass* lazy::_class{nullptr};
     fclass* signal::_class{nullptr};
+    fclass* eval_signal::_class{nullptr};
 
     fclass* object::get_class()
     {
@@ -93,6 +93,14 @@ namespace builtins
     {
 	if (!_class)
 	    _class = signal::build_class();
+
+	return _class;
+    }
+
+    fclass* eval_signal::get_class()
+    {
+	if (!_class)
+	    _class = eval_signal::build_class();
 
 	return _class;
     }
@@ -155,28 +163,26 @@ namespace builtins
 
 	pContext->assign(std::string("rnd"), 
 			 fnref( new fn_object(pContext,
-					      rawfn(make_marshall(&builtins::rnd)),
-					      args,args,
-					      {}) 
-				) );
+					      make_marshall(&builtins::rnd),
+					      args,args, {}) ));
 
 	pContext->assign(std::string("foreach"),
 			 fnref( new fn_object(pContext,
-					      rawfn(make_marshall(&builtins::foreach)),
+					      make_marshall(&builtins::foreach),
 					      args,args,
-					      {} ) ));
+					      {}) ));
 
 	args.pop_back();
 	pContext->assign(std::string("I"), 
 			 fnref( new fn_object(pContext,
-					      rawfn(make_marshall(&builtins::I)),
+					      make_marshall(&builtins::I),
 					      args,args,
 					      {}) 
 				) );
 
 	pContext->assign(std::string("print"), 
 			 fnref( new fn_object(pContext,
-					      rawfn(make_marshall(&builtins::print)),
+					      make_marshall(&builtins::print),
 					      args,args,
 					      {}) 
 				) );
@@ -189,6 +195,9 @@ namespace builtins
 
 	pContext->assign( signal::get_class()->name(), 
 			  classref(new class_object(pContext, signal::get_class())) );
+
+	pContext->assign( eval_signal::get_class()->name(), 
+			  classref(new class_object(pContext, eval_signal::get_class())) );
 
 	pContext->assign( flfloat::get_class()->name(), 
 			  classref(new class_object(pContext, flfloat::get_class())) );
@@ -225,6 +234,7 @@ namespace builtins
 	fclass* pCls = new fclass(spec,nullptr,false,true,false);
 	
 	ctorinfo c;
+	c.defined=true;
 	c.name="<constructor>";
 	c.fn = make_marshall_mthd(&builtins::obj_ctor);
 	pCls->set_ctor(c);
@@ -243,6 +253,7 @@ namespace builtins
 	pCls->add_method( {"invoke", make_marshall_mthd(&builtins::obj_invoke),true} );
 	pCls->add_method( {"can_convert", make_marshall_mthd(&builtins::obj_convertible_to),true} );	
 	pCls->add_method( {"convert", make_marshall_mthd(&builtins::obj_convert),true} );
+	pCls->add_method( {"hash", make_marshall_mthd(&builtins::obj_hash),false} );
 	return pCls;
     }
 
@@ -261,6 +272,7 @@ namespace builtins
 	pCls->add_method({"addattr",make_marshall_mthd(&builtins::class_addattr),true});
 	pCls->add_method({"eq", make_marshall_mthd(&builtins::class_equate),false} );
 	pCls->add_method({"clsattrs", make_marshall_mthd(&builtins::class_attrlist)});
+	pCls->add_method({"member", make_marshall_mthd(&builtins::class_member)});
 
 	return pCls;
     }
@@ -285,6 +297,7 @@ namespace builtins
 	fclass* pCls = new fclass(spec,base_cls,false,true,true,false);
 
 	ctorinfo c;
+	c.defined=true;
 	c.name="<constructor>";
 	c.fn = make_marshall_mthd(&builtins::int_ctor);
 	c.args.push_back("x");
@@ -316,6 +329,7 @@ namespace builtins
 	fclass* pCls = new fclass(spec,base_cls,false,true,true,false);
 
 	ctorinfo c;
+	c.defined=true;
 	c.name="<constructor>";
 	c.fn = make_marshall_mthd(&builtins::lazy_ctor);
 	pCls->set_ctor(c);
@@ -337,6 +351,7 @@ namespace builtins
 	fclass* pCls = new fclass(spec,base_cls,false,true,true,false);
 
 	ctorinfo c;
+	c.defined=true;
 	c.name="<constructor>";
 	c.fn = make_marshall_mthd(&builtins::signal_ctor);
 	pCls->set_ctor(c);
@@ -344,6 +359,26 @@ namespace builtins
 	factory::get().add_spawner( pCls, [](context* ctx, fclass* cls) 
 				    { 
 					return objref(new ::signal_object(ctx,*cls));
+				    } );
+
+	return pCls;
+    }
+    fclass* eval_signal::build_class()
+    {
+	fclass* base_cls = signal::get_class();
+	typespec spec("evalsignal");
+	fclass* pCls = new fclass(spec,base_cls,false,true,true,false);
+	pCls->add_attribute("msg", nullptr );
+
+	ctorinfo c;
+	c.defined=true;
+	c.name="<constructor>";
+	c.fn = make_marshall_mthd(&builtins::eval_signal_ctor);
+	pCls->set_ctor(c);
+
+	factory::get().add_spawner( pCls, [](context* ctx, fclass* cls) 
+				    { 
+					return objref(new ::eval_signal_object(ctx,nullptr,*cls));
 				    } );
 
 	return pCls;
@@ -396,7 +431,6 @@ namespace builtins
 	fclass* base_cls = object::get_class();
 
 	fclass* pCls = new fclass(spec,base_cls,false,true,false,true);
-	pCls->add_method({"itr", make_marshall_mthd(&builtins::fn_itr)});
 	pCls->add_method({"name", make_marshall_mthd(&builtins::fn_name)});
 	return pCls;
     }
@@ -545,6 +579,11 @@ namespace builtins
 	return pThis;
     }
 
+    objref eval_signal_ctor(context*,evalsigref pThis)
+    {
+	return pThis;
+    }
+
     objref lazy_evaluate(context* pContext,lazyref pThis)
     {
 	return pThis->internal_value()->evaluate(pContext);
@@ -588,6 +627,11 @@ namespace builtins
     {
 	pThis->dump(std::cout);
 	return pThis;
+    }
+
+    objref obj_hash(context* pContext, objref pThis)
+    {
+	return intref( new int_object(pContext, (long)pThis.get() ));
     }
 
     objref obj_class(context* pContext, objref pThis)
@@ -797,6 +841,12 @@ namespace builtins
 	    return (*fn)(pContext,evaled_params);
 	};
     }
+
+    objref class_member(context* pContext, classref pThis, objref pObj)
+    {
+	bool result = pObj->get_class().is_a( *pThis->internal_value() );
+	return boolref( new bool_object(pContext,result) );
+    };
     
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name)
     {
@@ -829,6 +879,7 @@ namespace builtins
 	fclass* const pTargetClass = N_CLASS(pThis);
 
 	ctorinfo c;
+	c.defined=true;
 	c.name = "<constructor>";
 	c.chain_params = pChain;
 	c.args.clear();
@@ -906,10 +957,9 @@ namespace builtins
     {
 	// Call .iter on the object to yield a list object
 	auto m = methodcall_node(".iter");
-	ast* t = new literal_node(pObj);
+	astref t(new literal_node(pObj));
 	m.add_target(t);
 	listref l = std::dynamic_pointer_cast<list_object>( m.evaluate(pContext) );
-	delete t;
 
 	// We now have a list of things to apply the function to.
 	listref returnList = listref( new list_object(pContext) );
@@ -920,10 +970,10 @@ namespace builtins
 	    
 	    // Apply the function
 	    list_node* pArgList = new list_node();
-	    literal_node* pArg = new literal_node(currentObject);
+	    astref pArg(new literal_node(currentObject));
 	    pArgList->push_element( pArg );
 	    funcall_node* pFnCall = new funcall_node(symspec("(anonymous)"), 
-						     pArgList,
+						     astref(pArgList),
 						     pFn);
 
 	    auto result = pFnCall->evaluate(pContext);
@@ -932,8 +982,6 @@ namespace builtins
 	    returnList->append(result);
 
 	    delete pFnCall;
-	    delete pArg;
-	    delete pArgList;
 	    
 	}
 
@@ -989,11 +1037,6 @@ namespace builtins
 
     }
     
-    objref fn_itr(context* pContext, fnref pThis )
-    {
-	return objref(new bool_object(pContext, pThis->is_tail_recursive()) );
-    }
-
     objref fn_name(context* pContext, fnref pThis )
     {
 	return stringref(new string_object(pContext, pThis->name() ));

@@ -13,7 +13,10 @@ class fclass;
 class if_node : public ast
 {
 public:
-    if_node(ast* pCondition, ast* trueExpression, ast* falseExpression);
+    if_node(const astref& pCondition, 
+	    const astref& trueExpression, 
+	    const astref& falseExpression);
+
     virtual objref raw_evaluate(context*);    
     virtual fclass* type(context*) const;
     virtual void required_symbols(std::set<symspec>&) const;
@@ -23,16 +26,16 @@ public:
 			    const std::string& label="",
 			    std::ostream& out=std::cout) const;
     virtual asttype type() const;
-    virtual void direct_subordinates( std::list<ast*>& ) const;
+    virtual void direct_subordinates( std::list<astref>& ) const;
 
-    virtual ast* cond() const { return _condition; }
-    virtual ast* true_expr() const { return _trueExpr; }
-    virtual ast* false_expr() const { return _falseExpr; }
+    virtual astref cond() const { return _condition; }
+    virtual astref true_expr() const { return _trueExpr; }
+    virtual astref false_expr() const { return _falseExpr; }
 
 protected:
-    ast* _condition;
-    ast* _trueExpr;
-    ast* _falseExpr;
+    astref _condition;
+    astref _trueExpr;
+    astref _falseExpr;
 };
 
 #endif

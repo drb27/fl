@@ -19,7 +19,7 @@ namespace opt
 
     }
     
-    ast* optimization::search( ast* pRootNode) const
+    astref optimization::search( const fundefnoderef& pFunDef) const
     {
 	pattern ptn;
 	get_pattern(ptn);
@@ -27,13 +27,13 @@ namespace opt
 	ptn.matchedHead = nullptr;
 
 	// Check the anchor
-	if (ptn.anchor && (pRootNode->type() != ptn.typestack[0]) )
+	if (ptn.anchor && (pFunDef->type() != ptn.typestack[0]) )
 	    return nullptr;
 
-	return recursive_search(pRootNode, ptn);
+	return recursive_search(pFunDef, ptn);
     }
     
-    ast* optimization::recursive_search( ast* pNode, pattern p ) const
+    astref optimization::recursive_search( astref pNode, pattern p ) const
     {
 	// Which mode are we in?
 	if (p.matchedHead)
@@ -50,12 +50,12 @@ namespace opt
 		else
 		{
 		    // No - continue the search
-		    list<ast*> subordinates;
+		    list<astref> subordinates;
 		    pNode->direct_subordinates(subordinates);
 		    p.index++;
 		    for ( auto s : subordinates )
 		    {
-			ast* result = recursive_search(s,p);
+			astref result = recursive_search(s,p);
 			if (result) return result;
 		    }
 		}
@@ -76,47 +76,31 @@ namespace opt
 		p.matchedHead = pNode;
 		p.index++;
 		
-		list<ast*> subordinates;
+		list<astref> subordinates;
 		pNode->direct_subordinates(subordinates);
 		for ( auto s : subordinates )
 		{
-		    ast* result = recursive_search(s,p);
+		    astref result = recursive_search(s,p);
 		    if (result) return result;
 		}
 	    }
 	    else
 	    {
 		// No, this is not the head. Try the subordinates
-		list<ast*> subordinates;
+		list<astref> subordinates;
 		pNode->direct_subordinates(subordinates);
 		for ( auto s : subordinates )
 		{
-		    ast* result = recursive_search(s,p);
+		    astref result = recursive_search(s,p);
 		    if (result) return result;
 		}
 	    }
 	}
 
 	// No match
-	return nullptr;
+	return astref(nullptr);
     }
 
-    bool optimization::search_and_destroy(ast* pRootNode) const
-    {
-	ast* result=nullptr;
-	bool found=false;
-	do
-	{
-	    result = search(pRootNode);
-	    if (result)
-	    {
-		found=true;
-		execute(result);
-	    }
-	} while (result);
-
-	return found;
-    }
 
     void if_tailcall::get_pattern( pattern& p ) const
     {
@@ -128,41 +112,42 @@ namespace opt
 	p.matchedHead = nullptr;
     }
 
-    bool if_tailcall::execute(ast* pHeadNode) const
+    bool if_tailcall::execute(astref pHeadNode) const
     {
+	// TODO: This needs fixing when all ast nodes are converted to astref!
 	wlog_entry();
-	fundef_node* pFunDef = dynamic_cast<fundef_node*>(pHeadNode);
-	list_node* pArgs = pFunDef->args();
-	if_node* pIf = dynamic_cast<if_node*>(pFunDef->def());
-	ast* pCondition = pIf->cond();
+	fundefnoderef pFunDef(std::dynamic_pointer_cast<fundef_node>(pHeadNode));
+	listnoderef pArgs(pFunDef->args());
+	if_node* pIf = dynamic_cast<if_node*>(pFunDef->def().get());
+	astref pCondition(pIf->cond());
 
-	ast *pReturn;
-	list_node *pCallList=nullptr;
-	funcall_node *pFunCall;
+	astref pReturn;
+	listnoderef pCallList=nullptr;
+	funcallnoderef pFunCall;
 
 	bool callIsOnTrue;
 
 	if ( ( pIf->true_expr()->type() == asttype::funcall ) &&  
-	     ( dynamic_cast<funcall_node*>(pIf->true_expr())->name() == _name )
+	     ( std::dynamic_pointer_cast<funcall_node>(pIf->true_expr())->name() == _name )
 	     )
 	{
 	    callIsOnTrue = true;
 	    pReturn = pIf->false_expr();
-	    pFunCall = dynamic_cast<funcall_node*>(pIf->true_expr());
+	    pFunCall = std::dynamic_pointer_cast<funcall_node>(pIf->true_expr());
 	}
 	else if (( pIf->false_expr()->type() == asttype::funcall ) &&   
-		 ( dynamic_cast<funcall_node*>(pIf->false_expr())->name() == _name ) )
+		 ( std::dynamic_pointer_cast<funcall_node>(pIf->false_expr())->name() == _name ) )
 	{
 	    callIsOnTrue = false;
 	    pReturn = pIf->true_expr();
-	    pFunCall = dynamic_cast<funcall_node*>(pIf->false_expr());
+	    pFunCall = std::dynamic_pointer_cast<funcall_node>(pIf->false_expr());
 	}
 	else
 	    return false;
 
 	// Parameter list for subsequent calls
 	if (pFunCall->args()->type() == asttype::list )
-	    pCallList = dynamic_cast<list_node*>(pFunCall->args());
+	    pCallList = std::dynamic_pointer_cast<list_node>(pFunCall->args() );
 
 	// TODO: Construct the translated tree
 	sequence_node* pParamUpdates = new sequence_node(true);
@@ -170,13 +155,15 @@ namespace opt
 	if (pCallList)
 	{
 	    // Construct assignments for the param update sequence
-	    list<ast*> elements = pCallList->raw_elements();
+	    list<astref> elements = pCallList->raw_elements();
 	    auto basicParamIterator = pArgs->raw_elements().begin();
 	    for ( auto e : elements )
 	    {
-		assign_node* pAssign = new assign_node(*basicParamIterator,e,true);
+		assign_node* pAssign = new assign_node(astref(*basicParamIterator),
+						       astref(e),
+						       true);
 		basicParamIterator++;
-		pParamUpdates->add_expr(pAssign);
+		pParamUpdates->add_expr(astref(pAssign));
 	    }
 	}
 	else
@@ -188,19 +175,19 @@ namespace opt
 
 	if (!callIsOnTrue)
 	{
-	    auto pOldCond = pCondition;
-	    pCondition = new methodcall_node("not");
-	    dynamic_cast<methodcall_node*>(pCondition)->add_target(pOldCond);
+	    auto pOldCond(pCondition);
+	    pCondition = astref(new methodcall_node("not"));
+	    std::dynamic_pointer_cast<methodcall_node>(pCondition)->add_target(pOldCond);
 	}
 	
-	while_node* pWhile = new while_node( pCondition, pParamUpdates );
+	while_node* pWhile = new while_node( pCondition, astref(pParamUpdates) );
 
 	sequence_node* pTopSequence = new sequence_node();
-	pTopSequence->add_expr(pWhile);
+	pTopSequence->add_expr(astref(pWhile));
 	pTopSequence->add_expr(pReturn);
 
 	// Update the definition of the function to the new tree
-	pFunDef->replace_definition(pTopSequence);
+	pFunDef->replace_definition(astref(pTopSequence));
 	wlog(level::info, "Successfully eliminated tail recursion");
 
 	return true;

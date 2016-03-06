@@ -1,14 +1,17 @@
 #ifndef OBJ_LAZY_H
 #define OBJ_LAZY_H
 
-#include <interpreter/obj/foundation.h>
+#include <inc/references.h>
+#include <interpreter/obj/object.h>
 
-class ast;
-
-class lazy_object : public foundation_object<ast*>
+class lazy_object : public object
 {
-public:
-    lazy_object(context*,ast* value=0,fclass& = *builtins::lazy::get_class());
+ public:
+    lazy_object(context*,const astref& value=0,fclass& = *builtins::lazy::get_class());
+    const astref& internal_value() const;
+ protected:
+
+    astref _value;
 };
 
 #endif

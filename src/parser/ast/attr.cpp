@@ -15,7 +15,7 @@ using std::list;
 using std::vector;
 using std::function;
 
-attr_node::attr_node(ast* target, const string& selector)
+attr_node::attr_node(const astref& target, const string& selector)
     : _target(target), _selector(selector)
 {
 
@@ -76,7 +76,7 @@ asttype attr_node::type() const
     return asttype::attr;
 }
 
-void attr_node::direct_subordinates( list<ast*>& subs ) const
+void attr_node::direct_subordinates( list<astref>& subs ) const
 {
     subs.push_back(_target);
 }

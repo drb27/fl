@@ -68,8 +68,6 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/interpreter/optimization.h \
 			src/interpreter/marshall.h \
 			src/inc/references.h \
-			src/parser/rawfn.cpp \
-			src/parser/rawfn.h \
 			src/parser/ast/ast.cpp \
 			src/parser/ast/ast.h \
 			src/parser/ast/nodes.h \

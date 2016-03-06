@@ -7,10 +7,15 @@
 using std::string;
 using std::stringstream;
 
-eval_exception::eval_exception(cerror errCode, const string& arg, bool fatal)
-    : std::runtime_error(arg), _errcode(errCode),_fatal(fatal)
+eval_exception::eval_exception(cerror errCode, const string& arg, bool fatal, ast* srcNode)
+    : std::runtime_error(arg), _errcode(errCode),_fatal(fatal),_source_node(srcNode)
 {
     wlog(level::error,what());
+}
+
+eval_exception::eval_exception(const eval_exception& e)
+    : std::runtime_error(e.what()), _errcode(e._errcode),_fatal(e._fatal),_source_node(e._source_node)
+{
 }
 
 eval_exception::~eval_exception()

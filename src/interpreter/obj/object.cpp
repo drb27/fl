@@ -7,6 +7,7 @@
 #include <logger/logger.h>
 #include <parser/ast/methodcall.h>
 #include <parser/ast/literal.h>
+#include <parser/ast/list.h>
 
 using std::deque;
 using std::string;
@@ -23,15 +24,16 @@ object::object(context* pContext, fclass& c, vector<objref> params)
     // Create the attributes for this class, and the base chain
     fclass* pCurrentClass = &c;
 
-    auto fn = [this](fclass* pClass)
+    auto fn = [this,pContext](fclass* pClass)
 	{
 	    for ( auto a : pClass->attributes() )
 	    {
-		_attributes[a.first] = a.second;
+		objref value = a.second;
+		_attributes[a.first] = (value)? value : objref( new void_object(pContext) );
 	    }
 	};
 
-    for ( auto pCls : c.hierarchy() )
+    for ( auto pCls : c.upstream_hierarchy() )
 	fn(pCls);
 
 }
@@ -43,7 +45,7 @@ objref object::convert_to(objref pThis, fclass* pOther)
 	return pThis;
 
     // ... or already a decendant of pOther?
-    if ( pThis->get_class().is_in_hierarchy(*pOther) )
+    if ( pThis->get_class().is_a(*pOther) )
 	return pThis;
 
     set<ctnoderef> solutionSet;
@@ -128,38 +130,23 @@ objref object::invoke( const string& mthdName, context* pContext, vector<objref>
     methodcall_node* pCallNode = new methodcall_node(mthdName);
 
     // Set up the node here
-    pCallNode->add_target( new literal_node( objref(this) ));
+    pCallNode->add_target( astref(new literal_node( objref(this,[](object*){}) )));
+
+    auto pArgList = new list_node();
 
     for ( auto param : params )
     {
-	pCallNode->add_param( new literal_node( param ) );
+	pArgList->push_element( astref(new literal_node( param ) ) );
     }
 
+    pCallNode->add_param_list(astref(pArgList));
+
     objref result = pCallNode->evaluate(pContext);
+
     delete pCallNode;
+
     return result;
 }
-
-// TODO: #43 Remove object::construct
-// void object::construct(context* pContext, vector<objref>& params)
-// {
-//    // Call the constructor!
-//     objref pThis(this, [](object*) {});
-//     vector<ast*> ps(2+params.size());
-//     int index=2;
-//     ps[2]=new literal_node(objref(this));
-//     for ( auto p : params )
-//     {
-// 	ps[index++] = new literal_node(p);
-//     }
-    
-//     _class.instantiator().fn(pContext,pThis,ps);
-
-//     // Tidy up
-//     for ( auto p : ps )
-// 	delete p;
-
-// }
 
 bool object::has_attribute(const std::string& name) const
 {
@@ -200,10 +187,9 @@ void object::render( std::ostream& os, bool abbrev )
     	objref pThis(this, [](object* o) {} );
     	literal_node* pThisLiteral = new literal_node(pThis);
     	methodcall_node* pMethodCall = new methodcall_node(".render");
-    	pMethodCall->add_target(pThisLiteral);
+    	pMethodCall->add_target(astref(pThisLiteral));
     	stringref pRendered = object::cast_or_abort<string_object>(pMethodCall->evaluate(get_context()));
     	os << pRendered->internal_value() << " ";
-    	delete pThisLiteral;
     	delete pMethodCall;
     }
     os << "[" << _class.name() << "]"; 
