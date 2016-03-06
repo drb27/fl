@@ -1,0 +1,7 @@
+package root::tickets::t52;
+
+run=>()->
+{
+	defclass myint(integer);
+	6==myint.new(6);		
+};
