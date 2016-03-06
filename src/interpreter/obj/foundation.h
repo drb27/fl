@@ -21,7 +21,7 @@ public:
 
     virtual bool operator==(const objref other) const
     {
-	if (&other->get_class()!=&get_class())
+	if ( ! (other->get_class()).is_a( get_class() ))
 	    return false;
 
 	fref o = std::dynamic_pointer_cast<foundation_object<T>>(other);
