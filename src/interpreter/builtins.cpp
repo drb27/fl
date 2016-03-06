@@ -237,6 +237,7 @@ namespace builtins
 	fclass* pCls = new fclass(spec,nullptr,false,true,false);
 	
 	ctorinfo c;
+	c.defined=true;
 	c.name="<constructor>";
 	c.fn = make_marshall_mthd(&builtins::obj_ctor);
 	pCls->set_ctor(c);
@@ -299,6 +300,7 @@ namespace builtins
 	fclass* pCls = new fclass(spec,base_cls,false,true,true,false);
 
 	ctorinfo c;
+	c.defined=true;
 	c.name="<constructor>";
 	c.fn = make_marshall_mthd(&builtins::int_ctor);
 	c.args.push_back("x");
@@ -330,6 +332,7 @@ namespace builtins
 	fclass* pCls = new fclass(spec,base_cls,false,true,true,false);
 
 	ctorinfo c;
+	c.defined=true;
 	c.name="<constructor>";
 	c.fn = make_marshall_mthd(&builtins::lazy_ctor);
 	pCls->set_ctor(c);
@@ -351,6 +354,7 @@ namespace builtins
 	fclass* pCls = new fclass(spec,base_cls,false,true,true,false);
 
 	ctorinfo c;
+	c.defined=true;
 	c.name="<constructor>";
 	c.fn = make_marshall_mthd(&builtins::signal_ctor);
 	pCls->set_ctor(c);
@@ -370,6 +374,7 @@ namespace builtins
 	pCls->add_attribute("msg", nullptr );
 
 	ctorinfo c;
+	c.defined=true;
 	c.name="<constructor>";
 	c.fn = make_marshall_mthd(&builtins::eval_signal_ctor);
 	pCls->set_ctor(c);
@@ -878,6 +883,7 @@ namespace builtins
 	fclass* const pTargetClass = N_CLASS(pThis);
 
 	ctorinfo c;
+	c.defined=true;
 	c.name = "<constructor>";
 	c.chain_params = pChain;
 	c.args.clear();

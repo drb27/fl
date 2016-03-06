@@ -31,6 +31,7 @@ struct ctorinfo : methodinfo
     }
     lazyref chain_params;
     std::list<std::string> args;
+    bool defined{false};
 };
 
 class typespec
