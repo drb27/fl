@@ -1,3 +1,48 @@
+fl release 0.0.4 6th March 2016
+
+Major changes from the previous release, including better memory management, syntax
+changes, and new features to improve usability of the language. 
+
+For memory management, ast objects are now properly tracked and destroyed, which was a
+major memory leak issue in previous releases (every statement used memory and never freed
+it). 
+
+Changes to signals mean that signal *objects* are raised now, rather than the class
+itself. This allows the user to pass data to signal class constructors to pass meaningful
+information back up the chain to the handler. 
+
+Selector statements are improved, allowing the user to specify a predicate to use for
+matching the guard with the item being queried. 
+
+Method calls are improved, it is now possible to pass a list of parameters to a methodcall
+by reference, rather than specifying the list literally in the expression (you could
+always do this for ordinary functions). 
+
+Constructors are improved - the expression syntax has changed, and it is now possible to
+specify which parameters are passed up to the constructor of the base. One can now
+correctly derive a class from integer, for example, and pass a value up from the
+constructor of the derived class to the constructor of the integer class. 
+
+Finally, a simple hash() function have been provided on the object class, meaning each
+object can produce a unique integer to represent itself. 
+
+* d4369ae Fixed #12: Implement ast ownership scheme to stop leaks of ast objects
+* c6a571c Fixed #52: Constructor chains don't skip missing constructors
+* ddaed3d Added hash function for objects
+* c4a9105 Changed sequence semicolon requirements
+* c359025 Added signal handler to testsuite.fl
+* f8fb84b Fixed #15: Methods can now be called with a symbol for params
+* 1b80038 Added emacs mode for fl
+* add7c0d Added the msg attribute to evalsignal
+* 7fd5701 Fixed #51: You now raise signal objects, not signal classes
+* 07f1c80 Added new initializer-list constructor to list_node
+* ea08a7f Added class.member() builtin
+* ab7ce91 Fixed #50: Added ability to specify predicate in selectors
+* 8761b13 Fixed #46: Added evalsignal
+* d2c8b81 Fixed #45: Signals now don't crash
+
+--------------------------------------------------------------------------------
+
 fl release 0.0.3 28th February 2016
 
 Here are the interesting commits made since the previous release, v0.0.2. 

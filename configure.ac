@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([fl],[0.0.3-workingcopy],[david.bradshaw.usa@gmail.com])
+AC_INIT([fl],[0.0.4],[david.bradshaw.usa@gmail.com])
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_MACRO_DIR([m4])
