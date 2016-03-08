@@ -84,6 +84,7 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/parser/ast/lvalue.h \
 			src/parser/ast/sequence.cpp \
 			src/parser/ast/pair.cpp \
+			src/parser/ast/range.cpp \
 			src/parser/ast/selector.cpp \
 			src/parser/ast/while.cpp \
 			src/parser/ast/enum.cpp \
@@ -100,6 +101,7 @@ liblang_a_SOURCES=src/parser/lexer.cpp \
 			src/parser/ast/raise.h \
 			src/parser/ast/sequence.h \
 			src/parser/ast/pair.h \
+			src/parser/ast/range.h \
 			src/parser/ast/selector.h \
 			src/parser/ast/while.h \
 			src/parser/ast/enum.h \

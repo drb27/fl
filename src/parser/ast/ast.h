@@ -32,7 +32,8 @@ enum class asttype
 	_while,
 	_enum,
 	classdef,
-	raise
+	raise,
+	range
 	};
 
 /**

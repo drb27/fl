@@ -169,6 +169,7 @@ protected:
     objref list_dup_and_append(context* pContext, listref pThis, objref pElement);
     objref class_constructor(context* pContext, classref pThis, fnref pCtor, lazyref pChain );
     objref class_addmethod(context* pContext, classref pThis, fnref  fn, stringref name);
+    objref class_add_class_method(context* pContext, classref pThis, fnref  fn, stringref name);
     objref class_addctor(context* pContext, classref pThis, fnref  fn, listref chain);
     objref class_member(context* pContext, classref pThis, objref pObj);
     objref string_length(context* pContext, stringref pThis);
@@ -203,6 +204,7 @@ protected:
     objref obj_convert(context* pContext, objref pThis, classref pTargetClass );
     objref signal_ctor(context*,sigref pThis);
     objref eval_signal_ctor(context*,evalsigref pThis);
+    objref obj_range(context* pContext, classref pThis, objref a, objref b );
 }
 
 #endif

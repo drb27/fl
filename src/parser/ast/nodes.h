@@ -14,6 +14,7 @@
 #include <parser/ast/literal.h>
 #include <parser/ast/methodcall.h>
 #include <parser/ast/pair.h>
+#include <parser/ast/range.h>
 #include <parser/ast/selector.h>
 #include <parser/ast/sequence.h>
 #include <parser/ast/symbol.h>

@@ -14,6 +14,7 @@ class action_target
  
  public:
 
+    virtual ast* make_range(const astref& a, const astref& b)=0;
     virtual ast* make_lazy(const astref& e)=0;
     virtual ast* make_raise(const astref& clsExpr)=0;
     virtual ast* make_int(int x) const=0;

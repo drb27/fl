@@ -23,6 +23,7 @@ extern action_target* target;
 %define api.pure full
 %define api.push-pull push
 
+%token RANGE
 %token NODECOUNT
 %token LAZY
 %token RAISE
@@ -86,6 +87,7 @@ extern action_target* target;
 }
 
 %type <node_val> lazy_expr
+%type <node_val> range
 %type <int_val> INTEGER
 %type <float_val> FLOAT
 %type <string_val> IDENTIFIER
@@ -131,6 +133,7 @@ extern action_target* target;
 %left SELECTOR
 %left BAR
 %left QUESTION
+%precedence RANGE
 %right ALIAS
 %precedence EQUALITY
 %right OPEN_CURLY
@@ -203,6 +206,7 @@ expr:   literal
       | enumdef
       | classdef
       | alias
+      | range
       | assign
       | selector
       | flwhile
@@ -267,6 +271,8 @@ observed_expr: OBSERVE expr HANDLE { target->start_observed_expression(); }
 		        $$->set_observer( selectorref(target->finish_selector())) ; }
 
 raise: RAISE expr { $$=target->make_raise(_r($2)); }
+
+range: expr RANGE expr { $$=target->make_range(_r($1),_r($3)); }
 
 /* COMMANDS ***************************************************************/
 

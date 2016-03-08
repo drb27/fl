@@ -244,6 +244,7 @@ namespace builtins
 					return objref(new ::object(ctx,*cls));
 				    } );
 
+	pCls->add_class_method( {"range", make_marshall_mthd(&builtins::obj_range), false});
 	pCls->add_method( {"dump", make_marshall_mthd(&builtins::obj_dump),false});
 	pCls->add_method( {"class", make_marshall_mthd(&builtins::obj_class)} );
 	pCls->add_method( {".assign", make_marshall_mthd(&builtins::obj_assign),false});
@@ -264,6 +265,7 @@ namespace builtins
 
 	fclass* pCls = new fclass(spec,base_cls,false,true,false,true);
 	pCls->add_method({"addmethod",make_marshall_mthd(&builtins::class_addmethod)});
+	pCls->add_method({"clsmethod",make_marshall_mthd(&builtins::class_add_class_method)});
 	pCls->add_method({"constructor",make_marshall_mthd(&builtins::class_constructor)});
 	pCls->add_method({"methods",make_marshall_mthd(&builtins::class_methods)});
 	pCls->add_method({"attributes",make_marshall_mthd(&builtins::class_attributes)});
@@ -861,6 +863,20 @@ namespace builtins
 	return pThis;
     }
 
+    objref class_add_class_method(context* pContext, classref pThis, 
+				  fnref  fn, stringref name)
+    {
+	// Construct a lambda which executes the method on the object
+	auto le = make_method_lambda(fn); 
+
+	// Add the method to the class
+	fclass* pInternalClass = pThis->internal_value();
+	pInternalClass->add_class_method({name->internal_value(), le});
+
+	// Return a reference to the class object
+	return pThis;
+    }
+
     objref class_new(context* pContext, classref pThis, listref params)
     {
 	fclass* const pTargetClass = N_CLASS(pThis);
@@ -1103,5 +1119,10 @@ namespace builtins
     {
 	return ::object::convert_to( pThis, N_CLASS(pTargetClass) );
     }
-    
+
+    objref obj_range(context* pContext, classref pThis, objref a, objref b )
+    {
+	throw eval_exception( cerror::not_rangeable,
+			      "Type does not support ranges" );
+    }
 }

@@ -92,7 +92,7 @@ void dat::respond( const astref& def, bool abbrev, std::ostream& os)
 	    objref result = pDef->evaluate(_current_pkg);
 	    _current_pkg->set_root_node(nullptr);
 	    result->render(os,abbrev);
-	    os << "OK" << std::endl;
+	    os << std::endl;
 	    _current_pkg->assign(std::string("_last"),result);
 	}
 	catch( eval_exception& e )
@@ -467,4 +467,9 @@ void dat::pop_package()
 {
     _current_pkg = _pkg_stack.back();
     _pkg_stack.pop_back();
+}
+
+ast* dat::make_range(const astref& a, const astref& b)
+{
+    return new range_node(a,b);
 }
