@@ -934,7 +934,7 @@ namespace builtins
     
     objref obj_equate(context* pContext, objref pThis,objref pOther)
     {
-	bool result = (*pThis)==pOther;
+	bool result = ( (*pThis)==pOther ) || ( (*pOther)==pThis);
 	return boolref(new bool_object(pContext, result));
     }
     
