@@ -114,3 +114,9 @@ void list_object::render( std::ostream& os, bool abbrev)
     os << ") <" << size() << "> ";
     object::render(os,abbrev);
 }
+
+listref list_object::slice( int a, int b ) const
+{
+    smartlist* pNewList = new smartlist(_pList->slice(a,b));
+    return listref( new list_object( get_context(), pNewList ) );
+}

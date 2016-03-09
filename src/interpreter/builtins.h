@@ -194,6 +194,7 @@ protected:
     objref obj_invoke(context*,objref,stringref,listref params);
     objref list_optimise(context*,listref);
     objref list_chunks(context* pContext, listref pThis );
+    objref list_slice(context* pContext, listref pThis, intref a, intref b );
     objref fn_name(context* pContext, fnref pThis );
     objref enum_iter(context* pContext, classref pThis );
     objref enum_str(context* pContext, enumref pThis );

@@ -420,6 +420,7 @@ namespace builtins
 	pCls->add_method({"duplicate_and_append", make_marshall_mthd(&builtins::list_dup_and_append)});
 	pCls->add_method({"optimise", make_marshall_mthd(&builtins::list_optimise)});
 	pCls->add_method({"chunks", make_marshall_mthd(&builtins::list_chunks)});
+	pCls->add_method({"slice", make_marshall_mthd(&builtins::list_slice)});
 	pCls->add_method({"join", make_marshall_mthd(&builtins::list_join)});
 	pCls->add_method({".index", make_marshall_mthd(&builtins::list_index)});
 	pCls->add_method({".iter", make_marshall_mthd(&builtins::list_iter)});
@@ -1124,5 +1125,10 @@ namespace builtins
     {
 	throw eval_exception( cerror::not_rangeable,
 			      "Type does not support ranges" );
+    }
+    
+    objref list_slice(context* pContext, listref pThis, intref a, intref b )
+    {
+	return pThis->slice( a->internal_value(), b->internal_value() );
     }
 }
