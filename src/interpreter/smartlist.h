@@ -35,6 +35,8 @@ class smartlist final
     ~smartlist();
 
     smartlist( const smartlist& other);
+    smartlist( smartlist&& other);
+    smartlist& operator=(smartlist&& other);
     smartlist( chunkref );
 
     size_t size() const;
@@ -44,11 +46,13 @@ class smartlist final
     void inplace_append(smartlist* other);
     void inplace_append(blockref&,size_t);
     void inplace_append(chunkref&);
-    void inplace_append(objref&);
+    void inplace_append(const objref&);
 
     void inplace_prefix(blockref&,size_t);
     void inplace_prefix(chunkref&);
     void inplace_prefix(objref&);
+
+    smartlist slice(size_t firstIndex, size_t lastIndex) const;
 
     objref inplace_pop();
 
@@ -63,10 +67,22 @@ class smartlist final
     void dump_chunks();
 
  protected:
-
+    chunkref get_chunk_containing_index(size_t idx) const;
     inline chunkref tail_chunk() const;
     inline chunkref penultimate_chunk() const;
 
+    class ref
+    {
+    public:
+	ref( const chunkref& c=nullptr, size_t o=0 ) : _chunk(c), _offset(o) {}
+	chunkref _chunk;
+	size_t _offset;
+
+    private:
+	void validate() const;
+    };
+
+    ref make_ref(size_t idx ) const;
 
  private:
     chunkref _chunk{nullptr};

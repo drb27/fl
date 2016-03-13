@@ -6,6 +6,7 @@
 #include <map>
 
 class ast;
+class methodcall_node;
 class selector_node;
 class sequence_node;
 class list_node;
@@ -50,6 +51,7 @@ typedef std::shared_ptr<list_node> listnoderef;
 typedef std::shared_ptr<funcall_node> funcallnoderef;
 typedef std::shared_ptr<fundef_node> fundefnoderef;
 typedef std::shared_ptr<symbol_node> symnoderef;
+typedef std::shared_ptr<methodcall_node> methodcallref;
 typedef std::shared_ptr<pair_node> pairnoderef;
 
 #endif

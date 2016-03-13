@@ -66,6 +66,7 @@ include  { return INCLUDE; }
 null     { return NULLVAL; }
 true     { return TRUE; }
 false    { return FALSE; }
+\.\.     { return RANGE; }
 \.       { return DOT; }
 typedef  { return TYPEDEF; }
 \+       { return ADD; }

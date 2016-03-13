@@ -90,6 +90,13 @@ smartlist::~smartlist()
 
 }
 
+smartlist::smartlist(smartlist&& other) : smartlist()
+{
+    // Move the entire chunk chain over to the new object
+    _chunk = other._chunk;
+    other._chunk = nullptr;
+}
+
 smartlist::smartlist( const smartlist& other ) 
     : smartlist()
 {
@@ -108,6 +115,19 @@ smartlist::smartlist( const smartlist& other )
 	currentThisChunk->_next = chunkref(new chunk(*(currentOtherChunk.get())));
 	currentThisChunk = currentThisChunk->_next;
     };
+}
+
+smartlist& smartlist::operator=(smartlist&& other)
+{
+    // Don't bother moving an object to itself
+    if (this!=&other)
+    {
+	// Move the entire chunk chain across
+	_chunk = other._chunk;
+	other._chunk = nullptr;
+    }
+
+    return *this;
 }
 
 size_t smartlist::size() const
@@ -231,7 +251,7 @@ void smartlist::inplace_append(blockref& b,size_t s)
     assert(size()==(s+oldSize));
 }
 
-void smartlist::inplace_append(objref& o )
+void smartlist::inplace_append(const objref& o )
 {
     vector<objref> items{o};
     chunkref c = chunk::make_singleblock_chunk(items);
@@ -466,4 +486,102 @@ void smartlist::dump_chunks()
     std::cout << "NULL" << std::endl;
 }
 
+chunkref smartlist::get_chunk_containing_index(size_t idx) const
+{
+    return make_ref(idx)._chunk;
+}
 
+smartlist smartlist::slice(size_t firstIndex, size_t lastIndex) const
+{
+    const size_t mySize = size();
+
+    // If our size is zero, any slice must be the empty list
+    if (!mySize)
+	return smartlist();
+
+    // If lastIndex<firstIndex, the slice is the empty list
+    if ( lastIndex<firstIndex )
+	return smartlist();
+
+    // If both indices are out of bounds, return the empty list
+    if ( (firstIndex>=mySize) )
+	return smartlist();
+
+    // Clamp the indices to our own bounds
+    if ( firstIndex>=mySize )
+	firstIndex=mySize-1;
+
+    if (lastIndex>=mySize )
+	lastIndex = mySize-1;
+
+    auto firstChunkRef = make_ref(firstIndex);
+    auto lastChunkRef = make_ref(lastIndex);
+
+    // Copy the chunk chain from firstChunk to lastChunk 
+
+    auto newFirstChunk(chunkref( new chunk(*(firstChunkRef._chunk)) ));
+    newFirstChunk->_next=nullptr;
+
+    auto currentNewChunk = newFirstChunk;
+    auto currentOldChunk = firstChunkRef._chunk;
+ 
+    while ( currentOldChunk != (lastChunkRef._chunk) )
+    {
+	currentOldChunk = currentOldChunk->_next;
+	currentNewChunk->_next = chunkref( new chunk(*currentOldChunk) );
+	currentNewChunk = currentNewChunk->_next;
+	currentNewChunk->_next = nullptr;
+    }
+
+    // Adjust the end chunk index to point to the right place
+    currentNewChunk->_size = 1+ lastChunkRef._offset;
+
+    // Adjust the first chunk index to point to the right place
+    newFirstChunk->_idx_head += firstChunkRef._offset;
+    newFirstChunk->_size -= firstChunkRef._offset;
+
+    // Make a new smartlist with this chunk chain
+    return smartlist(newFirstChunk);
+
+}
+
+auto smartlist::make_ref(size_t idx) const -> ref
+{
+    ref retVal;
+
+    // Bounds check
+    if ( (idx >= size()) || (idx < 0 ) )
+	return retVal;
+
+    // Now we must have a chunk
+    auto currentChunk = _chunk;
+    int startingIndex=0;
+
+    // Iterate through the chunks until we get to the right one
+    do
+    {
+	if ( ( currentChunk->_size + startingIndex) > idx )
+	{
+	    // The result must be in this chunk
+	    break;
+	}
+	else
+	{
+	    // Move on to the next chunk
+	    startingIndex = startingIndex + currentChunk->_size;
+	    currentChunk = currentChunk->_next;
+	}
+    } while(true);
+
+    // Broken out of the look - currentChunk is the one we need
+    retVal._chunk = currentChunk;
+    retVal._offset = idx - ( startingIndex + currentChunk->_idx_head);
+
+    return retVal;
+}
+
+void smartlist::ref::validate() const 
+{
+    if ( _chunk && ( ( (_chunk->_idx_head + _offset) > _chunk->_size )) )
+	throw std::logic_error("Invalid chunk reference");
+}

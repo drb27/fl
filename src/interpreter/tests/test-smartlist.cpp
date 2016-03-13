@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <memory>
 #include "test-smartlist.h"
 #include <interpreter/context.h>
 #include <interpreter/obj/int_object.h>
@@ -8,6 +9,7 @@
 #include <interpreter/builtins.h>
 
 using std::vector;
+using std::dynamic_pointer_cast;
 
 extern context* g_pContext;
 
@@ -51,8 +53,6 @@ blockref smartlistTestFixture::make_block(size_t sz, int start)
 
 void smartlistTestFixture::configure_shared_lists(smartlist& a,smartlist& b)
 {
-    vector<objref> items;
-
     blockref b1 = make_block(3,1);
     blockref b2 = make_block(3,4);
     blockref b3 = make_block(3,7);
@@ -408,4 +408,95 @@ void smartlistTestFixture::testInplacePop()
     CPPUNIT_ASSERT( std::dynamic_pointer_cast<int_object>(retVal)->internal_value()==10);
     CPPUNIT_ASSERT( b.size()==0);
     
+}
+
+void smartlistTestFixture::testSliceEmpty()
+{
+
+    // Create an empty smartist
+    smartlist l;
+
+    // Attempt to take a zero-zero slice, check for the empty list
+    smartlist slice = l.slice(0,0);
+    CPPUNIT_ASSERT(slice.size()==0);
+
+    // Check that modifying the new list does not affect the original one
+    slice.inplace_append( objref(new void_object(g_pContext)) );
+    CPPUNIT_ASSERT(slice.size()==1);
+    CPPUNIT_ASSERT(l.size()==0);
+
+    // Attempt to take a slice starting at zero
+    slice = l.slice(0,100);
+    CPPUNIT_ASSERT(l.size()==0);
+
+    // Attempt to take a slice starting an non-zero
+    slice = l.slice(1,10);
+    CPPUNIT_ASSERT(l.size()==0);
+}
+
+void smartlistTestFixture::testSliceOutOfBounds()
+{
+    smartlist a,b;
+    configure_shared_lists(a,b);
+
+    // Attempt to create a slice which is completely out of limits
+    smartlist l = a.slice(10,13);
+    CPPUNIT_ASSERT(l.size()==0);
+
+    // Attempt to create a slice which extends off the end of a single chunk
+    l = a.slice(7,10);
+    CPPUNIT_ASSERT(l.size()==2);
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(0))->internal_value() == 8 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(1))->internal_value() == 9 ); 
+
+    // Attempt to create a slice which spans multiple chunks, then goes out of bounds
+    l = a.slice(5,15);
+    CPPUNIT_ASSERT(l.size()==4);
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(0))->internal_value() == 6 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(1))->internal_value() == 7 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(2))->internal_value() == 8 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(3))->internal_value() == 9 ); 
+}
+
+void smartlistTestFixture::testSliceSingleChunk()
+{
+    smartlist a,b;
+    configure_shared_lists(a,b);
+
+    // Whole chunk
+    smartlist l = a.slice(0,2);
+    CPPUNIT_ASSERT( l.size()==3 );
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(0))->internal_value() == 1 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(1))->internal_value() == 2 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(2))->internal_value() == 3 ); 
+
+    // Middle of a chunk
+    l = a.slice(1,1);
+    CPPUNIT_ASSERT( l.size()==1 );
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(0))->internal_value() == 2 ); 
+
+    // Start of a chunk
+    l = a.slice(0,1);
+    CPPUNIT_ASSERT( l.size()==2 );
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(0))->internal_value() == 1 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(1))->internal_value() == 2 ); 
+
+    // End of a chunk
+    l = a.slice(1,2);
+    CPPUNIT_ASSERT( l.size()==2 );
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(0))->internal_value() == 2 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(1))->internal_value() == 3 ); 
+}
+
+void smartlistTestFixture::testSliceSpanChunks()
+{
+    smartlist a,b;
+    configure_shared_lists(a,b);
+    smartlist l = a.slice(1,5);
+    CPPUNIT_ASSERT( l.size()==5 );
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(0))->internal_value() == 2 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(1))->internal_value() == 3 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(2))->internal_value() == 4 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(3))->internal_value() == 5 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(4))->internal_value() == 6 ); 
 }

@@ -47,6 +47,10 @@ public:
     void testChunkedTail();
     void testJoinChunkedToEmpty();
     void testInplacePop();
+    void testSliceEmpty();
+    void testSliceOutOfBounds();
+    void testSliceSingleChunk();
+    void testSliceSpanChunks();
     // @}
 
     /** \cond internal */
@@ -71,6 +75,10 @@ public:
     CPPUNIT_TEST( testChunkedTail );
     CPPUNIT_TEST( testJoinChunkedToEmpty );
     CPPUNIT_TEST( testInplacePop );
+    CPPUNIT_TEST( testSliceEmpty );
+    CPPUNIT_TEST( testSliceOutOfBounds );
+    CPPUNIT_TEST( testSliceSingleChunk );
+    CPPUNIT_TEST( testSliceSpanChunks );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

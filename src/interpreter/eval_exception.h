@@ -33,7 +33,8 @@ enum class cerror
 	invalid_argument=22,
 	enum_value_not_a_symbol=23,
 	unsupported_feature=24,
-	unhandled_signal=25
+	unhandled_signal=25,
+	not_rangeable=26
 };
 
 class eval_exception : public std::runtime_error

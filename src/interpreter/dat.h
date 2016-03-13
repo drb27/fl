@@ -23,6 +23,7 @@ class dat : public action_target
 	);
     virtual ~dat();
 
+    virtual ast* make_range(const astref& a, const astref& b);
     virtual ast* make_raise(const astref& clsExpr);
     virtual ast* make_int(int x) const;
     virtual ast* make_lazy(const astref& e);

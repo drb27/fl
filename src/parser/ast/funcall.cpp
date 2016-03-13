@@ -77,8 +77,10 @@ objref funcall_node::raw_evaluate(context* pContext)
     else
 	fn = _captured_fn;
 
-    // TODO: If the function doesn't exist, this asset fails (rather than missing symbol)
-    assert(fn);
+    // Throw undefined symbol if the function could not be found
+    if (!fn)
+	throw eval_exception( cerror::undefined_symbol,
+			      "Undefined function in function call " + _symbol.name() );
 
     // Evaluate the argument list
     listref args(object::cast_or_abort<list_object>(_arg_list->evaluate(pContext)));

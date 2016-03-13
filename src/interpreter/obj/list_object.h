@@ -19,7 +19,7 @@ public:
     list_object(context*,
 		smartlist*,
 		fclass& = *builtins::list::get_class() );
-    
+
     list_object(context*,const list_object&);
     
     virtual void render( std::ostream& os, bool abbrev=true);
@@ -34,6 +34,7 @@ public:
     int size() const;
     int chunks() const;
     listref tail(context*) const;
+    listref slice(int a, int b) const;
 
 protected:
     std::shared_ptr<smartlist> _pList;
