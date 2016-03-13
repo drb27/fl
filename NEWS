@@ -1,3 +1,30 @@
+fl release 0.0.5 13th March 2016
+
+Added ranges and slices to the language. Slices are an operation on lists which allows the
+user to take a subset of a list easily. Call the slice method on a list with a start and
+end index, to return a new list with just the elements between the two bounds
+specified. Note that the elements referred to by the two indices are included in the new
+list. The original list is not modified. For example, (1,2,3,4).slice(1,2) returns a new
+list, (2,3). 
+
+Ranges are a way to quickly build lists represented by a sequence. A new double-dot
+operator is defined to specify ranges. To use ranges, you must define a range(a,b) class
+method on the class you want to add range support for. Then, when ecountering the
+expression a..b, the interpreter will expand this to a.class().range(a,b). Future versions
+of the language will include built-in implementations, e.g. for integer. 
+
+Finally, equality is improved to be reflexive. Now a==b will be true if a.eq(b) is true,
+OR if b.eq(a) is true. 
+
+* 5fb8920 Fixed #56: Added slice method on lists
+* 2c680a3 Fixed #55: Fixed issue with equality
+* e101b8b Added ranges to the language
+* 2e1d2dd Fixed #53: Undefined function names now throw evalsignal
+* a30a99b Added unit test for ticket #52
+* dad3960 Changed the way foundation equality works
+
+--------------------------------------------------------------------------------
+
 fl release 0.0.4 6th March 2016
 
 Major changes from the previous release, including better memory management, syntax
