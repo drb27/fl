@@ -1,0 +1,19 @@
+package root::tickets::t56;
+
+run=>
+()->
+{
+	pass=>true;
+	t=>(1,2,3,4,5);
+
+	// Full slice
+	t.slice(0,4).size()==5 ? null : pass=>false;
+
+	// Off the top end
+	t.slice(5,10).size()==0? null : pass=>false;
+
+	// In the middle
+	t.slice(1,2).size()==2? null : pass=> false;
+
+	pass;
+};

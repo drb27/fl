@@ -11,6 +11,7 @@ include "tests-fl/ticket-36.fl";
 include "tests-fl/ticket-37.fl";
 include "tests-fl/ticket-44.fl";
 include "tests-fl/ticket-52.fl";
+include "tests-fl/ticket-56.fl";
 include "tests-fl/ctor_chains.fl";
 
 exit=>1;
@@ -33,6 +34,7 @@ main=>()->
 	tc.add_test( "ticket_44", tickets::t44::run );
 	tc.add_test( "ctor_chains", ctor_chains::run );
 	tc.add_test( "ticket_52", tickets::t52::run );
+	tc.add_test( "ticket_56", tickets::t56::run );
 
 	# Runs the tests, and collate the results into a list
 	results=> tc.run();
