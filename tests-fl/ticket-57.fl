@@ -1,0 +1,21 @@
+package root::tickets::t57;
+
+run=>
+()->
+{
+	pass=>true;
+	expected=>(2,3,4);
+	test=>2..4;
+
+	# Check that the list size is correct
+	test.size()==expected.size()? null : pass=>false;
+
+	# Check each element
+	n=>expected.size().dec();
+
+	while { n.eq(0).not() } { test[n]==expected[n]? null : pass=>false; 
+	      		          n=>n.dec();};
+
+	# Return result
+	pass;
+};
