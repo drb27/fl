@@ -133,8 +133,8 @@ extern action_target* target;
 %left SELECTOR
 %left BAR
 %left QUESTION
-%precedence RANGE
 %right ALIAS
+%left RANGE
 %precedence EQUALITY
 %right OPEN_CURLY
 %left CLOSE_CURLY

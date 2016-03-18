@@ -206,6 +206,7 @@ protected:
     objref signal_ctor(context*,sigref pThis);
     objref eval_signal_ctor(context*,evalsigref pThis);
     objref obj_range(context* pContext, classref pThis, objref a, objref b );
+    objref int_range(context* pContext, classref pThis, objref a, objref b );
 }
 
 #endif

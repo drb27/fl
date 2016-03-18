@@ -310,6 +310,8 @@ namespace builtins
 					return objref(new ::int_object(ctx,0,*cls));
 				    } );
 
+	pCls->add_class_method({"range", make_marshall_mthd(&builtins::int_range)});
+
 	pCls->add_method({"add", make_marshall_mthd(&builtins::add_integers)});
 	pCls->add_method({"in_range", make_marshall_mthd(&builtins::in_range_integers)});
 	pCls->add_method({"gt", make_marshall_mthd(&builtins::int_gt)});
@@ -1125,6 +1127,22 @@ namespace builtins
     {
 	throw eval_exception( cerror::not_rangeable,
 			      "Type does not support ranges" );
+    }
+
+    objref int_range(context* pContext, classref pThis, objref a, objref b )
+    {
+	listref retVal(new list_object(pContext));
+	intref pStart = ::object::cast_or_abort<int_object>(a);
+	intref pEnd = ::object::cast_or_abort<int_object>(b);
+	
+	for ( int index=pStart->internal_value();
+	      index <= pEnd->internal_value();
+	      index++ )
+	{
+	    retVal->append( objref( new int_object(pContext,index) ) );
+	}
+	
+	return retVal;
     }
     
     objref list_slice(context* pContext, listref pThis, intref a, intref b )
