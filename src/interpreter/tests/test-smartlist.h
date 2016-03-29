@@ -51,6 +51,10 @@ public:
     void testSliceOutOfBounds();
     void testSliceSingleChunk();
     void testSliceSpanChunks();
+    void testChangeFirstElement();
+    void testChangeLastElement();
+    void testChangeOutOfBounds();
+    void testChangeMiddleBlock();
     // @}
 
     /** \cond internal */
@@ -79,6 +83,10 @@ public:
     CPPUNIT_TEST( testSliceOutOfBounds );
     CPPUNIT_TEST( testSliceSingleChunk );
     CPPUNIT_TEST( testSliceSpanChunks );
+    CPPUNIT_TEST( testChangeFirstElement );
+    CPPUNIT_TEST( testChangeLastElement );
+    CPPUNIT_TEST( testChangeOutOfBounds );
+    CPPUNIT_TEST( testChangeMiddleBlock );
     CPPUNIT_TEST_SUITE_END();
     /** \endcond */
 };

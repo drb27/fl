@@ -42,12 +42,26 @@ blockref chunk::copy_block( blockref src, size_t size )
 void chunk::copy_block( blockref src, blockref dst, size_t idxSrc, size_t idxDst, size_t length)
 {
     // Copy each of the objrefs
-    
     for ( objref* pSrcRef = src.get()+idxSrc; pSrcRef< src.get()+idxSrc+length; pSrcRef++ )
     {
 	dst.get()[idxDst++] = objref(*pSrcRef);
     }
 
+}
+
+blockref chunk::copy_block( blockref src, size_t idxSrc, size_t length)
+{
+    // Make a new block
+    blockref br = make_block(length);
+
+    // Copy each of the objrefs
+    size_t idxDst=0;
+    for ( objref* pSrcRef = src.get()+idxSrc; pSrcRef< src.get()+idxSrc+length; pSrcRef++ )
+    {
+	br.get()[idxDst++] = objref(*pSrcRef);
+    }
+
+    return br;
 }
 
 blockref chunk::make_block( const vector<objref>& items )
@@ -584,4 +598,31 @@ void smartlist::ref::validate() const
 {
     if ( _chunk && ( ( (_chunk->_idx_head + _offset) > _chunk->_size )) )
 	throw std::logic_error("Invalid chunk reference");
+}
+
+void smartlist::uniquify_block( chunkref chk )
+{
+    chk->_block = chunk::copy_block(chk->_block,chk->_idx_head, chk->_size);
+    chk->_idx_head=0;
+}
+
+void smartlist::inplace_replace(size_t index, const objref& newValue)
+{
+    // Bounds check
+    if (index>=size())
+	throw std::logic_error("Smartlist index out of bounds");
+
+    // Get the chunk that contains the element being replaced
+    ref repRef = make_ref(index);
+
+    // Is this a shared chunk?
+    if ( !repRef._chunk->_block.unique() )
+    {
+	// Yes - we must splice in a copy of the block to be modified first
+	uniquify_block(repRef._chunk);
+    }
+
+    // Now we are guaranteed to have a unique block, we can modify it directly
+    repRef._chunk->_block.get()[ repRef._chunk->_idx_head + repRef._offset ] = newValue;
+
 }

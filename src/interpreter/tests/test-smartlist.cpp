@@ -498,5 +498,63 @@ void smartlistTestFixture::testSliceSpanChunks()
     CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(1))->internal_value() == 3 ); 
     CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(2))->internal_value() == 4 ); 
     CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(3))->internal_value() == 5 ); 
-    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(4))->internal_value() == 6 ); 
+    CPPUNIT_ASSERT( dynamic_pointer_cast<int_object>(l.get_element(4))->internal_value() == 6 );
+ 
+}
+
+void smartlistTestFixture::testChangeFirstElement()
+{
+    smartlist a,b;
+    configure_shared_lists(a,b);
+    intref replInt = intref( new int_object(g_pContext,99) );
+    a.inplace_replace(0,replInt);
+    CPPUNIT_ASSERT( (*replInt) == a.get_element(0) );
+    CPPUNIT_ASSERT( a.size()==9 );
+    CPPUNIT_ASSERT( b.size()==6 );
+}
+
+void smartlistTestFixture::testChangeLastElement()
+{
+    smartlist a,b;
+    configure_shared_lists(a,b);
+    intref replInt = intref( new int_object(g_pContext,99) );
+    a.inplace_replace(8,replInt);
+    b.inplace_replace(5,replInt);
+    CPPUNIT_ASSERT( (*replInt) == a.get_element(8) );
+    CPPUNIT_ASSERT( (*replInt) == b.get_element(5) );
+    CPPUNIT_ASSERT( a.size()==9 );
+    CPPUNIT_ASSERT( b.size()==6 );
+}
+
+void smartlistTestFixture::testChangeOutOfBounds()
+{
+    bool exceptionRaised=false;
+    smartlist a,b;
+    configure_shared_lists(a,b);
+    intref replInt = intref( new int_object(g_pContext,99) );
+    
+    try
+    {
+	a.inplace_replace(10,replInt);
+    }
+    catch ( const std::logic_error& e )
+    {
+	exceptionRaised = true;
+    }
+
+    CPPUNIT_ASSERT( exceptionRaised );
+}
+
+void smartlistTestFixture::testChangeMiddleBlock()
+{
+    smartlist a,b;
+    configure_shared_lists(a,b);
+    intref replInt = intref( new int_object(g_pContext,99) );
+    intref oldInt = std::dynamic_pointer_cast<int_object>(a.get_element(4));
+
+    a.inplace_replace( 4, replInt );
+    CPPUNIT_ASSERT( (*replInt) == a.get_element(4) );
+    CPPUNIT_ASSERT( (*oldInt) == b.get_element(4) );
+    CPPUNIT_ASSERT( a.size()==9 );
+    CPPUNIT_ASSERT( b.size()==6 );    
 }

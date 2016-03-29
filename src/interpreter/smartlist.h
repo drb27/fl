@@ -20,6 +20,7 @@ class chunk final
     static blockref make_block( const std::vector<objref>& );
     static blockref make_block( size_t size);
     static blockref copy_block( blockref src, size_t size );
+    static blockref copy_block( blockref src, size_t idxSrc, size_t length);
     static void copy_block( blockref src, blockref dst, size_t idxSrc, size_t idxDst, size_t length);
     size_t _size;
     size_t _idx_head;
@@ -52,6 +53,8 @@ class smartlist final
     void inplace_prefix(chunkref&);
     void inplace_prefix(objref&);
 
+    void inplace_replace(size_t index, const objref& newValue);
+
     smartlist slice(size_t firstIndex, size_t lastIndex) const;
 
     objref inplace_pop();
@@ -70,6 +73,8 @@ class smartlist final
     chunkref get_chunk_containing_index(size_t idx) const;
     inline chunkref tail_chunk() const;
     inline chunkref penultimate_chunk() const;
+
+    void uniquify_block( chunkref chk );
 
     class ref
     {
